@@ -538,73 +538,105 @@
 
   .mod-edit-row {
     background: var(--bg); border: 1px solid var(--border);
-    border-radius: 6px; margin-bottom: 10px; padding: 10px 12px;
+    border-radius: 6px; margin-bottom: 8px; padding: 8px 12px;
   }
   .mod-edit-row-header {
     font-size: 11px; color: var(--text-dim);
-    display: flex; align-items: center; gap: 8px; margin-bottom: 6px;
-  }
-  .mod-edit-row-header .mer-orig {
-    font-family: var(--mono); color: var(--text-faint); font-size: 11px;
-    word-break: break-all;
+    display: flex; align-items: center; gap: 8px; margin-bottom: 4px;
   }
   .mod-edit-row-header button {
-    margin-left: auto; background: transparent; border: 0;
-    color: var(--text-faint); cursor: pointer; font-size: 12px;
+    background: transparent; border: 0;
+    color: var(--text-faint); cursor: pointer; font-size: 11px;
   }
   .mod-edit-row-header button:hover { color: var(--danger); }
 
-  .mod-edit-segments {
-    display: flex; flex-wrap: wrap; gap: 4px; align-items: center;
+  /* Inline segment line */
+  .mer-segline {
+    font-family: var(--mono); font-size: 13px;
+    word-break: break-all; line-height: 1.8;
   }
-  .mod-edit-seg {
-    display: inline-flex; flex-direction: column; gap: 2px;
-    background: var(--panel); border: 1px solid var(--border);
-    border-radius: 3px; padding: 4px 6px; min-width: 80px;
+  .mer-seg {
+    display: inline; padding: 1px 3px; border-radius: 2px;
+    cursor: pointer; transition: background 0.1s;
+    color: var(--accent);
   }
-  .mod-edit-seg-label {
-    font-size: 9px; color: var(--text-faint);
-    text-transform: uppercase; letter-spacing: 0.05em;
+  .mer-seg:hover {
+    background: var(--accent-soft);
   }
-  .mod-edit-seg input {
-    background: var(--bg); border: 1px solid var(--border);
-    color: var(--text); padding: 3px 6px; font-size: 12px;
+  .mer-seg-changed {
+    color: #5fa8ff; font-weight: 600;
+  }
+  .mer-seg-new {
+    color: #ff3b3b; font-weight: 700;
+    border: 1px dashed rgba(255, 59, 59, 0.4);
+    padding: 1px 5px;
+    position: relative;
+  }
+  .mer-seg-new:hover {
+    background: rgba(255, 59, 59, 0.1);
+  }
+  .mer-seg-remove-inline {
+    background: transparent; border: 0;
+    color: var(--text-faint); cursor: pointer;
+    margin-left: 4px; padding: 0; font-size: 10px;
+    vertical-align: baseline;
+  }
+  .mer-seg-remove-inline:hover { color: var(--danger); }
+
+  .mer-sep {
+    color: var(--text-faint); padding: 0 1px;
+  }
+
+  .mer-seg-input-wrap {
+    display: inline-block; position: relative; vertical-align: baseline;
+  }
+  .mer-seg-input {
+    background: var(--panel-2); border: 1px solid var(--accent);
+    color: var(--text); padding: 1px 6px; font-size: 13px;
     border-radius: 2px; outline: none; font-family: var(--mono);
-    width: 100%; min-width: 70px;
+    min-width: 80px; width: auto;
+    box-sizing: content-box;
   }
-  .mod-edit-seg input:focus { border-color: var(--accent); }
-  .mod-edit-seg input.changed {
-    border-color: #5fa8ff; color: #5fa8ff;
+  .mer-seg-input.changed { color: #5fa8ff; border-color: #5fa8ff; }
+  .mer-seg-input.new-seg { color: #ff3b3b; border-color: #ff3b3b; }
+  .mer-seg-input:focus {
+    box-shadow: 0 0 0 2px rgba(201, 169, 110, 0.2);
   }
-  .mod-edit-seg input.new-seg {
-    border-color: #ff3b3b; color: #ff3b3b;
-  }
-  .mod-edit-seg .seg-x {
+  .mer-seg-remove {
     background: transparent; border: 0; color: var(--text-faint);
-    cursor: pointer; padding: 0; font-size: 11px;
-    align-self: flex-end; line-height: 1;
+    cursor: pointer; padding: 0 2px; font-size: 11px;
+    vertical-align: baseline;
   }
-  .mod-edit-seg .seg-x:hover { color: var(--danger); }
+  .mer-seg-remove:hover { color: var(--danger); }
+
   .mod-edit-add-btn {
     background: transparent; border: 1px dashed var(--border-strong);
     color: var(--text-dim); border-radius: 3px;
-    padding: 4px 8px; font-size: 11px; cursor: pointer;
+    padding: 2px 8px; font-size: 11px; cursor: pointer;
     font-family: inherit; transition: all 0.12s;
+    vertical-align: middle;
   }
   .mod-edit-add-btn:hover { color: #ff3b3b; border-color: #ff3b3b; }
+
   .mod-edit-row-suggest {
     position: absolute; background: var(--panel-2);
     border: 1px solid var(--border-strong); border-radius: 4px;
     max-height: 200px; overflow-y: auto; z-index: 1000;
     min-width: 200px; display: none;
     box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+    left: 0; top: 100%;
   }
   .mod-edit-row-suggest.show { display: block; }
-  .mod-edit-seg { position: relative; }
+  .mer-seg-suggest-anchor { position: absolute; left: 0; top: 100%; }
 
+  /* Preview groups */
   .mod-edit-preview-group {
     background: var(--bg); border: 1px solid var(--border);
     border-radius: 4px; margin-bottom: 8px; overflow: hidden;
+  }
+  .mod-edit-preview-group.consecutive {
+    border: 1px solid #6ec991;
+    box-shadow: 0 0 0 1px rgba(110, 201, 145, 0.15);
   }
   .mod-edit-preview-group-header {
     padding: 6px 12px; background: var(--panel-2);
@@ -614,6 +646,9 @@
   }
   .mod-edit-preview-group-header .mepg-range {
     font-family: var(--mono); color: var(--accent); font-weight: 500;
+  }
+  .mod-edit-preview-group.consecutive .mod-edit-preview-group-header .mepg-range {
+    color: #6ec991;
   }
   .mod-edit-preview-group-header button {
     margin-left: auto;
@@ -725,7 +760,7 @@
 <div class="app">
 
   <div class="header">
-    <h1>檔名命名工具 <span class="accent">·</span> <span style="color:var(--text-dim);font-weight:400;">v4.6 · 修改既有檔名</span></h1>
+    <h1>檔名命名工具 <span class="accent">·</span> <span style="color:var(--text-dim);font-weight:400;">v4.7 · 修改既有檔名</span></h1>
     <div class="meta" id="meta">載入中…</div>
   </div>
 
@@ -845,6 +880,10 @@
   </div>
 
   <div class="help">
+    <b>v4.7 — 修改介面瘦身：</b><br>
+    <b>· 編輯改成「點才展開」</b>：每行預設純文字顯示，點某段才變輸入框；改完點別處（或 Enter）變回純文字。修改過的段藍色，新位置紅色。<br>
+    <b>· 連號用綠框框起來</b>：連號的組視覺上明顯一個區塊，整組一個複製按鈕；不連號的孤兒（如 VD40）獨立一組。<br>
+    <b>· 修自訂標籤 bug</b>：以前打字過程中每多一個字就被當成新標籤，現在只在編輯結束時才登記。<br><br>
     <b>v4.6 — 修改既有檔名：</b><br>
     <b>· 主介面新按鈕「修改既有檔名…」</b>：讀取工單既有檔名 → 篩選/勾選想改的 → 進入編輯。<br>
     <b>· 第一階段（選取）</b>：用「快速範圍輸入」輸入 <code>VD25-28</code>、<code>VD30,32</code>、<code>AD40</code> 等格式按「套用篩選」累積勾選。也可直接從清單勾選。<br>
@@ -2684,6 +2723,7 @@ let modState = {
   editRows: [],
   customTagsAdded: {},
   lastFilter: "",
+  activeEdit: null,  // {rowIdx, segIdx, isNew, justActivated} or null
 };
 
 async function openModPick() {
@@ -2913,68 +2953,142 @@ function renderModEditRows() {
     box.innerHTML = '<div class="batch-matrix-empty">沒有要編輯的檔名。</div>';
     return;
   }
+  // Each row: inline text spans by default. Click a segment span -> turns into input.
+  // Activated input is tracked in modState.activeEdit so we re-render correctly.
   box.innerHTML = modState.editRows.map((row, ri) => {
-    const origLen = row.originalSegments.length;
-    const segHtml = row.currentSegments.map((val, si) => {
+    const segs = [];
+    // Original segments
+    row.currentSegments.forEach((val, si) => {
       const orig = row.originalSegments[si];
       const changed = val !== orig;
-      return `
-        <div class="mod-edit-seg">
-          <span class="mod-edit-seg-label">原: ${escapeHtml(orig)}</span>
-          <input type="text" value="${escapeAttr(val)}"
-                 class="${changed ? 'changed' : ''}"
-                 oninput="onModEditSegInput(${ri}, ${si}, this)"
-                 onfocus="showModEditSuggest(${ri}, ${si}, this, false)"
-                 onblur="setTimeout(() => hideModEditSuggest(this), 200)"
-                 onkeydown="onModEditSegKey(event, ${ri}, ${si}, this, false)">
-        </div>
-      `;
-    }).join("");
-    const newSegHtml = row.newSegments.map((val, ni) => `
-      <div class="mod-edit-seg">
-        <span class="mod-edit-seg-label" style="color:#ff3b3b;">新位置 ${ni+1}
-          <button class="seg-x" onclick="removeModNewSeg(${ri}, ${ni})" style="margin-left:4px;">✕</button>
-        </span>
-        <input type="text" value="${escapeAttr(val)}"
-               class="new-seg"
-               oninput="onModEditNewSegInput(${ri}, ${ni}, this)"
-               onfocus="showModEditSuggest(${ri}, ${ni}, this, true)"
-               onblur="setTimeout(() => hideModEditSuggest(this), 200)"
-               onkeydown="onModEditSegKey(event, ${ri}, ${ni}, this, true)">
-      </div>
-    `).join("");
+      const isActive = modState.activeEdit &&
+        modState.activeEdit.rowIdx === ri &&
+        modState.activeEdit.segIdx === si &&
+        !modState.activeEdit.isNew;
+      if (isActive) {
+        segs.push(`
+          <span class="mer-seg-input-wrap">
+            <input type="text" class="mer-seg-input ${changed ? 'changed' : ''}" value="${escapeAttr(val)}"
+                   data-row="${ri}" data-seg="${si}" data-isnew="0"
+                   oninput="onModEditSegInput(${ri}, ${si}, this)"
+                   onblur="onModEditSegBlur(${ri}, ${si}, this, false)"
+                   onkeydown="onModEditSegKey(event, ${ri}, ${si}, this, false)">
+            <span class="mer-seg-suggest-anchor"></span>
+          </span>
+        `);
+      } else {
+        const cls = changed ? "mer-seg mer-seg-changed" : "mer-seg";
+        segs.push(`<span class="${cls}" onclick="activateModSeg(${ri}, ${si}, false)" title="${changed ? '原: ' + escapeAttr(orig) + ' (點擊再次編輯)' : '點擊編輯'}">${escapeHtml(val)}</span>`);
+      }
+    });
+    // New segments
+    row.newSegments.forEach((val, ni) => {
+      const isActive = modState.activeEdit &&
+        modState.activeEdit.rowIdx === ri &&
+        modState.activeEdit.segIdx === ni &&
+        modState.activeEdit.isNew;
+      if (isActive) {
+        segs.push(`
+          <span class="mer-seg-input-wrap">
+            <input type="text" class="mer-seg-input new-seg" value="${escapeAttr(val)}"
+                   data-row="${ri}" data-seg="${ni}" data-isnew="1"
+                   placeholder="輸入或搜尋…"
+                   oninput="onModEditNewSegInput(${ri}, ${ni}, this)"
+                   onblur="onModEditSegBlur(${ri}, ${ni}, this, true)"
+                   onkeydown="onModEditSegKey(event, ${ri}, ${ni}, this, true)">
+            <button class="mer-seg-remove" onclick="removeModNewSeg(${ri}, ${ni})" title="移除此新位置">✕</button>
+            <span class="mer-seg-suggest-anchor"></span>
+          </span>
+        `);
+      } else {
+        const display = val || "(新位置)";
+        segs.push(`<span class="mer-seg mer-seg-new" onclick="activateModSeg(${ri}, ${ni}, true)" title="新位置 (點擊再次編輯)">${escapeHtml(display)}<button class="mer-seg-remove-inline" onclick="event.stopPropagation();removeModNewSeg(${ri}, ${ni});" title="移除">✕</button></span>`);
+      }
+    });
+    // Join segments with literal underscore separator
+    const segLine = segs.join('<span class="mer-sep">_</span>');
     return `
       <div class="mod-edit-row">
         <div class="mod-edit-row-header">
           <span style="color:var(--accent);font-family:var(--mono);">${escapeHtml(row.ym + "_" + row.type + row.num + (row.sub ? "_" + row.sub : ""))}</span>
-          <span class="mer-orig">原: ${escapeHtml(row.originalSegments.join("_"))}</span>
-          <button onclick="removeModEditRow(${ri})" title="從編輯清單移除這筆">移除</button>
+          <button onclick="removeModEditRow(${ri})" title="從編輯清單移除這筆" style="margin-left:auto;">移除</button>
         </div>
-        <div class="mod-edit-segments">
-          ${segHtml}
-          ${newSegHtml}
-          <button class="mod-edit-add-btn" onclick="addModNewSeg(${ri})">＋ 新位置</button>
+        <div class="mer-segline">
+          ${segLine}<button class="mod-edit-add-btn" onclick="addModNewSeg(${ri})" style="margin-left:8px;">＋ 新位置</button>
         </div>
       </div>
     `;
   }).join("");
+
+  // If we just activated an input, focus it and select all
+  if (modState.activeEdit && modState.activeEdit.justActivated) {
+    setTimeout(() => {
+      const sel = `input.mer-seg-input[data-row="${modState.activeEdit.rowIdx}"][data-seg="${modState.activeEdit.segIdx}"][data-isnew="${modState.activeEdit.isNew ? 1 : 0}"]`;
+      const el = document.querySelector(sel);
+      if (el) {
+        el.focus();
+        el.select();
+        // Show suggest if the active value is not empty (or if it's a new empty slot)
+        showModEditSuggest(modState.activeEdit.rowIdx, modState.activeEdit.segIdx, el, modState.activeEdit.isNew);
+      }
+      if (modState.activeEdit) modState.activeEdit.justActivated = false;
+    }, 0);
+  }
+}
+
+function activateModSeg(rowIdx, segIdx, isNew) {
+  // If something else is currently active, commit its tracking before switching
+  if (modState.activeEdit) {
+    const ae = modState.activeEdit;
+    const sel = `input.mer-seg-input[data-row="${ae.rowIdx}"][data-seg="${ae.segIdx}"][data-isnew="${ae.isNew ? 1 : 0}"]`;
+    const prevEl = document.querySelector(sel);
+    if (prevEl) {
+      const v = prevEl.value.trim();
+      if (v) trackModCustomTag(v);
+    }
+  }
+  modState.activeEdit = { rowIdx, segIdx, isNew, justActivated: true };
+  renderModEditRows();
+}
+
+function deactivateModSeg() {
+  modState.activeEdit = null;
 }
 
 function onModEditSegInput(rowIdx, segIdx, inputEl) {
   modState.editRows[rowIdx].currentSegments[segIdx] = inputEl.value;
-  // Update class
+  // Live: update class while typing
   const orig = modState.editRows[rowIdx].originalSegments[segIdx];
   inputEl.classList.toggle("changed", inputEl.value !== orig);
-  trackModCustomTag(inputEl.value);
+  // Live preview update + suggest
   renderModEditPreview();
   showModEditSuggest(rowIdx, segIdx, inputEl, false);
+  // NOTE: do NOT trackModCustomTag here — that runs on blur/Enter only (v4.7 fix)
 }
 
 function onModEditNewSegInput(rowIdx, newIdx, inputEl) {
   modState.editRows[rowIdx].newSegments[newIdx] = inputEl.value;
-  trackModCustomTag(inputEl.value);
   renderModEditPreview();
   showModEditSuggest(rowIdx, newIdx, inputEl, true);
+  // NOTE: do NOT trackModCustomTag here — runs on blur/Enter only
+}
+
+function onModEditSegBlur(rowIdx, segIdx, inputEl, isNew) {
+  // Commit the value (already done via input event); track custom tag NOW (final value)
+  const finalVal = inputEl.value.trim();
+  if (finalVal) trackModCustomTag(finalVal);
+  // Defer deactivation slightly so suggest mousedown can fire first
+  setTimeout(() => {
+    // If user clicked into a suggest item, mousedown calls pickModEditSuggest which also sets active... so we need to check
+    // Just deactivate — pickModEditSuggest will re-activate if needed
+    if (modState.activeEdit && modState.activeEdit.rowIdx === rowIdx && modState.activeEdit.segIdx === segIdx && modState.activeEdit.isNew === isNew) {
+      // Make sure no suggest is open
+      hideModEditSuggest(inputEl);
+      deactivateModSeg();
+      renderModEditRows();
+      renderModEditPreview();
+    }
+  }, 200);
 }
 
 function onModEditSegKey(e, rowIdx, segIdx, inputEl, isNew) {
@@ -3042,27 +3156,30 @@ function pickModEditSuggest(rowIdx, segIdx, en, isNew) {
   } else {
     modState.editRows[rowIdx].currentSegments[segIdx] = en;
   }
-  trackModCustomTag(en);
+  trackModCustomTag(en);  // OK here — this is a final commit
+  deactivateModSeg();
   renderModEditRows();
   renderModEditPreview();
 }
 
 function addModNewSeg(rowIdx) {
+  const newIdx = modState.editRows[rowIdx].newSegments.length;
   modState.editRows[rowIdx].newSegments.push("");
+  // Activate the newly added slot so user can type immediately
+  modState.activeEdit = { rowIdx, segIdx: newIdx, isNew: true, justActivated: true };
   renderModEditRows();
   renderModEditPreview();
-  // Focus the new input
-  setTimeout(() => {
-    const rows = document.querySelectorAll(".mod-edit-row");
-    const lastInput = rows[rowIdx]?.querySelectorAll("input.new-seg");
-    if (lastInput && lastInput.length > 0) {
-      lastInput[lastInput.length - 1].focus();
-    }
-  }, 0);
 }
 
 function removeModNewSeg(rowIdx, newIdx) {
   modState.editRows[rowIdx].newSegments.splice(newIdx, 1);
+  // If we were editing the removed slot, clear active
+  if (modState.activeEdit && modState.activeEdit.rowIdx === rowIdx && modState.activeEdit.isNew && modState.activeEdit.segIdx === newIdx) {
+    deactivateModSeg();
+  } else if (modState.activeEdit && modState.activeEdit.rowIdx === rowIdx && modState.activeEdit.isNew && modState.activeEdit.segIdx > newIdx) {
+    // Shift active index down
+    modState.activeEdit.segIdx--;
+  }
   renderModEditRows();
   renderModEditPreview();
 }
@@ -3171,11 +3288,13 @@ function renderModEditPreview() {
     const rowsHtml = g.rows.map((r, ri) =>
       `<div class="pgb-row">${ri+1}. ${renderModRowColored(r)}</div>`
     ).join("");
+    const isConsecutive = g.rows.length > 1;
     return `
-      <div class="mod-edit-preview-group">
+      <div class="mod-edit-preview-group ${isConsecutive ? 'consecutive' : ''}">
         <div class="mod-edit-preview-group-header">
           <span>第 ${gi+1} 組 ·</span>
           <span class="mepg-range">${escapeHtml(g.label)}</span>
+          ${isConsecutive ? '<span style="font-size:10px;color:#6ec991;">連號</span>' : ''}
           <button onclick="copyModGroup(${gi})">📋 複製此組</button>
         </div>
         <div class="mod-edit-preview-group-body">${rowsHtml}</div>
