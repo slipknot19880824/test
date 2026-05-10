@@ -301,13 +301,114 @@
     border: 1px solid var(--border-strong); border-radius: 3px;
     font-family: var(--mono); font-size: 11px; color: var(--text);
   }
+
+  /* Batch modal specifics */
+  .batch-modal {
+    max-width: 920px; width: 95%; max-height: 90vh; overflow-y: auto;
+  }
+  .batch-base {
+    font-family: var(--mono); font-size: 12px; word-break: break-all;
+    background: var(--bg); border: 1px solid var(--border);
+    padding: 10px 12px; border-radius: 4px; color: var(--accent);
+    margin-bottom: 12px; line-height: 1.6;
+  }
+  .batch-controls {
+    display: flex; gap: 16px; flex-wrap: wrap; align-items: center;
+    margin-bottom: 16px; padding: 12px; background: var(--bg);
+    border: 1px solid var(--border); border-radius: 4px;
+  }
+  .batch-controls label.row-label {
+    font-size: 12px; color: var(--text-dim);
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .batch-controls input[type="number"] {
+    width: 60px; background: var(--panel); border: 1px solid var(--border);
+    color: var(--text); padding: 4px 6px; border-radius: 3px;
+    font-family: var(--mono);
+  }
+  .batch-controls .radio-group {
+    display: inline-flex; gap: 12px; font-size: 12px; color: var(--text-dim);
+  }
+  .batch-controls .radio-group label {
+    display: inline-flex; align-items: center; gap: 4px; cursor: pointer;
+  }
+
+  .batch-fields {
+    display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px;
+  }
+  .batch-field-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 10px; background: var(--panel-2);
+    border: 1px solid var(--border-strong); border-radius: 4px;
+    cursor: pointer; user-select: none; font-size: 12px;
+    transition: all 0.12s; font-family: var(--mono);
+  }
+  .batch-field-pill:hover { border-color: var(--accent); }
+  .batch-field-pill.active {
+    background: var(--accent-soft); border-color: var(--accent); color: var(--accent);
+  }
+  .batch-field-pill input { display: none; }
+  .batch-field-pill .pill-label {
+    color: var(--text-dim); font-size: 10px;
+  }
+  .batch-field-pill.active .pill-label { color: var(--accent); }
+
+  .batch-matrix {
+    display: grid; gap: 12px; margin-bottom: 14px;
+  }
+  .batch-matrix-col {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 4px; overflow: hidden;
+  }
+  .batch-matrix-col header {
+    padding: 6px 10px; background: var(--panel-2);
+    border-bottom: 1px solid var(--border);
+    font-size: 11px; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.05em;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .batch-matrix-col header .orig {
+    font-family: var(--mono); color: var(--text-faint); font-size: 10px;
+  }
+  .batch-matrix-col textarea {
+    width: 100%; min-height: 140px; resize: vertical;
+    background: var(--bg); border: 0; outline: none;
+    padding: 8px 10px; color: var(--text); font-family: var(--mono);
+    font-size: 12px; line-height: 1.6;
+  }
+  .batch-matrix-empty {
+    padding: 24px; text-align: center; color: var(--text-faint);
+    font-size: 13px; font-style: italic;
+    background: var(--bg); border: 1px dashed var(--border); border-radius: 4px;
+  }
+
+  .batch-preview {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 4px; padding: 10px 12px; margin-bottom: 14px;
+    max-height: 200px; overflow-y: auto;
+    font-family: var(--mono); font-size: 12px; line-height: 1.7;
+  }
+  .batch-preview-row {
+    display: flex; gap: 8px; padding: 1px 0;
+    border-bottom: 1px dashed var(--border);
+    word-break: break-all;
+  }
+  .batch-preview-row:last-child { border-bottom: 0; }
+  .batch-preview-row .num {
+    color: var(--text-faint); min-width: 20px; text-align: right;
+  }
+  .batch-preview-row .fn { color: var(--accent); }
+  .batch-preview-row.warn .fn { color: var(--danger); opacity: 0.7; }
+  .batch-summary {
+    font-size: 12px; color: var(--text-dim); margin-bottom: 10px;
+  }
 </style>
 </head>
 <body>
 <div class="app">
 
   <div class="header">
-    <h1>檔名命名工具 <span class="accent">·</span> <span style="color:var(--text-dim);font-weight:400;">v2.1 · 自動編號</span></h1>
+    <h1>檔名命名工具 <span class="accent">·</span> <span style="color:var(--text-dim);font-weight:400;">v3 · 批次複製</span></h1>
     <div class="meta" id="meta">載入中…</div>
   </div>
 
@@ -401,15 +502,20 @@
     <div class="preview-filename" id="preview"></div>
     <div class="preview-actions">
       <button class="btn primary" id="btn-copy">複製檔名</button>
+      <button class="btn" id="btn-batch">批次複製…</button>
       <button class="btn" id="btn-clear">清空</button>
     </div>
   </div>
 
   <div class="help">
-    <b>v2 新功能 — 自動編號：</b>
-    填好年月、選好專案、選好類型 (VD / AD)，按「<b>建議下一號</b>」按鈕，工具會去讀工單，找出該月該專案該類型的最大編號 +1 填到號碼欄。號碼欄一律可手動覆寫。<br><br>
-    <b>子號</b>：例如 VD24_01、VD24_02 這種衍生版本，編號填 24，子號填 01 / 02 即可。<br><br>
-    <b>每月初做的事</b>：點上方 <b>「⚙ 設定」</b>，把工單分頁名稱換成新月份的分頁。<br><br>
+    <b>v3 新功能 — 批次複製：</b>
+    先拼出第一個基底檔名，按「<b>批次複製…</b>」 → 設定份數 → 勾要批次替換的欄位（可多選）→ 在矩陣裡每欄一行一個值 → 預覽 OK → 複製或下載 csv。<br>
+    每欄一行一個值，第 N 行對應第 N 份檔名；某欄填得不夠時，超出的份數會用基底原值。<br><br>
+    <b>編號規則：</b>
+    主編號 +1（VD47, VD48, VD49…）· 子號 +1（VD47_01, VD47_02…）· 都不變（複製 N 行讓你之後手動改）<br><br>
+    <b>v2.1 — 自動編號：</b>
+    填好年月、選好專案、選好類型 (VD / AD)，按「<b>建議下一號</b>」按鈕，工具會去讀工單，找出該月該專案該類型的最大編號 +1。<br><br>
+    <b>每月初做的事</b>：點 <b>「⚙ 設定」</b>，把工單分頁 GID（或名稱）換成新月份。<br><br>
     <b>快捷鍵：</b>
     <kbd>Ctrl/⌘ + K</kbd> 聚焦搜尋框 ·
     <kbd>Ctrl/⌘ + Enter</kbd> 複製檔名 ·
@@ -459,6 +565,45 @@
     <div class="modal-actions">
       <button class="btn ghost" onclick="closeConfig()">取消</button>
       <button class="btn primary" onclick="saveConfig()">儲存並重新載入</button>
+    </div>
+  </div>
+</div>
+
+<!-- Batch modal -->
+<div class="modal-bg" id="modal-batch">
+  <div class="modal batch-modal">
+    <h2>批次複製</h2>
+
+    <h3>基底檔名</h3>
+    <div class="batch-base" id="batch-base">—</div>
+
+    <div class="batch-controls">
+      <label class="row-label">產出份數
+        <input type="number" id="batch-count" min="1" max="200" value="6">
+      </label>
+      <label class="row-label">編號規則
+        <span class="radio-group">
+          <label><input type="radio" name="batch-numbering" value="serial" checked> 主編號 +1</label>
+          <label><input type="radio" name="batch-numbering" value="subserial"> 子號 +1</label>
+          <label><input type="radio" name="batch-numbering" value="none"> 都不變</label>
+        </span>
+      </label>
+    </div>
+
+    <h3>選要批次替換的欄位（可多選）</h3>
+    <div class="batch-fields" id="batch-fields"></div>
+
+    <h3 style="margin-top:8px;">替換值（每欄一行一個值，第 N 行 = 第 N 份檔名）</h3>
+    <div class="batch-matrix" id="batch-matrix"></div>
+
+    <h3>預覽</h3>
+    <div class="batch-summary" id="batch-summary"></div>
+    <div class="batch-preview" id="batch-preview"></div>
+
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="closeBatch()">取消</button>
+      <button class="btn" id="batch-download">⬇ 下載 csv</button>
+      <button class="btn primary" id="batch-copy">📋 複製全部</button>
     </div>
   </div>
 </div>
@@ -1057,6 +1202,269 @@ function saveConfig() {
 }
 
 //==============================
+// BATCH MODE
+//==============================
+// Build a structured representation of the current filename.
+// Returns: { parts: [{kind, label, value, editable}, ...] }
+//   kind: yearmonth | type | serial | subserial | project | tag | size | lang | version
+//   label: display label e.g. "演員 (LuYun)"
+//   value: the actual string in the filename
+function buildPartsFromForm() {
+  const parts = [];
+  const ym = $("f-yearmonth").value.trim();
+  const sn = $("f-serial").value.trim();
+  const sub = $("f-subserial").value.trim();
+  const pj = $("f-project").value.trim();
+  const sz = $("f-size").value.trim();
+  const lg = $("f-lang").value.trim();
+  const vr = $("f-version").value.trim();
+
+  if (ym) parts.push({kind:"yearmonth", label:"年月", value:ym});
+  if (sn) parts.push({kind:"serial", label:"主編號", value:currentType + sn, _typePrefix:currentType, _num:sn});
+  if (sub) parts.push({kind:"subserial", label:"子號", value:sub});
+  if (pj) parts.push({kind:"project", label:"專案", value:pj});
+
+  selectedTags.forEach((t, i) => {
+    parts.push({
+      kind:"tag", label:`標籤·${t.cat || "自訂"}`,
+      value:t.en, _tagIdx:i, _ch:t.ch
+    });
+  });
+
+  if (sz) parts.push({kind:"size", label:"尺寸", value:sz});
+  if (lg) parts.push({kind:"lang", label:"語系", value:lg});
+  if (vr) parts.push({kind:"version", label:"版本", value:vr});
+
+  return parts;
+}
+
+// Compose filename from parts (with overrides for specific indexes)
+function composeFromParts(parts, overrides /* Map idx → newValue */, serialOffset, subOffset, numbering) {
+  return parts.map((p, idx) => {
+    if (overrides && overrides.has(idx)) {
+      const v = overrides.get(idx);
+      if (p.kind === "serial" && v != null) {
+        // user replaced serial via override
+        return v;
+      }
+      return v;
+    }
+    // Apply numbering offset
+    if (p.kind === "serial" && numbering === "serial") {
+      const newNum = parseInt(p._num, 10) + serialOffset;
+      return p._typePrefix + String(newNum).padStart(2, "0");
+    }
+    if (p.kind === "subserial" && numbering === "subserial") {
+      const newNum = parseInt(p.value, 10) + subOffset;
+      return String(newNum).padStart(2, "0");
+    }
+    return p.value;
+  }).filter(x => x !== "" && x != null).join("_");
+}
+
+// Batch modal state
+let batchState = {
+  parts: [],
+  selectedFieldIndexes: new Set(),  // Which part indexes the user wants to vary
+  values: new Map(),                 // idx → array of replacement values (one per row)
+};
+
+function openBatch() {
+  const parts = buildPartsFromForm();
+  if (parts.length === 0) {
+    showToast("請先建立基底檔名", "error");
+    return;
+  }
+  batchState.parts = parts;
+  batchState.selectedFieldIndexes = new Set();
+  batchState.values = new Map();
+
+  // Default: pre-select 子號 if exists, else 主編號
+  const subIdx = parts.findIndex(p => p.kind === "subserial");
+  if (subIdx >= 0) {
+    batchState.selectedFieldIndexes.add(subIdx);
+  } else {
+    const serIdx = parts.findIndex(p => p.kind === "serial");
+    if (serIdx >= 0) batchState.selectedFieldIndexes.add(serIdx);
+  }
+
+  $("batch-base").textContent = composeFromParts(parts, null, 0, 0, "none");
+  $("batch-count").value = "6";
+  document.querySelector('input[name="batch-numbering"][value="serial"]').checked = true;
+
+  renderBatchFields();
+  renderBatchMatrix();
+  renderBatchPreview();
+  $("modal-batch").classList.add("show");
+}
+
+function closeBatch() {
+  $("modal-batch").classList.remove("show");
+}
+
+function renderBatchFields() {
+  const box = $("batch-fields");
+  box.innerHTML = batchState.parts.map((p, idx) => {
+    const isSelected = batchState.selectedFieldIndexes.has(idx);
+    return `
+      <label class="batch-field-pill ${isSelected ? 'active' : ''}" onclick="toggleBatchField(${idx}); event.preventDefault();">
+        <span class="pill-label">${escapeHtml(p.label)}</span>
+        <span>${escapeHtml(p.value)}</span>
+      </label>
+    `;
+  }).join("");
+}
+
+function toggleBatchField(idx) {
+  if (batchState.selectedFieldIndexes.has(idx)) {
+    batchState.selectedFieldIndexes.delete(idx);
+    batchState.values.delete(idx);
+  } else {
+    batchState.selectedFieldIndexes.add(idx);
+    // Pre-fill with original value as line 1
+    const count = parseInt($("batch-count").value, 10) || 6;
+    const orig = batchState.parts[idx].value;
+    batchState.values.set(idx, [orig]);
+  }
+  renderBatchFields();
+  renderBatchMatrix();
+  renderBatchPreview();
+}
+
+function renderBatchMatrix() {
+  const box = $("batch-matrix");
+  const indexes = Array.from(batchState.selectedFieldIndexes).sort((a,b) => a-b);
+  if (indexes.length === 0) {
+    box.innerHTML = `<div class="batch-matrix-empty">尚未選任何欄位。<br>選了之後這裡會出現輸入框，每行一個值，第 N 行 = 第 N 份檔名。<br>沒選任何欄位也可以，會純複製 N 份只改編號。</div>`;
+    return;
+  }
+  // Set grid columns based on count
+  box.style.gridTemplateColumns = `repeat(${Math.min(indexes.length, 3)}, 1fr)`;
+
+  box.innerHTML = indexes.map(idx => {
+    const part = batchState.parts[idx];
+    const arr = batchState.values.get(idx) || [part.value];
+    return `
+      <div class="batch-matrix-col">
+        <header>
+          <span>${escapeHtml(part.label)}</span>
+          <span class="orig">原: ${escapeHtml(part.value)}</span>
+        </header>
+        <textarea data-idx="${idx}" oninput="onMatrixInput(${idx}, this.value)" placeholder="一行一個值">${arr.join("\n")}</textarea>
+      </div>
+    `;
+  }).join("");
+}
+
+function onMatrixInput(idx, text) {
+  const lines = text.split("\n").map(s => s.trim()).filter(s => s !== "");
+  batchState.values.set(idx, lines.length ? lines : [batchState.parts[idx].value]);
+  renderBatchPreview();
+}
+
+function generateBatch() {
+  const count = Math.max(1, parseInt($("batch-count").value, 10) || 1);
+  const numbering = document.querySelector('input[name="batch-numbering"]:checked').value;
+
+  const indexes = Array.from(batchState.selectedFieldIndexes).sort((a,b) => a-b);
+  const out = [];
+  const warnings = [];
+
+  for (let n = 0; n < count; n++) {
+    const overrides = new Map();
+    for (const idx of indexes) {
+      const arr = batchState.values.get(idx) || [];
+      if (n < arr.length) {
+        overrides.set(idx, arr[n]);
+      }
+      // else: leave as original (no override)
+    }
+    let serialOffset = 0, subOffset = 0;
+    if (numbering === "serial") serialOffset = n;
+    if (numbering === "subserial") subOffset = n;
+    const fn = composeFromParts(batchState.parts, overrides, serialOffset, subOffset, numbering);
+    out.push(fn);
+  }
+
+  // Check for duplicates
+  const seen = new Set();
+  const dup = [];
+  out.forEach((fn, i) => {
+    if (seen.has(fn)) dup.push(i);
+    seen.add(fn);
+  });
+  if (dup.length > 0) {
+    warnings.push(`有 ${dup.length} 個重複檔名（在第 ${dup.map(i=>i+1).join(", ")} 行）`);
+  }
+
+  // Check field value insufficiency
+  for (const idx of indexes) {
+    const arr = batchState.values.get(idx) || [];
+    if (arr.length < count && arr.length > 0) {
+      warnings.push(`「${batchState.parts[idx].label}」只填了 ${arr.length} 個值，第 ${arr.length+1} 行起會用原值`);
+    }
+  }
+
+  return { filenames: out, warnings };
+}
+
+function renderBatchPreview() {
+  const { filenames, warnings } = generateBatch();
+  const summary = $("batch-summary");
+  if (warnings.length > 0) {
+    summary.innerHTML = `⚠ ${warnings.map(escapeHtml).join(" · ")}`;
+    summary.style.color = "var(--danger)";
+  } else {
+    summary.textContent = `將產出 ${filenames.length} 個檔名`;
+    summary.style.color = "var(--text-dim)";
+  }
+  const box = $("batch-preview");
+  // detect duplicates
+  const seenCounts = {};
+  filenames.forEach(f => seenCounts[f] = (seenCounts[f] || 0) + 1);
+  box.innerHTML = filenames.map((f, i) => `
+    <div class="batch-preview-row ${seenCounts[f] > 1 ? 'warn' : ''}">
+      <span class="num">${i+1}.</span>
+      <span class="fn">${escapeHtml(f)}</span>
+    </div>
+  `).join("");
+}
+
+function batchCopyAll() {
+  const { filenames } = generateBatch();
+  const text = filenames.join("\n");
+  navigator.clipboard.writeText(text).then(() => {
+    showToast(`已複製 ${filenames.length} 個檔名（每行一個）`, "success");
+  }).catch(() => {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    document.body.removeChild(ta);
+    showToast(`已複製 ${filenames.length} 個檔名`, "success");
+  });
+}
+
+function batchDownloadCsv() {
+  const { filenames } = generateBatch();
+  // CSV with header
+  const csv = "素材檔名\n" + filenames.map(f => `"${f.replace(/"/g, '""')}"`).join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  const now = new Date();
+  const stamp = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,"0")}${String(now.getDate()).padStart(2,"0")}_${String(now.getHours()).padStart(2,"0")}${String(now.getMinutes()).padStart(2,"0")}`;
+  a.download = `batch_filenames_${stamp}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast(`已下載 ${filenames.length} 行的 csv`, "success");
+}
+
+//==============================
 // EVENT WIRING
 //==============================
 window.addEventListener("DOMContentLoaded", () => {
@@ -1113,7 +1521,19 @@ window.addEventListener("DOMContentLoaded", () => {
     document.querySelector(".help").scrollIntoView({behavior:"smooth"});
   });
   $("btn-copy").addEventListener("click", copyFilename);
+  $("btn-batch").addEventListener("click", openBatch);
   $("btn-clear").addEventListener("click", clearForm);
+
+  // Batch dialog interactions
+  $("batch-count").addEventListener("input", renderBatchPreview);
+  document.querySelectorAll('input[name="batch-numbering"]').forEach(r => {
+    r.addEventListener("change", renderBatchPreview);
+  });
+  $("batch-copy").addEventListener("click", batchCopyAll);
+  $("batch-download").addEventListener("click", batchDownloadCsv);
+  $("modal-batch").addEventListener("click", e => {
+    if (e.target.id === "modal-batch") closeBatch();
+  });
 
   $("modal-config").addEventListener("click", e => {
     if (e.target.id === "modal-config") closeConfig();
