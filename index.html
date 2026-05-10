@@ -606,7 +606,7 @@
 <div class="app">
 
   <div class="header">
-    <h1>檔名命名工具 <span class="accent">·</span> <span style="color:var(--text-dim);font-weight:400;">v4 · 標籤化批次</span></h1>
+    <h1>檔名命名工具 <span class="accent">·</span> <span style="color:var(--text-dim);font-weight:400;">v4.1 · 標籤化批次</span></h1>
     <div class="meta" id="meta">載入中…</div>
   </div>
 
@@ -1589,30 +1589,50 @@ function buildPartsFromForm() {
 
 // Compose filename from parts (with overrides for specific indexes)
 function composeFromParts(parts, overrides /* Map idx → newValue */, serialOffset, subOffset, numbering) {
-  return parts.map((p, idx) => {
+  const hasSubserial = parts.some(p => p.kind === "subserial");
+  const result = [];
+  let serialOutputIdx = -1;
+
+  parts.forEach((p, idx) => {
     if (overrides && overrides.has(idx)) {
       const v = overrides.get(idx);
       if (p.kind === "serial" && v != null) {
-        // user replaced serial via override
-        return v;
+        result.push({val: v, kind: p.kind, srcIdx: idx});
+        serialOutputIdx = result.length - 1;
+        return;
       }
-      return v;
+      result.push({val: v, kind: p.kind, srcIdx: idx});
+      return;
     }
     // Apply numbering offset
     if (p.kind === "serial" && numbering === "serial") {
       const newNum = parseInt(p._num, 10) + serialOffset;
-      return p._typePrefix + String(newNum).padStart(2, "0");
+      result.push({val: p._typePrefix + String(newNum).padStart(2, "0"), kind: p.kind, srcIdx: idx});
+      serialOutputIdx = result.length - 1;
+      return;
     }
     if (p.kind === "subserial" && numbering === "subserial") {
       const newNum = parseInt(p.value, 10) + subOffset;
-      return String(newNum).padStart(2, "0");
+      result.push({val: String(newNum).padStart(2, "0"), kind: p.kind, srcIdx: idx});
+      return;
+    }
+    if (p.kind === "serial") {
+      serialOutputIdx = result.length;
     }
     if (p.kind === "expansion") {
-      // Empty by default - filtered out below
-      return p.value || "";
+      result.push({val: p.value || "", kind: p.kind, srcIdx: idx});
+      return;
     }
-    return p.value;
-  }).filter(x => x !== "" && x != null).join("_");
+    result.push({val: p.value, kind: p.kind, srcIdx: idx});
+  });
+
+  // If user wants subserial+1 but no subserial part exists, auto-insert one after serial
+  if (numbering === "subserial" && !hasSubserial && serialOutputIdx >= 0) {
+    const subVal = String(1 + subOffset).padStart(2, "0");
+    result.splice(serialOutputIdx + 1, 0, {val: subVal, kind: "subserial-auto"});
+  }
+
+  return result.map(r => r.val).filter(x => x !== "" && x != null).join("_");
 }
 
 // Batch modal state
@@ -1802,10 +1822,15 @@ function renderBatchFieldConfigs() {
           </span>
         </header>
         <div class="batch-row-actions">
-          <span style="opacity:0.7;">快速貼上 N 個值（每行一個 / 逗號分隔）：</span>
-          <span class="quick-fill">
-            <input id="qf-input-${idx}" type="text" placeholder="例：LuYun, ThaoVy, KIO, YUUKA">
-            <button onclick="quickFillCells(${idx})">套用到所有份</button>
+          <span style="opacity:0.7;">快速貼上 N 個值（單一值 = 全部都填；多個 = 依序）：</span>
+          <span class="quick-fill" style="position:relative;">
+            <input id="qf-input-${idx}" type="text" placeholder="例：LuYun 或 LuYun, ThaoVy, KIO"
+                   oninput="onQuickFillInput(${idx}, this)"
+                   onfocus="onQuickFillInput(${idx}, this)"
+                   onkeydown="onQuickFillKey(event, ${idx}, this)"
+                   onblur="setTimeout(() => hideQuickFillSuggest(${idx}), 200)">
+            <div id="qf-suggest-${idx}" class="batch-cell-suggest" style="left:0; right:auto; top:100%;"></div>
+            <button onclick="quickFillCells(${idx})">套用</button>
           </span>
         </div>
         <div class="batch-row-grid">
@@ -2004,28 +2029,136 @@ function removeCellTag(partIdx, rowIdx, tagIdx) {
   renderBatchPreview();
 }
 
+function onQuickFillInput(partIdx, inputEl) {
+  const part = batchState.parts[partIdx];
+  const cats = getCategoriesForPart(part);
+  if (cats !== null && cats.length === 0) {
+    hideQuickFillSuggest(partIdx);
+    return;
+  }
+  let pool = allTags;
+  if (cats !== null) {
+    pool = allTags.filter(t => cats.includes(t.cat));
+  } else {
+    pool = allTags.filter(t => !["專案","尺寸","語系"].includes(t.cat));
+  }
+  // Get the LAST token after the last comma/newline as the active query
+  const raw = inputEl.value || "";
+  const lastSep = Math.max(raw.lastIndexOf(","), raw.lastIndexOf("\n"), raw.lastIndexOf("，"));
+  const q = raw.slice(lastSep + 1).trim().toLowerCase();
+
+  let suggestions = pool;
+  if (q) {
+    suggestions = pool.filter(t =>
+      (t.ch + " " + t.en + " " + t.alias).toLowerCase().includes(q)
+    );
+  }
+  const seen = new Set();
+  suggestions = suggestions.filter(t => {
+    if (seen.has(t.en)) return false;
+    seen.add(t.en);
+    return true;
+  }).slice(0, 15);
+
+  const popup = $(`qf-suggest-${partIdx}`);
+  if (!popup) return;
+  if (suggestions.length === 0) {
+    popup.classList.remove("show");
+    return;
+  }
+  popup.innerHTML = suggestions.map((t, i) => `
+    <div class="suggest-item ${i === 0 ? 'active' : ''}" data-en="${escapeAttr(t.en)}"
+         onmousedown="event.preventDefault(); pickQuickFillSuggest(${partIdx}, '${escapeAttr(t.en)}');">
+      <span class="si-ch">${escapeHtml(t.ch)}</span>
+      <span class="si-en">${escapeHtml(t.en)}</span>
+    </div>
+  `).join("");
+  popup.classList.add("show");
+}
+
+function onQuickFillKey(e, partIdx, inputEl) {
+  const popup = $(`qf-suggest-${partIdx}`);
+  if (e.key === "Enter") {
+    e.preventDefault();
+    const active = popup?.querySelector(".suggest-item.active");
+    if (active && popup.classList.contains("show")) {
+      pickQuickFillSuggest(partIdx, active.dataset.en);
+    } else {
+      quickFillCells(partIdx);
+    }
+  } else if (e.key === "Escape") {
+    hideQuickFillSuggest(partIdx);
+  } else if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+    if (!popup || !popup.classList.contains("show")) return;
+    e.preventDefault();
+    const items = Array.from(popup.querySelectorAll(".suggest-item"));
+    if (items.length === 0) return;
+    let cur = items.findIndex(it => it.classList.contains("active"));
+    if (cur < 0) cur = 0;
+    cur = (cur + (e.key === "ArrowDown" ? 1 : -1) + items.length) % items.length;
+    items.forEach(it => it.classList.remove("active"));
+    items[cur].classList.add("active");
+    items[cur].scrollIntoView({block:"nearest"});
+  }
+}
+
+function pickQuickFillSuggest(partIdx, en) {
+  const input = $(`qf-input-${partIdx}`);
+  if (!input) return;
+  // Append to existing comma list, or replace last token
+  const raw = input.value;
+  const lastSep = Math.max(raw.lastIndexOf(","), raw.lastIndexOf("\n"), raw.lastIndexOf("，"));
+  if (lastSep >= 0) {
+    input.value = raw.slice(0, lastSep + 1) + " " + en;
+  } else {
+    input.value = en;
+  }
+  hideQuickFillSuggest(partIdx);
+  input.focus();
+}
+
+function hideQuickFillSuggest(partIdx) {
+  const popup = $(`qf-suggest-${partIdx}`);
+  if (popup) popup.classList.remove("show");
+}
+
 function quickFillCells(partIdx) {
   const input = $(`qf-input-${partIdx}`);
   if (!input) return;
   const raw = input.value.trim();
   if (!raw) return;
-  // Split by newline or comma
   const values = raw.split(/[\n,，]/).map(s => s.trim()).filter(Boolean);
   ensureCellArrays();
   const arr = batchState.cellTags.get(partIdx);
   if (!arr) return;
-  values.forEach((v, i) => {
-    if (i >= arr.length) return;
-    if (!arr[i]) arr[i] = [];
-    if (!arr[i].includes(v)) {
-      arr[i].push(v);
-      trackBatchCustomTag(v);
+
+  if (values.length === 1) {
+    // Single value: broadcast to ALL rows
+    const v = values[0];
+    for (let i = 0; i < arr.length; i++) {
+      if (!arr[i]) arr[i] = [];
+      if (!arr[i].includes(v)) {
+        arr[i].push(v);
+      }
     }
-  });
+    trackBatchCustomTag(v);
+    showToast(`已將「${v}」套用到全部 ${arr.length} 份`, "success");
+  } else {
+    values.forEach((v, i) => {
+      if (i >= arr.length) return;
+      if (!arr[i]) arr[i] = [];
+      if (!arr[i].includes(v)) {
+        arr[i].push(v);
+        trackBatchCustomTag(v);
+      }
+    });
+    showToast(`已將 ${values.length} 個值依序套到第 1~${Math.min(values.length, arr.length)} 份`, "success");
+  }
+
   input.value = "";
+  hideQuickFillSuggest(partIdx);
   renderBatchFieldConfigs();
   renderBatchPreview();
-  showToast(`已將 ${values.length} 個值套用到前 ${Math.min(values.length, arr.length)} 份`, "success");
 }
 
 // Track tags added in batch mode that are NOT in the loaded library (need 6B)
@@ -2229,14 +2362,17 @@ function getSuggestionsForPart(partIdx) {
     size: ["尺寸"],
     lang: ["語系"],
     tag: null,  // all non-fixed cats
+    expansion: null,  // all non-fixed cats
   };
   if (part.kind === "tag") {
     // Suggest tags whose cat matches this tag's cat (label looks like "標籤·主題")
-    // Or all tags except 專案/尺寸/語系
     const tagCat = part.label.replace(/^標籤·/, "");
     if (tagCat && tagCat !== "自訂") {
       return allTags.filter(t => t.cat === tagCat);
     }
+    return allTags.filter(t => !["專案","尺寸","語系"].includes(t.cat));
+  }
+  if (part.kind === "expansion") {
     return allTags.filter(t => !["專案","尺寸","語系"].includes(t.cat));
   }
   if (kindToCats[part.kind]) {
@@ -2250,6 +2386,20 @@ function refreshApplySuggestions() {
   const partIdx = parseInt($("apply-field").value, 10);
   const input = $("apply-value");
   const popup = $("apply-suggest");
+
+  // Update placeholder hint based on field type
+  const part = batchState.parts[partIdx];
+  if (part) {
+    const cats = getCategoriesForPart(part);
+    if (cats !== null && cats.length === 0) {
+      input.placeholder = "此欄位無標籤推薦，請手動輸入（例：VD47、202506、V2）";
+    } else if (cats === null) {
+      input.placeholder = "輸入中文/英文搜尋標籤庫";
+    } else {
+      input.placeholder = `輸入搜尋（推薦：${cats.join("/")}）`;
+    }
+  }
+
   const q = (input.value || "").toLowerCase().trim();
   let suggestions = getSuggestionsForPart(partIdx);
   if (q) {
@@ -2265,12 +2415,13 @@ function refreshApplySuggestions() {
     return true;
   }).slice(0, 30);
 
-  if (suggestions.length === 0 || (!q && suggestions.length === 0)) {
+  if (suggestions.length === 0) {
     popup.classList.remove("show");
     return;
   }
-  popup.innerHTML = suggestions.map(t => `
-    <div class="suggest-item" onclick="pickApplyValue('${escapeAttr(t.en)}')">
+  popup.innerHTML = suggestions.map((t, i) => `
+    <div class="suggest-item ${i === 0 ? 'active' : ''}" data-en="${escapeAttr(t.en)}"
+         onmousedown="event.preventDefault(); pickApplyValue('${escapeAttr(t.en)}');">
       <span class="si-ch">${escapeHtml(t.ch)}</span>
       <span class="si-en">${escapeHtml(t.en)}</span>
     </div>
