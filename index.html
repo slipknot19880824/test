@@ -335,6 +335,7 @@
 
   .batch-fields {
     display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px;
+    align-items: center;
   }
   .batch-field-pill {
     display: inline-flex; align-items: center; gap: 6px;
@@ -353,29 +354,111 @@
   }
   .batch-field-pill.active .pill-label { color: var(--accent); }
 
-  .batch-matrix {
-    display: grid; gap: 12px; margin-bottom: 14px;
+  /* Expansion picker for adding new positions */
+  .batch-expand-btn {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 5px 10px; background: transparent;
+    border: 1px dashed var(--border-strong); border-radius: 4px;
+    color: var(--text-dim); font-size: 12px; cursor: pointer;
+    transition: all 0.12s; font-family: inherit;
   }
-  .batch-matrix-col {
+  .batch-expand-btn:hover {
+    color: var(--accent); border-color: var(--accent);
+    border-style: solid;
+  }
+
+  /* Per-field config: each selected field becomes a card with N columns */
+  .batch-field-config {
     background: var(--bg); border: 1px solid var(--border);
-    border-radius: 4px; overflow: hidden;
+    border-radius: 6px; margin-bottom: 12px; overflow: hidden;
   }
-  .batch-matrix-col header {
-    padding: 6px 10px; background: var(--panel-2);
+  .batch-field-config header {
+    padding: 8px 12px; background: var(--panel-2);
     border-bottom: 1px solid var(--border);
-    font-size: 11px; color: var(--text-dim);
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 12px; color: var(--text-dim);
+  }
+  .batch-field-config header .fc-title {
+    font-weight: 500; color: var(--text);
+  }
+  .batch-field-config header .fc-orig {
+    font-family: var(--mono); color: var(--text-faint); font-size: 11px;
+  }
+  .batch-field-config header button {
+    background: transparent; border: 0; color: var(--text-faint);
+    cursor: pointer; padding: 2px 6px; font-size: 12px;
+  }
+  .batch-field-config header button:hover { color: var(--danger); }
+
+  .batch-row-grid {
+    display: grid; gap: 8px; padding: 10px 12px;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+  .batch-row-cell {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 4px; padding: 6px 8px; min-height: 56px;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .batch-row-cell-header {
+    font-size: 10px; color: var(--text-faint);
     text-transform: uppercase; letter-spacing: 0.05em;
-    display: flex; justify-content: space-between; align-items: center;
   }
-  .batch-matrix-col header .orig {
-    font-family: var(--mono); color: var(--text-faint); font-size: 10px;
+  .batch-row-cell-tags {
+    display: flex; flex-wrap: wrap; gap: 3px; min-height: 22px;
   }
-  .batch-matrix-col textarea {
-    width: 100%; min-height: 140px; resize: vertical;
-    background: var(--bg); border: 0; outline: none;
-    padding: 8px 10px; color: var(--text); font-family: var(--mono);
-    font-size: 12px; line-height: 1.6;
+  .batch-mini-chip {
+    display: inline-flex; align-items: center; gap: 3px;
+    padding: 2px 6px; background: var(--panel-2);
+    border: 1px solid var(--border-strong); border-radius: 3px;
+    font-family: var(--mono); font-size: 11px; line-height: 1.3;
   }
+  .batch-mini-chip .x {
+    color: var(--text-faint); cursor: pointer; font-size: 12px;
+  }
+  .batch-mini-chip .x:hover { color: var(--danger); }
+  .batch-mini-chip.orig { opacity: 0.55; font-style: italic; }
+  .batch-mini-input {
+    background: var(--bg); border: 1px solid var(--border);
+    color: var(--text); padding: 3px 6px; font-size: 11px;
+    border-radius: 3px; outline: none; font-family: var(--mono);
+    width: 100%;
+  }
+  .batch-mini-input:focus { border-color: var(--accent); }
+  .batch-cell-suggest {
+    position: absolute; background: var(--panel-2);
+    border: 1px solid var(--border-strong); border-radius: 4px;
+    max-height: 200px; overflow-y: auto; z-index: 60;
+    min-width: 200px; display: none;
+  }
+  .batch-cell-suggest.show { display: block; }
+
+  .batch-row-actions {
+    display: flex; gap: 8px; padding: 0 12px 10px;
+    font-size: 11px; color: var(--text-dim);
+    flex-wrap: wrap; align-items: center;
+  }
+  .batch-row-actions .mini-act {
+    background: transparent; border: 0; color: var(--text-dim);
+    cursor: pointer; padding: 2px 6px; font-size: 11px;
+    text-decoration: underline; font-family: inherit;
+  }
+  .batch-row-actions .mini-act:hover { color: var(--accent); }
+  .batch-row-actions .quick-fill input {
+    background: var(--panel); border: 1px solid var(--border);
+    color: var(--text); padding: 3px 6px; font-size: 11px;
+    border-radius: 3px; outline: none; font-family: var(--mono);
+    width: 200px;
+  }
+  .batch-row-actions .quick-fill input:focus { border-color: var(--accent); }
+  .batch-row-actions .quick-fill button {
+    background: var(--panel-2); border: 1px solid var(--border-strong);
+    color: var(--text-dim); padding: 3px 8px; font-size: 11px;
+    border-radius: 3px; cursor: pointer; font-family: inherit;
+  }
+  .batch-row-actions .quick-fill button:hover {
+    color: var(--accent); border-color: var(--accent);
+  }
+
   .batch-matrix-empty {
     padding: 24px; text-align: center; color: var(--text-faint);
     font-size: 13px; font-style: italic;
@@ -402,6 +485,20 @@
   .batch-summary {
     font-size: 12px; color: var(--text-dim); margin-bottom: 10px;
   }
+
+  /* Modal close X button */
+  .modal-x {
+    position: absolute; top: 10px; right: 10px;
+    width: 30px; height: 30px;
+    background: transparent; border: 0; color: var(--text-dim);
+    font-size: 20px; cursor: pointer; line-height: 1;
+    border-radius: 4px; transition: all 0.12s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .modal-x:hover {
+    background: var(--panel-2); color: var(--text);
+  }
+  .modal { position: relative; }
 
   /* Custom tags panel (need 4) */
   .custom-tags-section {
@@ -509,7 +606,7 @@
 <div class="app">
 
   <div class="header">
-    <h1>檔名命名工具 <span class="accent">·</span> <span style="color:var(--text-dim);font-weight:400;">v3.2 · 智能批次</span></h1>
+    <h1>檔名命名工具 <span class="accent">·</span> <span style="color:var(--text-dim);font-weight:400;">v4 · 標籤化批次</span></h1>
     <div class="meta" id="meta">載入中…</div>
   </div>
 
@@ -612,26 +709,29 @@
   <div class="section custom-tags-section" id="custom-tags-section" style="display:none;">
     <div class="section-header">
       <span class="label">本次新增的自訂標籤</span>
-      <span style="font-family:var(--mono);font-size:11px;color:var(--text-faint);">補完中文/分類後複製貼到標籤庫即可</span>
+      <span style="display:flex;gap:6px;align-items:center;">
+        <span style="font-family:var(--mono);font-size:11px;color:var(--text-faint);">補完中文/分類後複製貼到標籤庫</span>
+        <button class="btn small" id="btn-copy-all-custom" style="font-size:11px;">📋 複製全部</button>
+      </span>
     </div>
     <div class="section-body">
       <div class="custom-tags-list" id="custom-tags-list"></div>
       <div class="custom-tags-help">
         標籤庫欄位順序：<b>中文名 ｜ 英文名 ｜ 分類 ｜ 別名 ｜ 備註 ｜ 啟用</b>。<br>
-        按「複製這列」可一次複製成可貼進試算表的格式（用 Tab 分隔，貼進標籤庫最下方一列即可）。
+        按「複製這列」複製單筆；按「複製全部」一次複製全部，貼進標籤庫最下方即可（用 Tab 分隔）。
       </div>
     </div>
   </div>
 
   <div class="help">
-    <b>v3.2 新功能：</b><br>
-    <b>· 批次預覽勾選</b>：批次模式產生的預覽行可勾選（直接點該列或點 checkbox），勾選後上方會出現「對勾選的行套用」工具列，可挑欄位＋換值，一鍵套用到所有勾選行。<br>
-    <b>· 替換值自動推薦</b>：套用工具列的「替換值」輸入框會根據選的欄位顯示對應分類的標籤（中英對照），點選即填入。<br>
-    <b>· 自訂標籤面板</b>：搜尋找不到時加入的「自訂」標籤，會列在預覽下方的「本次新增的自訂標籤」區，補上中文/分類後按「複製這列」可一次複製成 6 欄格式，貼到標籤庫最下方一列即可。<br><br>
-    <b>v3 — 批次複製：</b>
-    先拼出第一個基底檔名，按「<b>批次複製…</b>」 → 設定份數 → 勾要批次替換的欄位（可多選）→ 在矩陣裡每欄一行一個值 → 預覽 OK → 複製或下載 csv。<br><br>
-    <b>v2.1 — 自動編號：</b>
-    填好年月、選好專案、選好類型 (VD / AD)，按「<b>建議下一號</b>」按鈕，工具會去讀工單算最大編號 +1。<br><br>
+    <b>v4 全面升級 — 標籤化批次：</b><br>
+    <b>· 每欄為每份指定值</b>：批次模式裡，每個選的欄位都會展開成 N 個小格子（份數），每格裡可以加多個標籤、可從標籤庫搜尋推薦。<br>
+    <b>· 擴充新位置</b>：欄位列最後的「＋ 擴充新位置」可在標籤群中插入新位置，每份檔名都能在這個新位置填不同的標籤組合。<br>
+    <b>· 快速貼上</b>：每個欄位上方有快速貼上輸入框，可一次貼入多個值（換行或逗號分隔），自動套用到前 N 份。<br>
+    <b>· 批次內的自訂標籤</b>：在批次模式裡新增的非標籤庫標籤，會列在批次預覽下方，補完中文/分類後可一次複製貼回標籤庫。<br>
+    <b>· X 關閉鈕</b>：對話框右上 ✕，避免誤點背景關掉。<br><br>
+    <b>v3.2 — 自訂標籤面板</b>：找不到標籤時加入的「自訂」標籤會列在主介面下方，補完後可單筆或一次複製全部，貼進標籤庫即可。<br><br>
+    <b>v2.1 — 自動編號</b>：填好年月、選好專案、選好類型，按「<b>建議下一號</b>」讀工單算最大編號 +1。<br><br>
     <b>每月初做的事</b>：點 <b>「⚙ 設定」</b>，把工單分頁 GID 換成新月份。<br><br>
     <b>快捷鍵：</b>
     <kbd>Ctrl/⌘ + K</kbd> 聚焦搜尋框 ·
@@ -644,6 +744,7 @@
 <!-- Settings modal -->
 <div class="modal-bg" id="modal-config">
   <div class="modal">
+    <button class="modal-x" onclick="closeConfig()" title="關閉">✕</button>
     <h2>設定</h2>
 
     <h3>標籤庫</h3>
@@ -689,6 +790,7 @@
 <!-- Batch modal -->
 <div class="modal-bg" id="modal-batch">
   <div class="modal batch-modal">
+    <button class="modal-x" onclick="closeBatch()" title="關閉">✕</button>
     <h2>批次複製</h2>
 
     <h3>基底檔名</h3>
@@ -707,11 +809,11 @@
       </label>
     </div>
 
-    <h3>選要批次替換的欄位（可多選）</h3>
+    <h3>選要批次替換的欄位（可多選）／加新位置</h3>
     <div class="batch-fields" id="batch-fields"></div>
 
-    <h3 style="margin-top:8px;">替換值（每欄一行一個值，第 N 行 = 第 N 份檔名）</h3>
-    <div class="batch-matrix" id="batch-matrix"></div>
+    <h3 style="margin-top:8px;">每欄為每份檔名指定值（可填多個標籤、可搜尋標籤庫）</h3>
+    <div id="batch-field-configs"></div>
 
     <h3>預覽（可勾選多行後對勾選的行套用替換）</h3>
     <div class="batch-summary" id="batch-summary"></div>
@@ -730,6 +832,15 @@
     </div>
 
     <div class="batch-preview" id="batch-preview"></div>
+
+    <!-- Batch's own custom-tag panel (need 6B) -->
+    <div id="batch-custom-tags-section" style="display:none; margin-top: 12px;">
+      <h3 style="display:flex; justify-content:space-between; align-items:center;">
+        <span>本次批次新增的自訂標籤</span>
+        <button class="btn small" id="batch-copy-all-custom" style="font-size:11px;">📋 複製全部</button>
+      </h3>
+      <div id="batch-custom-tags-list" style="display:flex;flex-direction:column;gap:6px;"></div>
+    </div>
 
     <div class="modal-actions">
       <button class="btn ghost" onclick="closeBatch()">取消</button>
@@ -1417,6 +1528,28 @@ function copyCustomTagRow(en) {
   });
 }
 
+function copyAllCustomTags() {
+  const list = getCustomTagsList();
+  if (list.length === 0) {
+    showToast("沒有自訂標籤可複製", "error");
+    return;
+  }
+  const tsv = list.map(t =>
+    [t.ch || "", t.en, t.cat || "", "", "", "是"].join("\t")
+  ).join("\n");
+  navigator.clipboard.writeText(tsv).then(() => {
+    showToast(`已複製 ${list.length} 個標籤 → 貼到標籤庫最下方`, "success");
+  }).catch(() => {
+    const ta = document.createElement("textarea");
+    ta.value = tsv;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    document.body.removeChild(ta);
+    showToast("已複製", "success");
+  });
+}
+
 //==============================
 // BATCH MODE
 //==============================
@@ -1474,18 +1607,32 @@ function composeFromParts(parts, overrides /* Map idx → newValue */, serialOff
       const newNum = parseInt(p.value, 10) + subOffset;
       return String(newNum).padStart(2, "0");
     }
+    if (p.kind === "expansion") {
+      // Empty by default - filtered out below
+      return p.value || "";
+    }
     return p.value;
   }).filter(x => x !== "" && x != null).join("_");
 }
 
 // Batch modal state
+//
+// New v4 model:
+// - parts: list of {kind, label, value} including expansion parts (kind="expansion", value="")
+// - selectedFieldIndexes: which part indexes user wants to vary across rows
+// - cellTags: Map<partIdx, Array<count>{ row: Array<string> }>
+//     i.e. cellTags.get(partIdx)[rowIdx] = array of tag strings (joined by _ in output)
+//     when undefined => use the original part value
+// - rowOverrides: per-row post-hoc overrides (still keep, used by apply-to-checked)
+// - checkedRows: rows selected for batch apply
 let batchState = {
   parts: [],
-  selectedFieldIndexes: new Set(),  // Which part indexes the user wants to vary
-  values: new Map(),                 // idx → array of replacement values (one per row)
-  rowOverrides: [],                  // [rowIdx]: Map(partIdx -> value), post-hoc overrides
-  checkedRows: new Set(),            // row indexes selected for batch apply
-  cachedFilenames: [],               // last generated filenames (for apply actions)
+  selectedFieldIndexes: new Set(),
+  cellTags: new Map(),
+  rowOverrides: [],
+  checkedRows: new Set(),
+  cachedFilenames: [],
+  customTagsAdded: {},  // en -> {ch, cat} for in-batch new tags (need 6B)
 };
 
 function openBatch() {
@@ -1496,27 +1643,22 @@ function openBatch() {
   }
   batchState.parts = parts;
   batchState.selectedFieldIndexes = new Set();
-  batchState.values = new Map();
+  batchState.cellTags = new Map();
   batchState.rowOverrides = [];
   batchState.checkedRows = new Set();
   batchState.cachedFilenames = [];
+  batchState.customTagsAdded = {};
 
-  // Default: pre-select 子號 if exists, else 主編號
-  const subIdx = parts.findIndex(p => p.kind === "subserial");
-  if (subIdx >= 0) {
-    batchState.selectedFieldIndexes.add(subIdx);
-  } else {
-    const serIdx = parts.findIndex(p => p.kind === "serial");
-    if (serIdx >= 0) batchState.selectedFieldIndexes.add(serIdx);
-  }
+  // Default: don't preselect any field. User explicitly picks what to vary.
 
   $("batch-base").textContent = composeFromParts(parts, null, 0, 0, "none");
   $("batch-count").value = "6";
   document.querySelector('input[name="batch-numbering"][value="serial"]').checked = true;
 
   renderBatchFields();
-  renderBatchMatrix();
+  renderBatchFieldConfigs();
   renderBatchPreview();
+  renderBatchCustomTags();
   $("modal-batch").classList.add("show");
 }
 
@@ -1526,68 +1668,439 @@ function closeBatch() {
 
 function renderBatchFields() {
   const box = $("batch-fields");
-  box.innerHTML = batchState.parts.map((p, idx) => {
+  const parts = batchState.parts;
+  const html = parts.map((p, idx) => {
     const isSelected = batchState.selectedFieldIndexes.has(idx);
+    const isExp = p.kind === "expansion";
     return `
-      <label class="batch-field-pill ${isSelected ? 'active' : ''}" onclick="toggleBatchField(${idx}); event.preventDefault();">
+      <label class="batch-field-pill ${isSelected ? 'active' : ''}"
+             onclick="toggleBatchField(${idx}); event.preventDefault();"
+             title="${isExp ? '擴充位置（可加新標籤；可移除）' : ''}">
         <span class="pill-label">${escapeHtml(p.label)}</span>
-        <span>${escapeHtml(p.value)}</span>
+        <span>${isExp ? '⊕ 新位置' : escapeHtml(p.value)}</span>
+        ${isExp ? `<span class="x" onclick="removeExpansion(${idx}); event.stopPropagation();" style="margin-left:4px;color:var(--text-faint);cursor:pointer;">✕</span>` : ''}
       </label>
     `;
   }).join("");
+  box.innerHTML = html + `
+    <button class="batch-expand-btn" onclick="addExpansion()">＋ 擴充新位置</button>
+  `;
 }
 
 function toggleBatchField(idx) {
   if (batchState.selectedFieldIndexes.has(idx)) {
     batchState.selectedFieldIndexes.delete(idx);
-    batchState.values.delete(idx);
+    batchState.cellTags.delete(idx);
   } else {
     batchState.selectedFieldIndexes.add(idx);
-    // Pre-fill with original value as line 1
+    // Initialize cell tags for this field: empty arrays per row
     const count = parseInt($("batch-count").value, 10) || 6;
-    const orig = batchState.parts[idx].value;
-    batchState.values.set(idx, [orig]);
+    const arr = [];
+    for (let i = 0; i < count; i++) arr.push([]);
+    batchState.cellTags.set(idx, arr);
   }
   renderBatchFields();
-  renderBatchMatrix();
+  renderBatchFieldConfigs();
   renderBatchPreview();
 }
 
-function renderBatchMatrix() {
-  const box = $("batch-matrix");
+function addExpansion() {
+  // Find a sensible position: insert before 尺寸/語系/版本 if exists, else end
+  const parts = batchState.parts;
+  let insertAt = parts.length;
+  for (let i = 0; i < parts.length; i++) {
+    if (["size","lang","version"].includes(parts[i].kind)) {
+      insertAt = i; break;
+    }
+  }
+  const newPart = { kind: "expansion", label: "新位置", value: "" };
+  parts.splice(insertAt, 0, newPart);
+  // Shift selectedFieldIndexes and cellTags keys >= insertAt by +1
+  const newSelected = new Set();
+  const newCellTags = new Map();
+  for (const i of batchState.selectedFieldIndexes) {
+    newSelected.add(i >= insertAt ? i + 1 : i);
+  }
+  for (const [k, v] of batchState.cellTags) {
+    newCellTags.set(k >= insertAt ? k + 1 : k, v);
+  }
+  // Pre-select the new position so user can immediately fill
+  newSelected.add(insertAt);
+  const count = parseInt($("batch-count").value, 10) || 6;
+  const initArr = [];
+  for (let i = 0; i < count; i++) initArr.push([]);
+  newCellTags.set(insertAt, initArr);
+
+  batchState.selectedFieldIndexes = newSelected;
+  batchState.cellTags = newCellTags;
+
+  // Also shift rowOverrides
+  batchState.rowOverrides = batchState.rowOverrides.map(om => {
+    if (!om) return om;
+    const newOm = new Map();
+    for (const [k, v] of om) newOm.set(k >= insertAt ? k + 1 : k, v);
+    return newOm;
+  });
+
+  renderBatchFields();
+  renderBatchFieldConfigs();
+  renderBatchPreview();
+}
+
+function removeExpansion(idx) {
+  // Only allow removing expansion parts
+  if (batchState.parts[idx]?.kind !== "expansion") return;
+  batchState.parts.splice(idx, 1);
+  // Remove from selected and cellTags, and shift keys > idx by -1
+  const newSelected = new Set();
+  const newCellTags = new Map();
+  for (const i of batchState.selectedFieldIndexes) {
+    if (i === idx) continue;
+    newSelected.add(i > idx ? i - 1 : i);
+  }
+  for (const [k, v] of batchState.cellTags) {
+    if (k === idx) continue;
+    newCellTags.set(k > idx ? k - 1 : k, v);
+  }
+  batchState.selectedFieldIndexes = newSelected;
+  batchState.cellTags = newCellTags;
+  batchState.rowOverrides = batchState.rowOverrides.map(om => {
+    if (!om) return om;
+    const newOm = new Map();
+    for (const [k, v] of om) {
+      if (k === idx) continue;
+      newOm.set(k > idx ? k - 1 : k, v);
+    }
+    return newOm;
+  });
+  renderBatchFields();
+  renderBatchFieldConfigs();
+  renderBatchPreview();
+}
+
+function renderBatchFieldConfigs() {
+  const box = $("batch-field-configs");
   const indexes = Array.from(batchState.selectedFieldIndexes).sort((a,b) => a-b);
   if (indexes.length === 0) {
-    box.innerHTML = `<div class="batch-matrix-empty">尚未選任何欄位。<br>選了之後這裡會出現輸入框，每行一個值，第 N 行 = 第 N 份檔名。<br>沒選任何欄位也可以，會純複製 N 份只改編號。</div>`;
+    box.innerHTML = `<div class="batch-matrix-empty">尚未選任何欄位。<br>勾選想批次替換的欄位（或按「擴充新位置」加新標籤插入點）；沒選任何欄位也可以，會純複製 N 份只改編號。</div>`;
     return;
   }
-  // Set grid columns based on count
-  box.style.gridTemplateColumns = `repeat(${Math.min(indexes.length, 3)}, 1fr)`;
+
+  const count = parseInt($("batch-count").value, 10) || 6;
 
   box.innerHTML = indexes.map(idx => {
     const part = batchState.parts[idx];
-    const arr = batchState.values.get(idx) || [part.value];
+    const cellArr = batchState.cellTags.get(idx) || [];
+    const isExp = part.kind === "expansion";
     return `
-      <div class="batch-matrix-col">
+      <div class="batch-field-config" data-idx="${idx}">
         <header>
-          <span>${escapeHtml(part.label)}</span>
-          <span class="orig">原: ${escapeHtml(part.value)}</span>
+          <span class="fc-title">${escapeHtml(part.label)}</span>
+          <span style="display:flex;gap:10px;align-items:center;">
+            <span class="fc-orig">${isExp ? '（新位置，原為空）' : '原: ' + escapeHtml(part.value)}</span>
+            ${isExp ? `<button onclick="removeExpansion(${idx})" title="移除此擴充位置">✕ 移除</button>` : ''}
+          </span>
         </header>
-        <textarea data-idx="${idx}" oninput="onMatrixInput(${idx}, this.value)" placeholder="一行一個值">${arr.join("\n")}</textarea>
+        <div class="batch-row-actions">
+          <span style="opacity:0.7;">快速貼上 N 個值（每行一個 / 逗號分隔）：</span>
+          <span class="quick-fill">
+            <input id="qf-input-${idx}" type="text" placeholder="例：LuYun, ThaoVy, KIO, YUUKA">
+            <button onclick="quickFillCells(${idx})">套用到所有份</button>
+          </span>
+        </div>
+        <div class="batch-row-grid">
+          ${Array.from({length: count}, (_, r) => {
+            const tags = (cellArr[r] || []);
+            const tagsHtml = tags.map((t, ti) => `
+              <span class="batch-mini-chip">
+                ${escapeHtml(t)}
+                <span class="x" onclick="removeCellTag(${idx}, ${r}, ${ti})">✕</span>
+              </span>
+            `).join("");
+            const origHtml = (!isExp && tags.length === 0) ? `
+              <span class="batch-mini-chip orig" title="未填值會用原值">${escapeHtml(part.value)}</span>
+            ` : "";
+            return `
+              <div class="batch-row-cell">
+                <div class="batch-row-cell-header">第 ${r+1} 份</div>
+                <div class="batch-row-cell-tags">${tagsHtml}${origHtml}</div>
+                <div style="position:relative;">
+                  <input class="batch-mini-input" placeholder="搜尋標籤庫或直接輸入"
+                         data-cell-idx="${idx}" data-cell-row="${r}"
+                         oninput="onCellInput(${idx}, ${r}, this)"
+                         onkeydown="onCellKey(event, ${idx}, ${r}, this)"
+                         onfocus="showCellSuggest(${idx}, ${r}, this)"
+                         onblur="setTimeout(() => hideCellSuggest(${idx}, ${r}), 200)">
+                </div>
+              </div>
+            `;
+          }).join("")}
+        </div>
       </div>
     `;
   }).join("");
 }
 
-function onMatrixInput(idx, text) {
-  const lines = text.split("\n").map(s => s.trim()).filter(s => s !== "");
-  batchState.values.set(idx, lines.length ? lines : [batchState.parts[idx].value]);
+// Sync cellTags array length to current count
+function ensureCellArrays() {
+  const count = parseInt($("batch-count").value, 10) || 6;
+  for (const idx of batchState.selectedFieldIndexes) {
+    const arr = batchState.cellTags.get(idx) || [];
+    while (arr.length < count) arr.push([]);
+    batchState.cellTags.set(idx, arr);
+  }
+}
+
+function onCellInput(partIdx, rowIdx, inputEl) {
+  showCellSuggest(partIdx, rowIdx, inputEl);
+}
+
+function onCellKey(e, partIdx, rowIdx, inputEl) {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    // Add the typed value, or the active suggestion
+    const popup = inputEl.parentElement.querySelector(".batch-cell-suggest");
+    const active = popup?.querySelector(".suggest-item.active");
+    let val;
+    if (active) {
+      val = active.dataset.en;
+    } else {
+      val = inputEl.value.trim();
+    }
+    if (!val) return;
+    addCellTag(partIdx, rowIdx, val);
+    inputEl.value = "";
+    hideCellSuggest(partIdx, rowIdx);
+    inputEl.focus();
+  } else if (e.key === "Escape") {
+    inputEl.value = "";
+    hideCellSuggest(partIdx, rowIdx);
+  } else if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+    e.preventDefault();
+    moveCellSuggestActive(partIdx, rowIdx, e.key === "ArrowDown" ? 1 : -1);
+  }
+}
+
+// Decide which categories to suggest based on the part being edited
+function getCategoriesForPart(part) {
+  if (!part) return [];
+  if (part.kind === "tag") {
+    const tagCat = part.label.replace(/^標籤·/, "");
+    if (tagCat && tagCat !== "自訂") return [tagCat];
+    // Generic: all non-fixed
+    return null; // signals "all"
+  }
+  if (part.kind === "project") return ["專案"];
+  if (part.kind === "size") return ["尺寸"];
+  if (part.kind === "lang") return ["語系"];
+  if (part.kind === "expansion") return null; // all
+  return [];  // fixed numeric fields, no suggest
+}
+
+function showCellSuggest(partIdx, rowIdx, inputEl) {
+  const part = batchState.parts[partIdx];
+  const cats = getCategoriesForPart(part);
+  if (cats !== null && cats.length === 0) return; // numeric field, no suggest
+
+  let pool = allTags;
+  if (cats !== null) {
+    pool = allTags.filter(t => cats.includes(t.cat));
+  } else {
+    // exclude fixed cats
+    pool = allTags.filter(t => !["專案","尺寸","語系"].includes(t.cat));
+  }
+
+  const q = (inputEl.value || "").toLowerCase().trim();
+  let suggestions = pool;
+  if (q) {
+    suggestions = pool.filter(t =>
+      (t.ch + " " + t.en + " " + t.alias).toLowerCase().includes(q)
+    );
+  }
+  const seen = new Set();
+  suggestions = suggestions.filter(t => {
+    if (seen.has(t.en)) return false;
+    seen.add(t.en);
+    return true;
+  }).slice(0, 20);
+
+  // Find or create popup
+  let popup = inputEl.parentElement.querySelector(".batch-cell-suggest");
+  if (!popup) {
+    popup = document.createElement("div");
+    popup.className = "batch-cell-suggest";
+    inputEl.parentElement.appendChild(popup);
+  }
+
+  if (suggestions.length === 0) {
+    popup.classList.remove("show");
+    return;
+  }
+  popup.innerHTML = suggestions.map((t, i) => `
+    <div class="suggest-item ${i === 0 ? 'active' : ''}" data-en="${escapeAttr(t.en)}"
+         onmousedown="event.preventDefault(); pickCellSuggest(${partIdx}, ${rowIdx}, '${escapeAttr(t.en)}');">
+      <span class="si-ch">${escapeHtml(t.ch)}</span>
+      <span class="si-en">${escapeHtml(t.en)}</span>
+    </div>
+  `).join("");
+  popup.classList.add("show");
+}
+
+function hideCellSuggest(partIdx, rowIdx) {
+  const cells = document.querySelectorAll(`.batch-mini-input[data-cell-idx="${partIdx}"][data-cell-row="${rowIdx}"]`);
+  cells.forEach(c => {
+    const popup = c.parentElement.querySelector(".batch-cell-suggest");
+    if (popup) popup.classList.remove("show");
+  });
+}
+
+function moveCellSuggestActive(partIdx, rowIdx, dir) {
+  const cells = document.querySelectorAll(`.batch-mini-input[data-cell-idx="${partIdx}"][data-cell-row="${rowIdx}"]`);
+  cells.forEach(c => {
+    const popup = c.parentElement.querySelector(".batch-cell-suggest");
+    if (!popup || !popup.classList.contains("show")) return;
+    const items = Array.from(popup.querySelectorAll(".suggest-item"));
+    if (items.length === 0) return;
+    let cur = items.findIndex(it => it.classList.contains("active"));
+    if (cur < 0) cur = 0;
+    cur = (cur + dir + items.length) % items.length;
+    items.forEach(it => it.classList.remove("active"));
+    items[cur].classList.add("active");
+    items[cur].scrollIntoView({block:"nearest"});
+  });
+}
+
+function pickCellSuggest(partIdx, rowIdx, en) {
+  addCellTag(partIdx, rowIdx, en);
+  // Clear input
+  const cells = document.querySelectorAll(`.batch-mini-input[data-cell-idx="${partIdx}"][data-cell-row="${rowIdx}"]`);
+  cells.forEach(c => { c.value = ""; });
+  hideCellSuggest(partIdx, rowIdx);
+}
+
+function addCellTag(partIdx, rowIdx, value) {
+  ensureCellArrays();
+  const arr = batchState.cellTags.get(partIdx);
+  if (!arr) return;
+  if (!arr[rowIdx]) arr[rowIdx] = [];
+  if (arr[rowIdx].includes(value)) return;
+  arr[rowIdx].push(value);
+  // Track if this is a custom (not in lib) tag
+  trackBatchCustomTag(value);
+  renderBatchFieldConfigs();
   renderBatchPreview();
+  // Refocus on the same cell input
+  setTimeout(() => {
+    const c = document.querySelector(`.batch-mini-input[data-cell-idx="${partIdx}"][data-cell-row="${rowIdx}"]`);
+    if (c) c.focus();
+  }, 0);
+}
+
+function removeCellTag(partIdx, rowIdx, tagIdx) {
+  const arr = batchState.cellTags.get(partIdx);
+  if (!arr || !arr[rowIdx]) return;
+  arr[rowIdx].splice(tagIdx, 1);
+  renderBatchFieldConfigs();
+  renderBatchPreview();
+}
+
+function quickFillCells(partIdx) {
+  const input = $(`qf-input-${partIdx}`);
+  if (!input) return;
+  const raw = input.value.trim();
+  if (!raw) return;
+  // Split by newline or comma
+  const values = raw.split(/[\n,，]/).map(s => s.trim()).filter(Boolean);
+  ensureCellArrays();
+  const arr = batchState.cellTags.get(partIdx);
+  if (!arr) return;
+  values.forEach((v, i) => {
+    if (i >= arr.length) return;
+    if (!arr[i]) arr[i] = [];
+    if (!arr[i].includes(v)) {
+      arr[i].push(v);
+      trackBatchCustomTag(v);
+    }
+  });
+  input.value = "";
+  renderBatchFieldConfigs();
+  renderBatchPreview();
+  showToast(`已將 ${values.length} 個值套用到前 ${Math.min(values.length, arr.length)} 份`, "success");
+}
+
+// Track tags added in batch mode that are NOT in the loaded library (need 6B)
+function trackBatchCustomTag(en) {
+  if (!en) return;
+  // Skip if it's in the library
+  if (allTags.some(t => t.en === en)) return;
+  if (batchState.customTagsAdded[en]) return;
+  batchState.customTagsAdded[en] = { ch: en, cat: "" };
+  renderBatchCustomTags();
+}
+
+function renderBatchCustomTags() {
+  const section = $("batch-custom-tags-section");
+  const list = $("batch-custom-tags-list");
+  const items = Object.entries(batchState.customTagsAdded);
+  if (items.length === 0) {
+    section.style.display = "none";
+    return;
+  }
+  section.style.display = "";
+
+  const cats = Array.from(new Set(allTags.map(t => t.cat).filter(Boolean))).sort();
+  list.innerHTML = items.map(([en, data]) => {
+    const enEsc = escapeAttr(en);
+    return `
+      <div class="custom-tag-row" data-en="${escapeHtml(en)}">
+        <input type="text" placeholder="中文名" value="${escapeHtml(data.ch || '')}"
+               oninput="updateBatchCustomField('${enEsc}', 'ch', this.value)">
+        <span class="ctr-en">${escapeHtml(en)}</span>
+        <select onchange="updateBatchCustomField('${enEsc}', 'cat', this.value)">
+          <option value="">— 選分類 —</option>
+          ${cats.map(c => `<option value="${escapeHtml(c)}" ${data.cat === c ? 'selected' : ''}>${escapeHtml(c)}</option>`).join('')}
+        </select>
+        <span style="font-size:11px;color:var(--text-faint);">補完中文/分類後可複製</span>
+        <button onclick="copyBatchCustomRow('${enEsc}')">📋 複製這列</button>
+      </div>
+    `;
+  }).join("");
+}
+
+function updateBatchCustomField(en, key, value) {
+  if (!batchState.customTagsAdded[en]) batchState.customTagsAdded[en] = {};
+  batchState.customTagsAdded[en][key] = value;
+}
+
+function copyBatchCustomRow(en) {
+  const data = batchState.customTagsAdded[en];
+  if (!data) return;
+  const cells = [data.ch || "", en, data.cat || "", "", "", "是"];
+  const tsv = cells.join("\t");
+  navigator.clipboard.writeText(tsv).then(() => {
+    showToast(`已複製：${en}`, "success");
+  }).catch(() => {});
+}
+
+function copyBatchAllCustom() {
+  const items = Object.entries(batchState.customTagsAdded);
+  if (items.length === 0) {
+    showToast("沒有自訂標籤可複製", "error");
+    return;
+  }
+  const tsv = items.map(([en, data]) =>
+    [data.ch || "", en, data.cat || "", "", "", "是"].join("\t")
+  ).join("\n");
+  navigator.clipboard.writeText(tsv).then(() => {
+    showToast(`已複製 ${items.length} 個標籤`, "success");
+  }).catch(() => {});
 }
 
 function generateBatch() {
   const count = Math.max(1, parseInt($("batch-count").value, 10) || 1);
   const numbering = document.querySelector('input[name="batch-numbering"]:checked').value;
 
+  ensureCellArrays();
   const indexes = Array.from(batchState.selectedFieldIndexes).sort((a,b) => a-b);
   const out = [];
   const warnings = [];
@@ -1595,13 +2108,21 @@ function generateBatch() {
   for (let n = 0; n < count; n++) {
     const overrides = new Map();
     for (const idx of indexes) {
-      const arr = batchState.values.get(idx) || [];
-      if (n < arr.length) {
-        overrides.set(idx, arr[n]);
+      const arr = batchState.cellTags.get(idx) || [];
+      const tags = arr[n] || [];
+      if (tags.length > 0) {
+        // Multiple tags joined with underscore form a compound value
+        overrides.set(idx, tags.join("_"));
+      } else {
+        // Empty - for expansion, empty means skip; for non-expansion, override null = use original
+        const part = batchState.parts[idx];
+        if (part?.kind === "expansion") {
+          overrides.set(idx, ""); // explicit empty -> filtered
+        }
+        // else: leave as original
       }
-      // else: leave as original (no override)
     }
-    // Apply post-hoc per-row overrides (from "套用到勾選")
+    // Apply post-hoc per-row overrides
     if (batchState.rowOverrides[n]) {
       for (const [pIdx, val] of batchState.rowOverrides[n]) {
         overrides.set(pIdx, val);
@@ -1623,14 +2144,6 @@ function generateBatch() {
   });
   if (dup.length > 0) {
     warnings.push(`有 ${dup.length} 個重複檔名（在第 ${dup.map(i=>i+1).join(", ")} 行）`);
-  }
-
-  // Check field value insufficiency
-  for (const idx of indexes) {
-    const arr = batchState.values.get(idx) || [];
-    if (arr.length < count && arr.length > 0) {
-      warnings.push(`「${batchState.parts[idx].label}」只填了 ${arr.length} 個值，第 ${arr.length+1} 行起會用原值`);
-    }
   }
 
   return { filenames: out, warnings };
@@ -1890,16 +2403,23 @@ window.addEventListener("DOMContentLoaded", () => {
   $("btn-copy").addEventListener("click", copyFilename);
   $("btn-batch").addEventListener("click", openBatch);
   $("btn-clear").addEventListener("click", clearForm);
+  $("btn-copy-all-custom").addEventListener("click", copyAllCustomTags);
 
   // Batch dialog interactions
-  $("batch-count").addEventListener("input", renderBatchPreview);
+  $("batch-count").addEventListener("input", () => {
+    ensureCellArrays();
+    renderBatchFieldConfigs();
+    renderBatchPreview();
+  });
   document.querySelectorAll('input[name="batch-numbering"]').forEach(r => {
     r.addEventListener("change", renderBatchPreview);
   });
   $("batch-copy").addEventListener("click", batchCopyAll);
   $("batch-download").addEventListener("click", batchDownloadCsv);
+  $("batch-copy-all-custom").addEventListener("click", copyBatchAllCustom);
   $("modal-batch").addEventListener("click", e => {
-    if (e.target.id === "modal-batch") closeBatch();
+    // Disabled: don't close on bg click - user must use Cancel/X
+    // if (e.target.id === "modal-batch") closeBatch();
   });
 
   // Apply-to-selected interactions
@@ -1925,7 +2445,8 @@ window.addEventListener("DOMContentLoaded", () => {
   });
 
   $("modal-config").addEventListener("click", e => {
-    if (e.target.id === "modal-config") closeConfig();
+    // Disabled: don't close on bg click - user must use Cancel/X
+    // if (e.target.id === "modal-config") closeConfig();
   });
 
   document.addEventListener("keydown", e => {
@@ -1942,11 +2463,11 @@ window.addEventListener("DOMContentLoaded", () => {
   // Initialize
   loadTags(false).then(() => restoreForm());
 
-  // Default year-month
+  // Default year-month: always reset to current month on load
+  // (overrides any stale localStorage value)
   const now = new Date();
-  if (!$("f-yearmonth").value) {
-    $("f-yearmonth").value = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,"0")}`;
-  }
+  const ym = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,"0")}`;
+  $("f-yearmonth").value = ym;
   updatePreview();
 });
 </script>
