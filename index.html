@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>檔名命名工具</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0a;
+    --panel: #141414;
+    --panel-2: #1c1c1c;
+    --border: #2a2a2a;
+    --border-strong: #3a3a3a;
+    --text: #e8e8e8;
+    --text-dim: #888;
+    --text-faint: #555;
+    --accent: #c9a96e;
+    --accent-soft: rgba(201, 169, 110, 0.15);
+    --danger: #d96f6f;
+    --success: #6ec991;
+    --mono: ui-monospace, "SF Mono", "Menlo", "Consolas", monospace;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 32px 24px 80px;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 32px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .header h1 {
+    font-size: 18px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+  .header h1 .accent { color: var(--accent); }
+  .header .meta {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+
+  /* Toolbar */
+  .toolbar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+  .btn {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.12s ease;
+    border-radius: 4px;
+  }
+  .btn:hover {
+    background: var(--panel-2);
+    border-color: var(--border-strong);
+  }
+  .btn:active { transform: translateY(1px); }
+  .btn.primary {
+    background: var(--accent);
+    color: #1a1a1a;
+    border-color: var(--accent);
+    font-weight: 500;
+  }
+  .btn.primary:hover { background: #d4b478; }
+  .btn.ghost {
+    background: transparent;
+    color: var(--text-dim);
+  }
+  .btn.ghost:hover { color: var(--text); }
+  .btn .badge {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 6px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 11px;
+    border-radius: 2px;
+  }
+
+  /* Status bar */
+  .status {
+    font-family: var(--mono);
+    font-size: 12px;
+    padding: 8px 12px;
+    margin-bottom: 16px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    background: var(--panel);
+  }
+  .status.loading { color: var(--text-dim); }
+  .status.success {
+    color: var(--success);
+    border-color: rgba(110, 201, 145, 0.3);
+    background: rgba(110, 201, 145, 0.05);
+  }
+  .status.error {
+    color: var(--danger);
+    border-color: rgba(217, 111, 111, 0.3);
+    background: rgba(217, 111, 111, 0.05);
+  }
+
+  /* Sections */
+  .section {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: var(--panel-2);
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .section-header .label { font-weight: 500; }
+  .section-body { padding: 16px; }
+
+  /* Fixed fields grid */
+  .fields-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .field label {
+    font-size: 11px;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .field input, .field select {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 10px;
+    font-family: var(--mono);
+    font-size: 13px;
+    border-radius: 4px;
+    outline: none;
+    transition: border-color 0.12s;
+  }
+  .field input:focus, .field select:focus {
+    border-color: var(--accent);
+  }
+
+  /* Tag chips area */
+  .tags-area {
+    min-height: 60px;
+    padding: 12px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  .tags-area:empty::before {
+    content: "尚未選取任何標籤";
+    color: var(--text-faint);
+    font-size: 13px;
+    font-style: italic;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    background: var(--panel-2);
+    border: 1px solid var(--border-strong);
+    border-radius: 4px;
+    font-family: var(--mono);
+    font-size: 12px;
+    cursor: grab;
+    user-select: none;
+    transition: all 0.12s;
+  }
+  .chip:hover {
+    border-color: var(--accent);
+  }
+  .chip.dragging {
+    opacity: 0.4;
+    cursor: grabbing;
+  }
+  .chip .ch {
+    color: var(--text-dim);
+    font-size: 11px;
+  }
+  .chip .en {
+    color: var(--text);
+    font-weight: 500;
+  }
+  .chip .cat {
+    font-size: 10px;
+    padding: 1px 5px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-radius: 2px;
+  }
+  .chip .x {
+    color: var(--text-faint);
+    cursor: pointer;
+    padding: 0 2px;
+    font-size: 14px;
+    line-height: 1;
+  }
+  .chip .x:hover { color: var(--danger); }
+
+  /* Search */
+  .search-wrap {
+    position: relative;
+    margin-top: 12px;
+  }
+  .search-input {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 12px;
+    font-size: 14px;
+    border-radius: 4px;
+    outline: none;
+    font-family: inherit;
+  }
+  .search-input:focus {
+    border-color: var(--accent);
+  }
+  .search-input::placeholder { color: var(--text-faint); }
+
+  .results {
+    margin-top: 4px;
+    max-height: 320px;
+    overflow-y: auto;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--panel-2);
+    display: none;
+  }
+  .results.show { display: block; }
+  .result-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  .result-item:last-child { border-bottom: none; }
+  .result-item:hover, .result-item.active {
+    background: var(--accent-soft);
+  }
+  .result-item .r-ch { color: var(--text-dim); min-width: 100px; }
+  .result-item .r-en { font-family: var(--mono); color: var(--text); flex: 1; }
+  .result-item .r-cat {
+    font-size: 11px;
+    padding: 2px 6px;
+    background: var(--bg);
+    color: var(--text-dim);
+    border-radius: 2px;
+  }
+  .result-item .r-arrow { color: var(--text-faint); }
+  .result-empty {
+    padding: 16px;
+    text-align: center;
+    color: var(--text-faint);
+    font-size: 13px;
+  }
+  .result-empty .add-btn {
+    margin-top: 8px;
+  }
+
+  /* Preview */
+  .preview {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .preview-label {
+    font-size: 11px;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+  }
+  .preview-filename {
+    font-family: var(--mono);
+    font-size: 16px;
+    color: var(--accent);
+    word-break: break-all;
+    line-height: 1.6;
+    padding: 12px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    min-height: 48px;
+  }
+  .preview-filename:empty::before {
+    content: "檔名會在這裡顯示";
+    color: var(--text-faint);
+    font-style: italic;
+  }
+  .preview-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  /* Modal */
+  .modal-bg {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+  .modal-bg.show { display: flex; }
+  .modal {
+    background: var(--panel);
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    padding: 24px;
+    max-width: 500px;
+    width: 90%;
+  }
+  .modal h2 {
+    font-size: 16px;
+    margin-bottom: 16px;
+  }
+  .modal .field { margin-bottom: 12px; }
+  .modal-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 16px;
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--panel);
+    border: 1px solid var(--border-strong);
+    color: var(--text);
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-size: 13px;
+    opacity: 0;
+    transition: all 0.2s;
+    pointer-events: none;
+    z-index: 200;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  .toast.success { border-color: var(--success); }
+  .toast.error { border-color: var(--danger); }
+
+  /* Help panel */
+  .help {
+    margin-top: 32px;
+    padding: 16px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.7;
+  }
+  .help b { color: var(--text); }
+  .help kbd {
+    display: inline-block;
+    padding: 1px 6px;
+    background: var(--bg);
+    border: 1px solid var(--border-strong);
+    border-radius: 3px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text);
+  }
+
+  /* Utility */
+  .row { display: flex; gap: 8px; align-items: center; }
+  .grow { flex: 1; }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <h1>檔名命名工具 <span class="accent">·</span> <span style="color:var(--text-dim);font-weight:400;">v1 MVP</span></h1>
+    <div class="meta" id="meta">標籤庫載入中…</div>
+  </div>
+
+  <div class="toolbar">
+    <button class="btn ghost" id="btn-reload">重新載入標籤庫</button>
+    <button class="btn ghost" id="btn-config">設定試算表網址</button>
+    <button class="btn ghost" id="btn-help">使用說明</button>
+  </div>
+
+  <div class="status loading" id="status">正在載入標籤庫…</div>
+
+  <!-- 固定欄位 -->
+  <div class="section">
+    <div class="section-header"><span class="label">固定欄位</span></div>
+    <div class="section-body">
+      <div class="fields-grid">
+        <div class="field">
+          <label>年月</label>
+          <input id="f-yearmonth" type="text" placeholder="YYYYMM">
+        </div>
+        <div class="field">
+          <label>編號</label>
+          <input id="f-serial" type="text" placeholder="VD17 / AD01">
+        </div>
+        <div class="field">
+          <label>專案</label>
+          <select id="f-project">
+            <option value="">— 選擇 —</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 標籤群 -->
+  <div class="section">
+    <div class="section-header">
+      <span class="label">標籤群</span>
+      <span style="font-family:var(--mono);font-size:11px;color:var(--text-faint);">拖拉排序 · 點 ✕ 移除</span>
+    </div>
+    <div class="section-body">
+      <div class="tags-area" id="tags-area"></div>
+      <div class="search-wrap">
+        <input class="search-input" id="search" type="text" placeholder="搜尋標籤（中文 / 英文 / 別名都可以）">
+        <div class="results" id="results"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 後段固定 -->
+  <div class="section">
+    <div class="section-header"><span class="label">後段（影片用，平面可留空）</span></div>
+    <div class="section-body">
+      <div class="fields-grid">
+        <div class="field">
+          <label>尺寸</label>
+          <select id="f-size"><option value="">—</option></select>
+        </div>
+        <div class="field">
+          <label>語系</label>
+          <select id="f-lang"><option value="">—</option></select>
+        </div>
+        <div class="field">
+          <label>版本</label>
+          <input id="f-version" type="text" placeholder="V1">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Preview -->
+  <div class="preview">
+    <div class="preview-label">預覽檔名</div>
+    <div class="preview-filename" id="preview"></div>
+    <div class="preview-actions">
+      <button class="btn primary" id="btn-copy">複製檔名</button>
+      <button class="btn" id="btn-clear">清空</button>
+    </div>
+  </div>
+
+  <div class="help">
+    <b>使用流程：</b>
+    1. 確認上方狀態列顯示「已載入」 ·
+    2. 填年月、編號、選專案 ·
+    3. 在搜尋框輸入中文或英文找標籤，<kbd>Enter</kbd> 加入第一個結果，<kbd>↑↓</kbd> 移動、<kbd>Enter</kbd> 選取 ·
+    4. 已選的標籤可以拖拉調整順序 ·
+    5. 確認預覽檔名後按「複製檔名」<br><br>
+    <b>快捷鍵：</b>
+    <kbd>Ctrl/⌘ + K</kbd> 聚焦搜尋框 ·
+    <kbd>Ctrl/⌘ + Enter</kbd> 複製檔名 ·
+    <kbd>Esc</kbd> 關閉搜尋結果<br><br>
+    <b>標籤要新增？</b>直接在你的 Google Sheets「標籤庫」分頁加一列，按上方「重新載入標籤庫」即可看到。
+  </div>
+
+</div>
+
+<!-- Config modal -->
+<div class="modal-bg" id="modal-config">
+  <div class="modal">
+    <h2>設定試算表網址</h2>
+    <div class="field">
+      <label>Google Sheets ID 或完整網址</label>
+      <input id="config-input" type="text" style="width:100%;padding:8px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:4px;font-family:var(--mono);font-size:12px;">
+    </div>
+    <div style="font-size:12px;color:var(--text-dim);">
+      可貼完整網址或只貼 ID（網址 /d/ 跟 /edit 之間那段）。<br>
+      試算表必須設為「知道連結的任何人可檢視」。
+    </div>
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="closeConfig()">取消</button>
+      <button class="btn primary" onclick="saveConfig()">儲存並重新載入</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+//==============================
+// CONFIG
+//==============================
+const DEFAULT_SHEET_ID = "1Mq-hpiQV6qJy0-wAoGO9E4WoAD_JiClCFY36_aTraxM";
+const SHEET_NAME = "標籤庫";
+const STORAGE_KEY_SHEET = "naming_tool_sheet_id";
+const STORAGE_KEY_CACHE = "naming_tool_tags_cache";
+const STORAGE_KEY_FORM = "naming_tool_last_form";
+
+//==============================
+// STATE
+//==============================
+let allTags = [];          // {ch, en, cat, alias, note, enabled}
+let selectedTags = [];     // [{ch, en, cat}]
+let activeResultIdx = -1;
+let searchResults = [];
+
+//==============================
+// UTILITIES
+//==============================
+function $(id) { return document.getElementById(id); }
+function getSheetId() {
+  return localStorage.getItem(STORAGE_KEY_SHEET) || DEFAULT_SHEET_ID;
+}
+function setSheetId(id) {
+  localStorage.setItem(STORAGE_KEY_SHEET, id);
+}
+function showToast(msg, type = "") {
+  const t = $("toast");
+  t.textContent = msg;
+  t.className = "toast show " + type;
+  setTimeout(() => t.className = "toast " + type, 2000);
+}
+function setStatus(msg, type = "loading") {
+  const s = $("status");
+  s.textContent = msg;
+  s.className = "status " + type;
+}
+function debounce(fn, ms) {
+  let h; return (...a) => { clearTimeout(h); h = setTimeout(() => fn(...a), ms); };
+}
+
+// Parse CSV row (handles quoted fields)
+function parseCSV(text) {
+  const rows = [];
+  let row = [], field = "", inQuote = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQuote) {
+      if (c === '"' && text[i+1] === '"') { field += '"'; i++; }
+      else if (c === '"') inQuote = false;
+      else field += c;
+    } else {
+      if (c === '"') inQuote = true;
+      else if (c === ',') { row.push(field); field = ""; }
+      else if (c === '\n') { row.push(field); rows.push(row); row = []; field = ""; }
+      else if (c === '\r') {} // skip
+      else field += c;
+    }
+  }
+  if (field || row.length) { row.push(field); rows.push(row); }
+  return rows;
+}
+
+//==============================
+// DATA LOADING
+//==============================
+async function loadTags(force = false) {
+  const sheetId = getSheetId();
+  if (!sheetId) {
+    setStatus("尚未設定試算表，請點上方「設定試算表網址」", "error");
+    return;
+  }
+
+  // Try cache first
+  if (!force) {
+    const cached = localStorage.getItem(STORAGE_KEY_CACHE);
+    if (cached) {
+      try {
+        const obj = JSON.parse(cached);
+        if (obj.sheetId === sheetId) {
+          allTags = obj.tags;
+          afterTagsLoaded(obj.cachedAt, true);
+          // Continue to refresh in background
+        }
+      } catch (e) {}
+    }
+  }
+
+  setStatus("正在載入標籤庫…", "loading");
+  const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
+
+  try {
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error("HTTP " + resp.status);
+    const text = await resp.text();
+    const rows = parseCSV(text);
+    if (rows.length < 2) throw new Error("試算表似乎是空的");
+
+    // Header row (skip)
+    const tags = [];
+    for (let i = 1; i < rows.length; i++) {
+      const r = rows[i];
+      if (!r[1]) continue; // English required
+      const enabled = (r[5] || "是").trim();
+      if (enabled === "否") continue;
+      tags.push({
+        ch: (r[0] || "").trim(),
+        en: (r[1] || "").trim(),
+        cat: (r[2] || "").trim(),
+        alias: (r[3] || "").trim(),
+        note: (r[4] || "").trim(),
+      });
+    }
+    allTags = tags;
+    localStorage.setItem(STORAGE_KEY_CACHE, JSON.stringify({
+      sheetId, tags, cachedAt: Date.now()
+    }));
+    afterTagsLoaded(Date.now(), false);
+  } catch (e) {
+    if (allTags.length > 0) {
+      setStatus("線上載入失敗，使用快取版本（按重新載入再試）", "error");
+    } else {
+      setStatus("載入失敗：" + e.message + "。請確認試算表權限為「知道連結的任何人可檢視」", "error");
+    }
+  }
+}
+
+function afterTagsLoaded(timestamp, fromCache) {
+  const date = new Date(timestamp);
+  const ts = `${date.getMonth()+1}/${date.getDate()} ${String(date.getHours()).padStart(2,"0")}:${String(date.getMinutes()).padStart(2,"0")}`;
+  setStatus(`已載入 ${allTags.length} 個標籤 · ${fromCache ? "快取" : "線上"} · ${ts}`, "success");
+  $("meta").textContent = `${allTags.length} tags · ${fromCache ? "cached" : "live"}`;
+  populateProjectAndDropdowns();
+}
+
+function populateProjectAndDropdowns() {
+  // Build category groups
+  const byCategory = {};
+  for (const t of allTags) {
+    if (!byCategory[t.cat]) byCategory[t.cat] = [];
+    byCategory[t.cat].push(t);
+  }
+
+  // Project dropdown: dedupe by English code
+  const projectSelect = $("f-project");
+  const currentVal = projectSelect.value;
+  projectSelect.innerHTML = '<option value="">— 選擇 —</option>';
+  const projects = byCategory["專案"] || [];
+  const seenEn = new Set();
+  for (const p of projects) {
+    if (seenEn.has(p.en)) continue;
+    seenEn.add(p.en);
+    const opt = document.createElement("option");
+    opt.value = p.en;
+    opt.textContent = `${p.en} · ${p.ch}`;
+    projectSelect.appendChild(opt);
+  }
+  if (currentVal) projectSelect.value = currentVal;
+
+  // Size dropdown
+  const sizeSelect = $("f-size");
+  const sizeVal = sizeSelect.value;
+  sizeSelect.innerHTML = '<option value="">—</option>';
+  const sizeSeen = new Set();
+  for (const s of (byCategory["尺寸"] || [])) {
+    if (sizeSeen.has(s.en)) continue;
+    sizeSeen.add(s.en);
+    const opt = document.createElement("option");
+    opt.value = s.en;
+    opt.textContent = `${s.en} · ${s.ch}`;
+    sizeSelect.appendChild(opt);
+  }
+  if (sizeVal) sizeSelect.value = sizeVal;
+
+  // Lang dropdown
+  const langSelect = $("f-lang");
+  const langVal = langSelect.value;
+  langSelect.innerHTML = '<option value="">—</option>';
+  for (const l of (byCategory["語系"] || [])) {
+    const opt = document.createElement("option");
+    opt.value = l.en;
+    opt.textContent = `${l.en} · ${l.ch}`;
+    langSelect.appendChild(opt);
+  }
+  if (langVal) langSelect.value = langVal;
+}
+
+//==============================
+// SEARCH
+//==============================
+function searchTags(query) {
+  if (!query) return [];
+  const q = query.toLowerCase().trim();
+  // Exclude category items already in fixed fields
+  const excludeCats = new Set(["專案", "尺寸", "語系"]);
+  const matches = [];
+  for (const t of allTags) {
+    if (excludeCats.has(t.cat)) continue;
+    const haystack = (t.ch + " " + t.en + " " + t.alias).toLowerCase();
+    if (haystack.includes(q)) {
+      // Score: prefix match in ch or en is highest
+      let score = 0;
+      if (t.en.toLowerCase().startsWith(q)) score += 10;
+      if (t.ch.toLowerCase().startsWith(q)) score += 10;
+      if (t.en.toLowerCase().includes(q)) score += 5;
+      if (t.ch.toLowerCase().includes(q)) score += 5;
+      matches.push({ tag: t, score });
+    }
+  }
+  matches.sort((a, b) => b.score - a.score);
+  return matches.slice(0, 30).map(m => m.tag);
+}
+
+function renderResults(query) {
+  const box = $("results");
+  if (!query) {
+    box.classList.remove("show");
+    return;
+  }
+  searchResults = searchTags(query);
+  activeResultIdx = searchResults.length > 0 ? 0 : -1;
+  if (searchResults.length === 0) {
+    box.innerHTML = `<div class="result-empty">
+      找不到「${escapeHtml(query)}」對應的標籤<br>
+      <button class="btn add-btn" onclick="addCustomTag('${escapeAttr(query)}')">直接加入「${escapeHtml(query)}」</button>
+    </div>`;
+    box.classList.add("show");
+    return;
+  }
+  box.innerHTML = searchResults.map((t, i) => `
+    <div class="result-item ${i === activeResultIdx ? 'active' : ''}" onclick="addTag(${i})">
+      <span class="r-ch">${escapeHtml(t.ch)}</span>
+      <span class="r-arrow">→</span>
+      <span class="r-en">${escapeHtml(t.en)}</span>
+      <span class="r-cat">${escapeHtml(t.cat)}</span>
+    </div>
+  `).join("");
+  box.classList.add("show");
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"
+  })[c]);
+}
+function escapeAttr(s) {
+  return String(s).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}
+
+//==============================
+// SELECTION
+//==============================
+function addTag(idx) {
+  const t = searchResults[idx];
+  if (!t) return;
+  // Avoid exact duplicate (same en code)
+  if (selectedTags.some(s => s.en === t.en)) {
+    showToast("已加入過：" + t.en, "error");
+    $("search").value = "";
+    $("results").classList.remove("show");
+    return;
+  }
+  selectedTags.push({ ch: t.ch, en: t.en, cat: t.cat });
+  $("search").value = "";
+  $("results").classList.remove("show");
+  renderTags();
+  updatePreview();
+  $("search").focus();
+}
+
+function addCustomTag(value) {
+  // Use as-is, treat as freeform tag
+  const v = value.trim();
+  if (!v) return;
+  if (selectedTags.some(s => s.en === v)) {
+    showToast("已加入過：" + v, "error");
+    return;
+  }
+  selectedTags.push({ ch: v, en: v, cat: "自訂" });
+  $("search").value = "";
+  $("results").classList.remove("show");
+  renderTags();
+  updatePreview();
+  $("search").focus();
+}
+
+function removeTag(idx) {
+  selectedTags.splice(idx, 1);
+  renderTags();
+  updatePreview();
+}
+
+function renderTags() {
+  const area = $("tags-area");
+  area.innerHTML = selectedTags.map((t, i) => `
+    <div class="chip" draggable="true" data-idx="${i}">
+      <span class="ch">${escapeHtml(t.ch)}</span>
+      <span class="en">${escapeHtml(t.en)}</span>
+      <span class="cat">${escapeHtml(t.cat)}</span>
+      <span class="x" onclick="removeTag(${i})">✕</span>
+    </div>
+  `).join("");
+
+  // Wire drag events
+  let dragSrc = null;
+  area.querySelectorAll(".chip").forEach(chip => {
+    chip.addEventListener("dragstart", e => {
+      dragSrc = parseInt(chip.dataset.idx);
+      chip.classList.add("dragging");
+      e.dataTransfer.effectAllowed = "move";
+    });
+    chip.addEventListener("dragend", () => {
+      chip.classList.remove("dragging");
+    });
+    chip.addEventListener("dragover", e => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+    });
+    chip.addEventListener("drop", e => {
+      e.preventDefault();
+      const tgt = parseInt(chip.dataset.idx);
+      if (dragSrc === null || dragSrc === tgt) return;
+      const item = selectedTags.splice(dragSrc, 1)[0];
+      selectedTags.splice(tgt, 0, item);
+      renderTags();
+      updatePreview();
+    });
+  });
+}
+
+//==============================
+// PREVIEW
+//==============================
+function updatePreview() {
+  const parts = [];
+  const ym = $("f-yearmonth").value.trim();
+  const sn = $("f-serial").value.trim();
+  const pj = $("f-project").value.trim();
+  if (ym) parts.push(ym);
+  if (sn) parts.push(sn);
+  if (pj) parts.push(pj);
+  for (const t of selectedTags) parts.push(t.en);
+  const sz = $("f-size").value.trim();
+  const lg = $("f-lang").value.trim();
+  const vr = $("f-version").value.trim();
+  if (sz) parts.push(sz);
+  if (lg) parts.push(lg);
+  if (vr) parts.push(vr);
+
+  const filename = parts.join("_");
+  $("preview").textContent = filename;
+
+  // Save form to local storage (autosave)
+  const formData = {
+    yearmonth: ym, serial: sn, project: pj,
+    selectedTags, size: sz, lang: lg, version: vr
+  };
+  localStorage.setItem(STORAGE_KEY_FORM, JSON.stringify(formData));
+}
+
+function restoreForm() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY_FORM) || "{}");
+    if (saved.yearmonth) $("f-yearmonth").value = saved.yearmonth;
+    if (saved.serial) $("f-serial").value = saved.serial;
+    if (saved.project) $("f-project").value = saved.project;
+    if (saved.size) $("f-size").value = saved.size;
+    if (saved.lang) $("f-lang").value = saved.lang;
+    if (saved.version) $("f-version").value = saved.version;
+    if (Array.isArray(saved.selectedTags)) {
+      selectedTags = saved.selectedTags;
+      renderTags();
+    }
+  } catch (e) {}
+}
+
+function clearForm() {
+  if (!confirm("確定要清空所有欄位嗎？")) return;
+  $("f-yearmonth").value = "";
+  $("f-serial").value = "";
+  $("f-project").value = "";
+  $("f-size").value = "";
+  $("f-lang").value = "";
+  $("f-version").value = "";
+  selectedTags = [];
+  renderTags();
+  updatePreview();
+}
+
+function copyFilename() {
+  const fn = $("preview").textContent;
+  if (!fn) {
+    showToast("還沒有檔名可複製", "error");
+    return;
+  }
+  navigator.clipboard.writeText(fn).then(() => {
+    showToast("已複製：" + fn, "success");
+  }).catch(() => {
+    // Fallback
+    const ta = document.createElement("textarea");
+    ta.value = fn;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    document.body.removeChild(ta);
+    showToast("已複製", "success");
+  });
+}
+
+//==============================
+// CONFIG MODAL
+//==============================
+function openConfig() {
+  $("config-input").value = getSheetId();
+  $("modal-config").classList.add("show");
+  $("config-input").focus();
+}
+function closeConfig() {
+  $("modal-config").classList.remove("show");
+}
+function saveConfig() {
+  const v = $("config-input").value.trim();
+  if (!v) return;
+  // Extract ID from URL if pasted full URL
+  let id = v;
+  const m = v.match(/\/d\/([a-zA-Z0-9-_]+)/);
+  if (m) id = m[1];
+  setSheetId(id);
+  closeConfig();
+  loadTags(true);
+}
+
+//==============================
+// EVENT WIRING
+//==============================
+window.addEventListener("DOMContentLoaded", () => {
+  // Field listeners
+  ["f-yearmonth","f-serial","f-project","f-size","f-lang","f-version"].forEach(id => {
+    $(id).addEventListener("input", updatePreview);
+    $(id).addEventListener("change", updatePreview);
+  });
+
+  // Search
+  const searchInput = $("search");
+  const debouncedSearch = debounce(v => renderResults(v), 100);
+  searchInput.addEventListener("input", e => debouncedSearch(e.target.value));
+  searchInput.addEventListener("focus", e => { if (e.target.value) renderResults(e.target.value); });
+  searchInput.addEventListener("keydown", e => {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      if (searchResults.length === 0) return;
+      activeResultIdx = (activeResultIdx + 1) % searchResults.length;
+      renderResults(searchInput.value);
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      if (searchResults.length === 0) return;
+      activeResultIdx = (activeResultIdx - 1 + searchResults.length) % searchResults.length;
+      renderResults(searchInput.value);
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      if (activeResultIdx >= 0) addTag(activeResultIdx);
+      else if (searchInput.value.trim()) addCustomTag(searchInput.value);
+    } else if (e.key === "Escape") {
+      $("results").classList.remove("show");
+      searchInput.blur();
+    }
+  });
+  // Click outside results to close
+  document.addEventListener("click", e => {
+    if (!e.target.closest(".search-wrap")) $("results").classList.remove("show");
+  });
+
+  // Buttons
+  $("btn-reload").addEventListener("click", () => loadTags(true));
+  $("btn-config").addEventListener("click", openConfig);
+  $("btn-help").addEventListener("click", () => {
+    document.querySelector(".help").scrollIntoView({behavior:"smooth"});
+  });
+  $("btn-copy").addEventListener("click", copyFilename);
+  $("btn-clear").addEventListener("click", clearForm);
+
+  // Modal close on bg click
+  $("modal-config").addEventListener("click", e => {
+    if (e.target.id === "modal-config") closeConfig();
+  });
+
+  // Global keyboard shortcuts
+  document.addEventListener("keydown", e => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+      e.preventDefault();
+      $("search").focus();
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+      e.preventDefault();
+      copyFilename();
+    }
+  });
+
+  // Initialize
+  loadTags(false).then(() => restoreForm());
+
+  // Default year-month suggestion
+  const now = new Date();
+  const ym = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,"0")}`;
+  if (!$("f-yearmonth").value) $("f-yearmonth").value = ym;
+  updatePreview();
+});
+</script>
+</body>
+</html>
