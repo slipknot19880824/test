@@ -370,11 +370,13 @@
   /* Per-field config: each selected field becomes a card with N columns */
   .batch-field-config {
     background: var(--bg); border: 1px solid var(--border);
-    border-radius: 6px; margin-bottom: 12px; overflow: hidden;
+    border-radius: 6px; margin-bottom: 12px;
+    /* overflow: visible so cell popups can extend beyond this container */
   }
   .batch-field-config header {
     padding: 8px 12px; background: var(--panel-2);
     border-bottom: 1px solid var(--border);
+    border-radius: 6px 6px 0 0;
     display: flex; align-items: center; justify-content: space-between;
     font-size: 12px; color: var(--text-dim);
   }
@@ -398,6 +400,11 @@
     background: var(--panel); border: 1px solid var(--border);
     border-radius: 4px; padding: 6px 8px; min-height: 56px;
     display: flex; flex-direction: column; gap: 4px;
+    position: relative;  /* needed for popup positioning */
+  }
+  /* When this cell has an active popup inside, lift it above siblings */
+  .batch-row-cell.has-suggest-open {
+    z-index: 70;
   }
   .batch-row-cell-header {
     font-size: 10px; color: var(--text-faint);
@@ -442,8 +449,9 @@
   .batch-cell-suggest {
     position: absolute; background: var(--panel-2);
     border: 1px solid var(--border-strong); border-radius: 4px;
-    max-height: 200px; overflow-y: auto; z-index: 60;
+    max-height: 200px; overflow-y: auto; z-index: 1000;
     min-width: 200px; display: none;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.5);
   }
   .batch-cell-suggest.show { display: block; }
 
@@ -588,13 +596,13 @@
 
   /* Segment-level coloring for modified parts (v4.3) */
   .seg-orig { color: var(--accent); }       /* unchanged: gold */
-  .seg-replaced { color: #6ea4d9; }         /* replaced existing: blue */
-  /* Expansion (newly inserted) — gradient from deep red to lighter red */
-  .seg-new-1 { color: #d96f6f; }            /* deepest red (1st new) */
-  .seg-new-2 { color: #e08585; }
-  .seg-new-3 { color: #e69b9b; }
-  .seg-new-4 { color: #ecb1b1; }
-  .seg-new-5 { color: #f0c1c1; }            /* lightest (5th+) */
+  .seg-replaced { color: #5fa8ff; font-weight: 600; }   /* replaced existing: bright blue */
+  /* Expansion (newly inserted) — clearly distinct steps */
+  .seg-new-1 { color: #ff3b3b; font-weight: 700; }      /* 1st: vivid red */
+  .seg-new-2 { color: #ff8a3d; font-weight: 600; }      /* 2nd: orange */
+  .seg-new-3 { color: #ffd23d; font-weight: 600; }      /* 3rd: yellow */
+  .seg-new-4 { color: #9be36f; font-weight: 500; }      /* 4th: green */
+  .seg-new-5 { color: #6ed4ff; font-weight: 500; }      /* 5th+: cyan */
   /* Tags not in the loaded library — extra wavy underline */
   .seg-not-in-lib {
     text-decoration: underline dotted;
@@ -608,7 +616,7 @@
 <div class="app">
 
   <div class="header">
-    <h1>檔名命名工具 <span class="accent">·</span> <span style="color:var(--text-dim);font-weight:400;">v4.3 · 標籤化批次</span></h1>
+    <h1>檔名命名工具 <span class="accent">·</span> <span style="color:var(--text-dim);font-weight:400;">v4.4 · 標籤化批次</span></h1>
     <div class="meta" id="meta">載入中…</div>
   </div>
 
@@ -726,11 +734,14 @@
   </div>
 
   <div class="help">
+    <b>v4.4 — 染色加大、彈窗修正：</b><br>
+    <b>· 染色色階拉開</b>：紅 → 橙 → 黃 → 綠 → 青，五階對比明顯。<br>
+    <b>· 批次格子內也能新增非標籤庫的標籤</b>：找不到時會顯示「＋ 直接加入「X」」按下 Enter 即加入。<br>
+    <b>· 修下拉選單被遮住</b>：批次格子的搜尋下拉永遠在最上層、有陰影。<br><br>
     <b>v4.3 — 預覽染色 + 介面瘦身：</b><br>
-    <b>· 預覽改過的段染色</b>：替換現有欄位 = <span style="color:#6ea4d9;">藍色</span>；新增的「擴充新位置」 = <span style="color:#d96f6f;">紅色</span>（多個新增由深到淺）；標籤庫沒有的新標籤會多一條虛線底線提示。沒改的段保持金色。<br>
+    <b>· 預覽改過的段染色</b>：替換現有欄位 = <span style="color:#5fa8ff;font-weight:600;">藍色</span>；新增的「擴充新位置」依順序為 <span style="color:#ff3b3b;font-weight:700;">紅</span>→<span style="color:#ff8a3d;font-weight:600;">橙</span>→<span style="color:#ffd23d;font-weight:600;">黃</span>→<span style="color:#9be36f;font-weight:500;">綠</span>→<span style="color:#6ed4ff;font-weight:500;">青</span>。標籤庫沒有的新標籤多一條虛線底線提示。沒改的段保持金色。<br>
     <b>· 拿掉預覽勾選框</b>：行只負責顯示。<br>
-    <b>· 「全部套用」</b>：快速貼上的按鈕改名，更直觀。<br>
-    <b>· 批次內也能新增標籤</b>：在小格子裡輸入標籤庫沒有的字後直接按 Enter 即加入；批次自訂標籤面板已支援單筆/全部複製貼回標籤庫。<br><br>
+    <b>· 「全部套用」</b>：快速貼上的按鈕改名，更直觀。<br><br>
     <b>v4 — 標籤化批次：</b><br>
     <b>· 每欄為每份指定值</b>：每個選的欄位會展開成 N 個小格子（份數），每格裡可加多個標籤、可從標籤庫搜尋推薦。<br>
     <b>· 擴充新位置</b>：欄位列最後的「＋ 擴充新位置」可在標籤群中插入新位置。<br>
@@ -1975,8 +1986,25 @@ function showCellSuggest(partIdx, rowIdx, inputEl) {
     inputEl.parentElement.appendChild(popup);
   }
 
+  // Find the enclosing .batch-row-cell to lift its z-index
+  const cell = inputEl.closest(".batch-row-cell");
+
   if (suggestions.length === 0) {
-    popup.classList.remove("show");
+    if (q) {
+      // Show "add custom" hint, similar to the main interface
+      popup.innerHTML = `
+        <div class="suggest-item suggest-add-custom active" data-en="${escapeAttr(q)}"
+             onmousedown="event.preventDefault(); pickCellSuggest(${partIdx}, ${rowIdx}, '${escapeAttr(q)}');">
+          <span class="si-ch" style="color:var(--accent);">＋ 直接加入</span>
+          <span class="si-en">「${escapeHtml(q)}」</span>
+        </div>
+      `;
+      popup.classList.add("show");
+      if (cell) cell.classList.add("has-suggest-open");
+    } else {
+      popup.classList.remove("show");
+      if (cell) cell.classList.remove("has-suggest-open");
+    }
     return;
   }
   popup.innerHTML = suggestions.map((t, i) => `
@@ -1987,6 +2015,7 @@ function showCellSuggest(partIdx, rowIdx, inputEl) {
     </div>
   `).join("");
   popup.classList.add("show");
+  if (cell) cell.classList.add("has-suggest-open");
 }
 
 function hideCellSuggest(partIdx, rowIdx) {
@@ -1994,6 +2023,8 @@ function hideCellSuggest(partIdx, rowIdx) {
   cells.forEach(c => {
     const popup = c.parentElement.querySelector(".batch-cell-suggest");
     if (popup) popup.classList.remove("show");
+    const cell = c.closest(".batch-row-cell");
+    if (cell) cell.classList.remove("has-suggest-open");
   });
 }
 
