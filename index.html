@@ -581,6 +581,9 @@
   }
   .mod-edit-row:last-child { border-bottom: none; }
   .mod-edit-row:hover { background: rgba(255,255,255,0.015); }
+  /* Sub-band striping inside a consecutive group */
+  .mod-edit-row.mer-band-0 { background: transparent; }
+  .mod-edit-row.mer-band-1 { background: rgba(255,255,255,0.025); }
   .mer-row-check { flex: 0 0 auto; cursor: pointer; }
   .mer-row-remove {
     background: transparent; border: 0;
@@ -752,7 +755,7 @@
 <div class="app">
 
   <div class="header">
-    <h1>檔名命名工具 <span class="accent">·</span> <span style="color:var(--text-dim);font-weight:400;">v4.8 · 修改既有檔名</span></h1>
+    <h1>檔名命名工具 <span class="accent">·</span> <span style="color:var(--text-dim);font-weight:400;">v4.9 · 修改既有檔名</span></h1>
     <div class="meta" id="meta">載入中…</div>
   </div>
 
@@ -872,6 +875,11 @@
   </div>
 
   <div class="help">
+    <b>v4.9 — 分組與套用範圍精修：</b><br>
+    <b>· 分組改成只看主編號連號</b>：VD25-28 整個是一組（不論中間誰有沒有子號）；同主編號下的子號用淺底色斑馬條紋區分視覺，但複製時整大組一起複製。<br>
+    <b>· 套用範圍三選一</b>：跨組勾選不會誤套用。確認框現在有「套用到全部勾選 / 套用到同組勾選 / 只改這一行 / 取消」四個選項；同組與全部相同時自動隱藏「同組」按鈕。<br>
+    <b>· 新位置改成「往末尾追加」</b>：批次套用「新位置」時，每行都在自己的末尾追加一個新欄位，原有的新位置都保留。<br>
+    <b>· 中途移除某筆 → 自動重新分組</b>：例如把 VD27 移除掉，VD25-28 就會自動拆成 VD25-26 跟 VD28。<br><br>
     <b>v4.8 — 編輯區大整理：</b><br>
     <b>· 連號分組真的生效</b>：主編號連續（VD25-28）或子號連續（VD27_01-06）都算同組，整組綠框包起來，整組一個複製按鈕。<br>
     <b>· 拿掉下方預覽</b>：上方編輯區的文字本身就是預覽，直接看染色狀態；行高縮減，整頁不再過長。<br>
@@ -1089,11 +1097,12 @@
 
 <!-- Apply-to-checked confirmation dialog -->
 <div class="modal-bg" id="modal-apply-confirm" style="z-index:120;">
-  <div class="modal" style="max-width:440px;">
+  <div class="modal" style="max-width:460px;">
     <h2 id="apply-confirm-title">同步套用？</h2>
-    <p id="apply-confirm-msg" style="color:var(--text-dim);font-size:13px;line-height:1.6;margin-bottom:16px;"></p>
+    <p id="apply-confirm-msg" style="color:var(--text-dim);font-size:13px;line-height:1.6;margin-bottom:16px;white-space:pre-line;"></p>
     <div class="modal-actions" style="flex-direction:column;gap:8px;align-items:stretch;">
-      <button class="btn primary" id="apply-confirm-all">套用到勾選的全部</button>
+      <button class="btn primary" id="apply-confirm-all">套用到全部勾選（<span id="apply-cnt-all">0</span> 行）</button>
+      <button class="btn" id="apply-confirm-group">套用到同組勾選（<span id="apply-cnt-group">0</span> 行）</button>
       <button class="btn" id="apply-confirm-one">只改這一行</button>
       <button class="btn ghost" id="apply-confirm-cancel">取消</button>
     </div>
@@ -2980,8 +2989,9 @@ function renderModEditRows() {
       const ri = rowIndexByKey.get(row.key);
       const segLine = renderModEditRowSegments(row, ri);
       const checked = modState.checkedKeys.has(row.key);
+      const bandClass = isConsec ? `mer-band-${row.subBandIdx % 2}` : "";
       return `
-        <div class="mod-edit-row">
+        <div class="mod-edit-row ${bandClass}">
           <input type="checkbox" class="mer-row-check" ${checked ? 'checked' : ''}
                  onclick="event.stopPropagation(); toggleModRowCheck('${escapeAttr(row.key)}');">
           <div class="mer-segline">
@@ -3134,72 +3144,122 @@ function onModEditSegBlur(rowIdx, segIdx, inputEl, isNew) {
 }
 
 // Commit a segment edit. May trigger a confirmation modal if multiple rows are checked.
+// Helper: find which group (index in groupModEditRows result) a row's key belongs to.
+// Returns { groupIdx, group } or null.
+function findGroupOfKey(key) {
+  const groups = groupModEditRows();
+  for (let i = 0; i < groups.length; i++) {
+    if (groups[i].rows.some(r => r.key === key)) return { groupIdx: i, group: groups[i] };
+  }
+  return null;
+}
+
+// Helper: count checked rows that share the same group as `row`.
+function countCheckedInSameGroup(row) {
+  const info = findGroupOfKey(row.key);
+  if (!info) return 0;
+  let n = 0;
+  for (const r of info.group.rows) {
+    if (modState.checkedKeys.has(r.key)) n++;
+  }
+  return n;
+}
+
 function commitModSegEdit(rowIdx, segIdx, isNew, newValue) {
   const row = modState.editRows[rowIdx];
   if (!row) { deactivateModSeg(); renderModEditRows(); return; }
 
-  // Determine if we should ask about bulk apply
   const isThisRowChecked = modState.checkedKeys.has(row.key);
   const totalChecked = modState.checkedKeys.size;
+  // Only ask if THIS row is checked AND there are other checked rows
   const shouldAsk = isThisRowChecked && totalChecked > 1;
 
   if (!shouldAsk) {
-    // Just commit to this row (already done via oninput); deactivate and rerender
     deactivateModSeg();
     renderModEditRows();
     return;
   }
 
-  // Stash & ask
   modState.pendingApply = { rowIdx, segIdx, isNew, newValue };
   showApplyConfirm(isNew ? "new" : "edit", row, segIdx, newValue);
 }
 
 function showApplyConfirm(kind, row, segIdx, newValue) {
   const totalChecked = modState.checkedKeys.size;
+  const groupChecked = countCheckedInSameGroup(row);
   const title = kind === "edit" ? "修改要套用到其他勾選行嗎？" : "新位置要套用到其他勾選行嗎？";
   let msg;
   if (kind === "edit") {
     const orig = row.originalSegments[segIdx];
-    msg = `已把「${orig}」改成「${newValue}」。要套用到全部 ${totalChecked} 個勾選的行嗎？\n（套用範圍：第 ${segIdx + 1} 個欄位都會被改）`;
+    msg = `已把「${orig}」改成「${newValue}」\n套用範圍：每行的第 ${segIdx + 1} 個欄位都會被改`;
   } else {
-    msg = `已加新位置「${newValue || '(空)'}」。要在全部 ${totalChecked} 個勾選的行也加同樣的新位置嗎？`;
+    msg = `已加新位置「${newValue || '(空)'}」\n套用方式：在每行末尾「追加」一個新欄位（不影響原有的）`;
   }
   $("apply-confirm-title").textContent = title;
   $("apply-confirm-msg").textContent = msg;
+  $("apply-cnt-all").textContent = totalChecked;
+  $("apply-cnt-group").textContent = groupChecked;
+
+  // Hide group button if the same as all (avoid duplicate button)
+  const groupBtn = $("apply-confirm-group");
+  if (groupChecked === totalChecked) {
+    groupBtn.style.display = "none";
+  } else {
+    groupBtn.style.display = "";
+  }
+
   $("modal-apply-confirm").classList.add("show");
 }
 
-function applyConfirmAll() {
+// Apply scope: "all" or "group"
+function applyToScope(scope) {
   const p = modState.pendingApply;
   if (!p) { closeApplyConfirm(); return; }
   const thisRow = modState.editRows[p.rowIdx];
   if (!thisRow) { closeApplyConfirm(); return; }
 
-  // Apply to ALL checked rows
+  // Determine target row keys
+  let targetKeys;
+  if (scope === "group") {
+    const info = findGroupOfKey(thisRow.key);
+    if (!info) { closeApplyConfirm(); return; }
+    targetKeys = info.group.rows
+      .filter(r => modState.checkedKeys.has(r.key))
+      .map(r => r.key);
+  } else {
+    // all
+    targetKeys = Array.from(modState.checkedKeys);
+  }
+
+  let appliedCount = 0;
   for (const r of modState.editRows) {
-    if (!modState.checkedKeys.has(r.key)) continue;
-    if (r.key === thisRow.key) continue; // already applied via oninput
+    if (!targetKeys.includes(r.key)) continue;
+    if (r.key === thisRow.key) {
+      // Already applied via oninput; just count
+      appliedCount++;
+      continue;
+    }
     if (p.isNew) {
-      // Add a new segment to each checked row (at the same new-index position if possible,
-      // otherwise just append)
-      while (r.newSegments.length < p.segIdx) r.newSegments.push("");
-      if (p.segIdx >= r.newSegments.length) r.newSegments.push(p.newValue);
-      else r.newSegments[p.segIdx] = p.newValue;
+      // APPEND a new segment at the END (not overwrite by index)
+      r.newSegments.push(p.newValue);
     } else {
-      // Replace the same segment index — only if it exists
+      // Replace the same segment index — only if it exists in this row
       if (p.segIdx < r.currentSegments.length) {
         r.currentSegments[p.segIdx] = p.newValue;
       }
-      // If the row doesn't have that many original segments, skip silently
     }
+    appliedCount++;
   }
   if (p.newValue) trackModCustomTag(p.newValue);
-  showToast(`已套用到 ${modState.checkedKeys.size} 行`, "success");
+  const scopeLabel = scope === "group" ? "同組" : "全部";
+  showToast(`已套用到${scopeLabel} ${appliedCount} 行`, "success");
   closeApplyConfirm();
   deactivateModSeg();
   renderModEditRows();
 }
+
+function applyConfirmAll() { applyToScope("all"); }
+function applyConfirmGroup() { applyToScope("group"); }
 
 function applyConfirmOne() {
   // Just commit to this row (already done); close & rerender
@@ -3215,9 +3275,10 @@ function applyConfirmCancel() {
     const r = modState.editRows[p.rowIdx];
     if (r) {
       if (p.isNew) {
-        // Remove the new segment if it was just added empty, OR revert to empty if pending
-        // Simplest: remove the slot if its value was the pending value (just added)
-        if (p.segIdx === r.newSegments.length - 1) {
+        // The new segment was already pushed; remove the trailing one if it matches
+        if (r.newSegments.length > 0 && r.newSegments[r.newSegments.length - 1] === p.newValue) {
+          r.newSegments.pop();
+        } else if (p.segIdx < r.newSegments.length) {
           r.newSegments.splice(p.segIdx, 1);
         }
       } else {
@@ -3352,50 +3413,67 @@ function trackModCustomTag(val) {
 
 // Group rows by (ym, type) and consecutive num
 // Returns: Array<{ ym, type, range: "VD25-28", rows: [editRow...] }>
+// Group rows by (ym, type) and consecutive MAIN number only.
+// Sub-numbers within the same main number are visual sub-bands but stay in the same group.
+// Examples:
+//   VD25_01, VD25_02, VD26, VD27_01, VD27_02 → ONE group "VD25-27" with sub-bands
+//   VD27_01..06, VD28 → ONE group "VD27-28"
+//   VD25-27, VD30 → TWO groups (because of gap between 27 and 30)
+//
+// Each row also carries a `subBandIdx` field telling its sub-band index
+// (rows sharing the same {num, sub-grouping bucket} get the same subBandIdx).
 function groupModEditRows() {
   const groups = [];
   let cur = null;
   for (const row of modState.editRows) {
     const n = parseInt(row.num, 10);
-    const s = row.sub ? parseInt(row.sub, 10) : null;
     let consecutive = false;
     if (cur && cur.ym === row.ym && cur.type === row.type) {
-      // Case A: both have no sub, main numbers consecutive (VD25, VD26)
-      if (cur.lastSub === null && s === null && n === cur.lastNum + 1) {
-        consecutive = true;
-      }
-      // Case B: same main number, sub numbers consecutive (VD27_01, VD27_02)
-      else if (cur.lastSub !== null && s !== null && n === cur.lastNum && s === cur.lastSub + 1) {
-        consecutive = true;
-      }
+      // Either same main number (any sub) or main number = lastNum + 1
+      if (n === cur.lastNum) consecutive = true;
+      else if (n === cur.lastNum + 1) consecutive = true;
     }
     if (consecutive) {
       cur.rows.push(row);
       cur.lastNum = n;
-      cur.lastSub = s;
     } else {
       if (cur) groups.push(cur);
       cur = {
         ym: row.ym, type: row.type,
         firstNum: n, lastNum: n,
-        firstSub: s, lastSub: s,
         rows: [row]
       };
     }
   }
   if (cur) groups.push(cur);
 
+  // Compute sub-band index for each row within its group.
+  // A "sub-band" is a stretch of rows with the same combination of (mainNum, hasSub-or-not).
+  // We just alternate band index whenever the (num, sub-bucket-key) changes from the previous row.
+  for (const g of groups) {
+    let bandIdx = 0;
+    let prevKey = null;
+    for (const row of g.rows) {
+      // Key: same main num + (has-sub or no-sub) bucket
+      const key = `${row.num}_${row.sub ? "s" : "n"}`;
+      if (prevKey !== null && key !== prevKey) bandIdx++;
+      row.subBandIdx = bandIdx;
+      prevKey = key;
+    }
+  }
+
   // Generate human label
   for (const g of groups) {
     if (g.rows.length === 1) {
-      // Single row
       const r = g.rows[0];
       g.range = `${r.type}${String(r.num).padStart(2,"0")}` + (r.sub ? `_${r.sub}` : "");
-    } else if (g.firstSub !== null) {
-      // Sub-consecutive: VD27_01 to VD27_06
-      g.range = `${g.type}${String(g.firstNum).padStart(2,"0")}_${String(g.firstSub).padStart(2,"0")}-${String(g.lastSub).padStart(2,"0")}`;
+    } else if (g.firstNum === g.lastNum) {
+      // Same main number, multiple sub-numbers
+      const r0 = g.rows[0], rN = g.rows[g.rows.length - 1];
+      const lo = r0.sub ? `_${r0.sub}` : "";
+      const hi = rN.sub ? `_${rN.sub}` : "";
+      g.range = `${g.type}${String(g.firstNum).padStart(2,"0")}${lo === hi ? lo : lo + "-" + (rN.sub || "")}`;
     } else {
-      // Main-consecutive: VD25 to VD28
       g.range = `${g.type}${String(g.firstNum).padStart(2,"0")}-${String(g.lastNum).padStart(2,"0")}`;
     }
     g.label = `${g.ym} · ${g.range}（${g.rows.length} 筆）`;
@@ -3668,6 +3746,7 @@ window.addEventListener("DOMContentLoaded", () => {
   $("mod-edit-select-all").addEventListener("click", modEditSelectAll);
   $("mod-edit-select-none").addEventListener("click", modEditSelectNone);
   $("apply-confirm-all").addEventListener("click", applyConfirmAll);
+  $("apply-confirm-group").addEventListener("click", applyConfirmGroup);
   $("apply-confirm-one").addEventListener("click", applyConfirmOne);
   $("apply-confirm-cancel").addEventListener("click", applyConfirmCancel);
 
