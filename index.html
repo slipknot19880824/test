@@ -402,13 +402,114 @@
   .batch-summary {
     font-size: 12px; color: var(--text-dim); margin-bottom: 10px;
   }
+
+  /* Custom tags panel (need 4) */
+  .custom-tags-section {
+    margin-bottom: 16px;
+  }
+  .custom-tags-list {
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .custom-tag-row {
+    display: grid;
+    grid-template-columns: minmax(120px, 1fr) minmax(110px, auto) minmax(120px, 1fr) minmax(140px, 1fr) auto;
+    gap: 6px; align-items: center;
+    padding: 8px 10px; background: var(--bg);
+    border: 1px solid var(--border); border-radius: 4px;
+  }
+  .custom-tag-row .ctr-en {
+    font-family: var(--mono); color: var(--accent); font-size: 12px;
+    word-break: break-all;
+  }
+  .custom-tag-row input, .custom-tag-row select {
+    background: var(--panel-2); border: 1px solid var(--border);
+    color: var(--text); padding: 5px 8px; font-size: 12px;
+    border-radius: 3px; outline: none; font-family: inherit;
+    width: 100%;
+  }
+  .custom-tag-row input:focus, .custom-tag-row select:focus {
+    border-color: var(--accent);
+  }
+  .custom-tag-row button {
+    background: var(--panel-2); border: 1px solid var(--border-strong);
+    color: var(--text-dim); padding: 5px 10px; font-size: 11px;
+    border-radius: 3px; cursor: pointer; white-space: nowrap;
+    font-family: inherit; transition: all 0.12s;
+  }
+  .custom-tag-row button:hover {
+    color: var(--accent); border-color: var(--accent);
+  }
+  .custom-tags-empty {
+    padding: 12px; text-align: center; color: var(--text-faint);
+    font-size: 12px; font-style: italic;
+    background: var(--bg); border: 1px dashed var(--border); border-radius: 4px;
+  }
+  .custom-tags-help {
+    font-size: 11px; color: var(--text-faint); margin-top: 6px;
+    line-height: 1.5;
+  }
+
+  /* Suggest popup for field input (need 2) */
+  .suggest-wrap { position: relative; }
+  .suggest-popup {
+    position: absolute; top: 100%; left: 0; right: 0;
+    margin-top: 2px;
+    background: var(--panel-2); border: 1px solid var(--border-strong);
+    border-radius: 4px; max-height: 240px; overflow-y: auto;
+    z-index: 50; display: none;
+  }
+  .suggest-popup.show { display: block; }
+  .suggest-item {
+    padding: 6px 10px; cursor: pointer; font-size: 12px;
+    display: flex; align-items: center; gap: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .suggest-item:last-child { border-bottom: 0; }
+  .suggest-item:hover, .suggest-item.active { background: var(--accent-soft); }
+  .suggest-item .si-ch { color: var(--text-dim); min-width: 80px; }
+  .suggest-item .si-en { font-family: var(--mono); color: var(--text); flex: 1; }
+
+  /* Apply-to-selected button bar (need 1) */
+  .apply-bar {
+    display: none; gap: 8px; align-items: center; flex-wrap: wrap;
+    padding: 8px 12px; margin-bottom: 8px;
+    background: var(--accent-soft); border: 1px solid var(--accent);
+    border-radius: 4px; font-size: 12px;
+  }
+  .apply-bar.show { display: flex; }
+  .apply-bar .count { color: var(--accent); font-family: var(--mono); }
+  .apply-bar select {
+    background: var(--panel); border: 1px solid var(--border);
+    color: var(--text); padding: 4px 8px; font-size: 12px;
+    border-radius: 3px; outline: none; font-family: inherit;
+  }
+  .apply-bar input {
+    background: var(--panel); border: 1px solid var(--border);
+    color: var(--text); padding: 4px 8px; font-size: 12px;
+    border-radius: 3px; outline: none; font-family: var(--mono);
+    flex: 1; min-width: 100px;
+  }
+  .apply-bar input:focus, .apply-bar select:focus { border-color: var(--accent); }
+
+  /* Modify preview row to allow checkbox */
+  .batch-preview-row .check {
+    margin-right: 4px; flex: 0 0 auto;
+  }
+  .batch-preview-row {
+    cursor: default;
+  }
+  .batch-preview-row.selectable { cursor: pointer; }
+  .batch-preview-row.selectable:hover { background: var(--panel-2); }
+  .batch-preview-row.checked {
+    background: var(--accent-soft);
+  }
 </style>
 </head>
 <body>
 <div class="app">
 
   <div class="header">
-    <h1>檔名命名工具 <span class="accent">·</span> <span style="color:var(--text-dim);font-weight:400;">v3 · 批次複製</span></h1>
+    <h1>檔名命名工具 <span class="accent">·</span> <span style="color:var(--text-dim);font-weight:400;">v3.2 · 智能批次</span></h1>
     <div class="meta" id="meta">載入中…</div>
   </div>
 
@@ -507,15 +608,31 @@
     </div>
   </div>
 
+  <!-- Custom tags panel (need 4) -->
+  <div class="section custom-tags-section" id="custom-tags-section" style="display:none;">
+    <div class="section-header">
+      <span class="label">本次新增的自訂標籤</span>
+      <span style="font-family:var(--mono);font-size:11px;color:var(--text-faint);">補完中文/分類後複製貼到標籤庫即可</span>
+    </div>
+    <div class="section-body">
+      <div class="custom-tags-list" id="custom-tags-list"></div>
+      <div class="custom-tags-help">
+        標籤庫欄位順序：<b>中文名 ｜ 英文名 ｜ 分類 ｜ 別名 ｜ 備註 ｜ 啟用</b>。<br>
+        按「複製這列」可一次複製成可貼進試算表的格式（用 Tab 分隔，貼進標籤庫最下方一列即可）。
+      </div>
+    </div>
+  </div>
+
   <div class="help">
-    <b>v3 新功能 — 批次複製：</b>
-    先拼出第一個基底檔名，按「<b>批次複製…</b>」 → 設定份數 → 勾要批次替換的欄位（可多選）→ 在矩陣裡每欄一行一個值 → 預覽 OK → 複製或下載 csv。<br>
-    每欄一行一個值，第 N 行對應第 N 份檔名；某欄填得不夠時，超出的份數會用基底原值。<br><br>
-    <b>編號規則：</b>
-    主編號 +1（VD47, VD48, VD49…）· 子號 +1（VD47_01, VD47_02…）· 都不變（複製 N 行讓你之後手動改）<br><br>
+    <b>v3.2 新功能：</b><br>
+    <b>· 批次預覽勾選</b>：批次模式產生的預覽行可勾選（直接點該列或點 checkbox），勾選後上方會出現「對勾選的行套用」工具列，可挑欄位＋換值，一鍵套用到所有勾選行。<br>
+    <b>· 替換值自動推薦</b>：套用工具列的「替換值」輸入框會根據選的欄位顯示對應分類的標籤（中英對照），點選即填入。<br>
+    <b>· 自訂標籤面板</b>：搜尋找不到時加入的「自訂」標籤，會列在預覽下方的「本次新增的自訂標籤」區，補上中文/分類後按「複製這列」可一次複製成 6 欄格式，貼到標籤庫最下方一列即可。<br><br>
+    <b>v3 — 批次複製：</b>
+    先拼出第一個基底檔名，按「<b>批次複製…</b>」 → 設定份數 → 勾要批次替換的欄位（可多選）→ 在矩陣裡每欄一行一個值 → 預覽 OK → 複製或下載 csv。<br><br>
     <b>v2.1 — 自動編號：</b>
-    填好年月、選好專案、選好類型 (VD / AD)，按「<b>建議下一號</b>」按鈕，工具會去讀工單，找出該月該專案該類型的最大編號 +1。<br><br>
-    <b>每月初做的事</b>：點 <b>「⚙ 設定」</b>，把工單分頁 GID（或名稱）換成新月份。<br><br>
+    填好年月、選好專案、選好類型 (VD / AD)，按「<b>建議下一號</b>」按鈕，工具會去讀工單算最大編號 +1。<br><br>
+    <b>每月初做的事</b>：點 <b>「⚙ 設定」</b>，把工單分頁 GID 換成新月份。<br><br>
     <b>快捷鍵：</b>
     <kbd>Ctrl/⌘ + K</kbd> 聚焦搜尋框 ·
     <kbd>Ctrl/⌘ + Enter</kbd> 複製檔名 ·
@@ -596,8 +713,22 @@
     <h3 style="margin-top:8px;">替換值（每欄一行一個值，第 N 行 = 第 N 份檔名）</h3>
     <div class="batch-matrix" id="batch-matrix"></div>
 
-    <h3>預覽</h3>
+    <h3>預覽（可勾選多行後對勾選的行套用替換）</h3>
     <div class="batch-summary" id="batch-summary"></div>
+
+    <!-- Apply-to-selected bar -->
+    <div class="apply-bar" id="apply-bar">
+      <span>對勾選的 <span class="count" id="apply-count">0</span> 行：把</span>
+      <select id="apply-field"></select>
+      <span>替換成</span>
+      <div class="suggest-wrap" style="flex:1; min-width:140px;">
+        <input id="apply-value" type="text" placeholder="輸入新值（可從標籤庫推薦）">
+        <div class="suggest-popup" id="apply-suggest"></div>
+      </div>
+      <button class="btn small" id="apply-go">套用</button>
+      <button class="btn ghost small" onclick="clearChecked()">清除勾選</button>
+    </div>
+
     <div class="batch-preview" id="batch-preview"></div>
 
     <div class="modal-actions">
@@ -1106,6 +1237,9 @@ function updatePreview() {
     selectedTags, size: sz, lang: lg, version: vr
   };
   localStorage.setItem(STORAGE_KEY_FORM, JSON.stringify(formData));
+
+  // Refresh custom tags panel
+  renderCustomTagsPanel();
 }
 
 function restoreForm() {
@@ -1202,6 +1336,88 @@ function saveConfig() {
 }
 
 //==============================
+// CUSTOM TAGS PANEL (need 4)
+//==============================
+// State: maps en code -> { ch, cat } (overrides for what user fills in)
+let customTagOverrides = {};
+
+function getCustomTagsList() {
+  // Collect "自訂" tags from selectedTags (current form) + overrides
+  const seen = new Map();
+  for (const t of selectedTags) {
+    if (t.cat === "自訂" || !allTags.some(x => x.en === t.en)) {
+      // a tag that's not in the loaded library
+      if (!seen.has(t.en)) {
+        seen.set(t.en, { en: t.en, ch: t.ch || t.en, cat: "" });
+      }
+    }
+  }
+  // Apply overrides (user-filled ch/cat)
+  for (const [en, data] of seen) {
+    if (customTagOverrides[en]) {
+      Object.assign(data, customTagOverrides[en]);
+    }
+  }
+  return Array.from(seen.values());
+}
+
+function renderCustomTagsPanel() {
+  const list = getCustomTagsList();
+  const section = $("custom-tags-section");
+  const box = $("custom-tags-list");
+  if (list.length === 0) {
+    section.style.display = "none";
+    return;
+  }
+  section.style.display = "";
+
+  // Get unique categories from loaded library
+  const cats = Array.from(new Set(allTags.map(t => t.cat).filter(Boolean))).sort();
+
+  box.innerHTML = list.map(t => {
+    const enEsc = escapeAttr(t.en);
+    return `
+      <div class="custom-tag-row" data-en="${escapeHtml(t.en)}">
+        <input type="text" placeholder="中文名" value="${escapeHtml(t.ch || '')}"
+               onchange="updateCustomTagField('${enEsc}', 'ch', this.value)">
+        <span class="ctr-en">${escapeHtml(t.en)}</span>
+        <select onchange="updateCustomTagField('${enEsc}', 'cat', this.value)">
+          <option value="">— 選分類 —</option>
+          ${cats.map(c => `<option value="${escapeHtml(c)}" ${t.cat === c ? 'selected' : ''}>${escapeHtml(c)}</option>`).join('')}
+        </select>
+        <span style="font-size:11px;color:var(--text-faint);">未填中文/分類也可複製，但建議補齊</span>
+        <button onclick="copyCustomTagRow('${enEsc}')">📋 複製這列</button>
+      </div>
+    `;
+  }).join("");
+}
+
+function updateCustomTagField(en, key, value) {
+  if (!customTagOverrides[en]) customTagOverrides[en] = {};
+  customTagOverrides[en][key] = value;
+}
+
+function copyCustomTagRow(en) {
+  const list = getCustomTagsList();
+  const t = list.find(x => x.en === en);
+  if (!t) return;
+  // Format: 中文名 \t 英文名 \t 分類 \t 別名 \t 備註 \t 啟用
+  const cells = [t.ch || "", t.en, t.cat || "", "", "", "是"];
+  const tsv = cells.join("\t");
+  navigator.clipboard.writeText(tsv).then(() => {
+    showToast(`已複製：${t.en} → 貼到標籤庫最下方一列`, "success");
+  }).catch(() => {
+    const ta = document.createElement("textarea");
+    ta.value = tsv;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    document.body.removeChild(ta);
+    showToast("已複製", "success");
+  });
+}
+
+//==============================
 // BATCH MODE
 //==============================
 // Build a structured representation of the current filename.
@@ -1267,6 +1483,9 @@ let batchState = {
   parts: [],
   selectedFieldIndexes: new Set(),  // Which part indexes the user wants to vary
   values: new Map(),                 // idx → array of replacement values (one per row)
+  rowOverrides: [],                  // [rowIdx]: Map(partIdx -> value), post-hoc overrides
+  checkedRows: new Set(),            // row indexes selected for batch apply
+  cachedFilenames: [],               // last generated filenames (for apply actions)
 };
 
 function openBatch() {
@@ -1278,6 +1497,9 @@ function openBatch() {
   batchState.parts = parts;
   batchState.selectedFieldIndexes = new Set();
   batchState.values = new Map();
+  batchState.rowOverrides = [];
+  batchState.checkedRows = new Set();
+  batchState.cachedFilenames = [];
 
   // Default: pre-select 子號 if exists, else 主編號
   const subIdx = parts.findIndex(p => p.kind === "subserial");
@@ -1379,6 +1601,12 @@ function generateBatch() {
       }
       // else: leave as original (no override)
     }
+    // Apply post-hoc per-row overrides (from "套用到勾選")
+    if (batchState.rowOverrides[n]) {
+      for (const [pIdx, val] of batchState.rowOverrides[n]) {
+        overrides.set(pIdx, val);
+      }
+    }
     let serialOffset = 0, subOffset = 0;
     if (numbering === "serial") serialOffset = n;
     if (numbering === "subserial") subOffset = n;
@@ -1410,6 +1638,7 @@ function generateBatch() {
 
 function renderBatchPreview() {
   const { filenames, warnings } = generateBatch();
+  batchState.cachedFilenames = filenames;
   const summary = $("batch-summary");
   if (warnings.length > 0) {
     summary.innerHTML = `⚠ ${warnings.map(escapeHtml).join(" · ")}`;
@@ -1422,12 +1651,150 @@ function renderBatchPreview() {
   // detect duplicates
   const seenCounts = {};
   filenames.forEach(f => seenCounts[f] = (seenCounts[f] || 0) + 1);
+
+  // Drop checked rows that are no longer in range
+  const newChecked = new Set();
+  for (const i of batchState.checkedRows) {
+    if (i < filenames.length) newChecked.add(i);
+  }
+  batchState.checkedRows = newChecked;
+
   box.innerHTML = filenames.map((f, i) => `
-    <div class="batch-preview-row ${seenCounts[f] > 1 ? 'warn' : ''}">
+    <div class="batch-preview-row selectable ${seenCounts[f] > 1 ? 'warn' : ''} ${batchState.checkedRows.has(i) ? 'checked' : ''}"
+         onclick="toggleCheckRow(${i})">
+      <input type="checkbox" class="check" ${batchState.checkedRows.has(i) ? 'checked' : ''}
+             onclick="event.stopPropagation(); toggleCheckRow(${i});">
       <span class="num">${i+1}.</span>
       <span class="fn">${escapeHtml(f)}</span>
     </div>
   `).join("");
+
+  updateApplyBar();
+}
+
+function toggleCheckRow(i) {
+  if (batchState.checkedRows.has(i)) batchState.checkedRows.delete(i);
+  else batchState.checkedRows.add(i);
+  renderBatchPreview();
+}
+
+function clearChecked() {
+  batchState.checkedRows.clear();
+  renderBatchPreview();
+}
+
+function updateApplyBar() {
+  const bar = $("apply-bar");
+  const count = batchState.checkedRows.size;
+  if (count === 0) {
+    bar.classList.remove("show");
+    return;
+  }
+  bar.classList.add("show");
+  $("apply-count").textContent = count;
+
+  // Populate field dropdown with all parts
+  const fieldSel = $("apply-field");
+  const prevVal = fieldSel.value;
+  fieldSel.innerHTML = batchState.parts.map((p, idx) =>
+    `<option value="${idx}">${escapeHtml(p.label)}</option>`
+  ).join("");
+  if (prevVal && fieldSel.querySelector(`option[value="${prevVal}"]`)) {
+    fieldSel.value = prevVal;
+  }
+  // Trigger suggest population for the current selected field
+  refreshApplySuggestions();
+}
+
+// Suggest tags based on which part type is being edited
+function getSuggestionsForPart(partIdx) {
+  const part = batchState.parts[partIdx];
+  if (!part) return [];
+  // Map part.kind -> tag categories to filter
+  const kindToCats = {
+    project: ["專案"],
+    size: ["尺寸"],
+    lang: ["語系"],
+    tag: null,  // all non-fixed cats
+  };
+  if (part.kind === "tag") {
+    // Suggest tags whose cat matches this tag's cat (label looks like "標籤·主題")
+    // Or all tags except 專案/尺寸/語系
+    const tagCat = part.label.replace(/^標籤·/, "");
+    if (tagCat && tagCat !== "自訂") {
+      return allTags.filter(t => t.cat === tagCat);
+    }
+    return allTags.filter(t => !["專案","尺寸","語系"].includes(t.cat));
+  }
+  if (kindToCats[part.kind]) {
+    const cats = kindToCats[part.kind];
+    return allTags.filter(t => cats.includes(t.cat));
+  }
+  return [];
+}
+
+function refreshApplySuggestions() {
+  const partIdx = parseInt($("apply-field").value, 10);
+  const input = $("apply-value");
+  const popup = $("apply-suggest");
+  const q = (input.value || "").toLowerCase().trim();
+  let suggestions = getSuggestionsForPart(partIdx);
+  if (q) {
+    suggestions = suggestions.filter(t =>
+      (t.ch + " " + t.en + " " + t.alias).toLowerCase().includes(q)
+    );
+  }
+  // Dedupe by en
+  const seen = new Set();
+  suggestions = suggestions.filter(t => {
+    if (seen.has(t.en)) return false;
+    seen.add(t.en);
+    return true;
+  }).slice(0, 30);
+
+  if (suggestions.length === 0 || (!q && suggestions.length === 0)) {
+    popup.classList.remove("show");
+    return;
+  }
+  popup.innerHTML = suggestions.map(t => `
+    <div class="suggest-item" onclick="pickApplyValue('${escapeAttr(t.en)}')">
+      <span class="si-ch">${escapeHtml(t.ch)}</span>
+      <span class="si-en">${escapeHtml(t.en)}</span>
+    </div>
+  `).join("");
+  popup.classList.add("show");
+}
+
+function pickApplyValue(en) {
+  $("apply-value").value = en;
+  $("apply-suggest").classList.remove("show");
+  $("apply-value").focus();
+}
+
+function applyToChecked() {
+  const partIdx = parseInt($("apply-field").value, 10);
+  const value = $("apply-value").value.trim();
+  if (!value) {
+    showToast("請先填入替換值", "error");
+    return;
+  }
+  if (batchState.checkedRows.size === 0) {
+    showToast("請先勾選要套用的行", "error");
+    return;
+  }
+  let count = 0;
+  for (const rowIdx of batchState.checkedRows) {
+    if (!batchState.rowOverrides[rowIdx]) {
+      batchState.rowOverrides[rowIdx] = new Map();
+    }
+    batchState.rowOverrides[rowIdx].set(partIdx, value);
+    count++;
+  }
+  showToast(`已套用到 ${count} 行`, "success");
+  $("apply-value").value = "";
+  $("apply-suggest").classList.remove("show");
+  // Don't clear checked rows; user might want to apply more
+  renderBatchPreview();
 }
 
 function batchCopyAll() {
@@ -1533,6 +1900,28 @@ window.addEventListener("DOMContentLoaded", () => {
   $("batch-download").addEventListener("click", batchDownloadCsv);
   $("modal-batch").addEventListener("click", e => {
     if (e.target.id === "modal-batch") closeBatch();
+  });
+
+  // Apply-to-selected interactions
+  $("apply-field").addEventListener("change", () => {
+    $("apply-value").value = "";
+    refreshApplySuggestions();
+  });
+  $("apply-value").addEventListener("input", refreshApplySuggestions);
+  $("apply-value").addEventListener("focus", refreshApplySuggestions);
+  $("apply-value").addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      applyToChecked();
+    } else if (e.key === "Escape") {
+      $("apply-suggest").classList.remove("show");
+    }
+  });
+  $("apply-go").addEventListener("click", applyToChecked);
+  document.addEventListener("click", e => {
+    if (!e.target.closest(".suggest-wrap")) {
+      $("apply-suggest")?.classList.remove("show");
+    }
   });
 
   $("modal-config").addEventListener("click", e => {
