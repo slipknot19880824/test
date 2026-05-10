@@ -18,8 +18,10 @@
     --text-faint: #555;
     --accent: #c9a96e;
     --accent-soft: rgba(201, 169, 110, 0.15);
+    --accent-strong: #d4b478;
     --danger: #d96f6f;
     --success: #6ec991;
+    --info: #6ea4d9;
     --mono: ui-monospace, "SF Mono", "Menlo", "Consolas", monospace;
   }
 
@@ -33,433 +35,319 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  .app {
-    max-width: 960px;
-    margin: 0 auto;
-    padding: 32px 24px 80px;
-  }
+  .app { max-width: 960px; margin: 0 auto; padding: 32px 24px 80px; }
 
-  /* Header */
   .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    margin-bottom: 32px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 28px; padding-bottom: 18px; border-bottom: 1px solid var(--border);
   }
-  .header h1 {
-    font-size: 18px;
-    font-weight: 500;
-    letter-spacing: 0.02em;
-  }
+  .header h1 { font-size: 18px; font-weight: 500; letter-spacing: 0.02em; }
   .header h1 .accent { color: var(--accent); }
-  .header .meta {
-    font-family: var(--mono);
-    font-size: 12px;
-    color: var(--text-dim);
-  }
+  .header .meta { font-family: var(--mono); font-size: 12px; color: var(--text-dim); }
 
-  /* Toolbar */
   .toolbar {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 24px;
-    flex-wrap: wrap;
+    display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;
   }
   .btn {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 8px 14px;
-    font-size: 13px;
-    cursor: pointer;
-    font-family: inherit;
-    transition: all 0.12s ease;
-    border-radius: 4px;
+    background: var(--panel); border: 1px solid var(--border); color: var(--text);
+    padding: 8px 14px; font-size: 13px; cursor: pointer; font-family: inherit;
+    transition: all 0.12s ease; border-radius: 4px;
   }
-  .btn:hover {
-    background: var(--panel-2);
-    border-color: var(--border-strong);
-  }
+  .btn:hover { background: var(--panel-2); border-color: var(--border-strong); }
   .btn:active { transform: translateY(1px); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
   .btn.primary {
-    background: var(--accent);
-    color: #1a1a1a;
-    border-color: var(--accent);
-    font-weight: 500;
+    background: var(--accent); color: #1a1a1a; border-color: var(--accent); font-weight: 500;
   }
-  .btn.primary:hover { background: #d4b478; }
-  .btn.ghost {
-    background: transparent;
-    color: var(--text-dim);
-  }
+  .btn.primary:hover { background: var(--accent-strong); }
+  .btn.ghost { background: transparent; color: var(--text-dim); }
   .btn.ghost:hover { color: var(--text); }
-  .btn .badge {
-    display: inline-block;
-    margin-left: 6px;
-    padding: 1px 6px;
-    background: var(--accent-soft);
-    color: var(--accent);
-    font-family: var(--mono);
-    font-size: 11px;
-    border-radius: 2px;
-  }
+  .btn.small { padding: 4px 10px; font-size: 12px; }
 
-  /* Status bar */
+  /* Status banners */
+  .status-list {
+    display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px;
+  }
   .status {
-    font-family: var(--mono);
-    font-size: 12px;
-    padding: 8px 12px;
-    margin-bottom: 16px;
-    border-radius: 4px;
-    border: 1px solid var(--border);
-    background: var(--panel);
+    font-family: var(--mono); font-size: 12px; padding: 7px 12px;
+    border-radius: 4px; border: 1px solid var(--border); background: var(--panel);
   }
   .status.loading { color: var(--text-dim); }
   .status.success {
-    color: var(--success);
-    border-color: rgba(110, 201, 145, 0.3);
+    color: var(--success); border-color: rgba(110, 201, 145, 0.3);
     background: rgba(110, 201, 145, 0.05);
   }
   .status.error {
-    color: var(--danger);
-    border-color: rgba(217, 111, 111, 0.3);
+    color: var(--danger); border-color: rgba(217, 111, 111, 0.3);
     background: rgba(217, 111, 111, 0.05);
   }
+  .status.info {
+    color: var(--info); border-color: rgba(110, 164, 217, 0.3);
+    background: rgba(110, 164, 217, 0.05);
+  }
 
-  /* Sections */
   .section {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    margin-bottom: 16px;
-    overflow: hidden;
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 6px; margin-bottom: 14px; overflow: hidden;
   }
   .section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 16px;
-    background: var(--panel-2);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 11px 16px; background: var(--panel-2);
     border-bottom: 1px solid var(--border);
-    font-size: 12px;
-    color: var(--text-dim);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
+    font-size: 12px; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.08em;
   }
-  .section-header .label { font-weight: 500; }
   .section-body { padding: 16px; }
 
-  /* Fixed fields grid */
-  .fields-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
+  /* Top fields layout */
+  .top-row {
+    display: grid; grid-template-columns: 110px 220px 1fr 200px; gap: 12px;
+    align-items: end;
   }
-  .field {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+  @media (max-width: 720px) {
+    .top-row { grid-template-columns: 1fr 1fr; }
   }
+  .field { display: flex; flex-direction: column; gap: 4px; }
   .field label {
-    font-size: 11px;
-    color: var(--text-faint);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    font-size: 11px; color: var(--text-faint);
+    text-transform: uppercase; letter-spacing: 0.05em;
   }
   .field input, .field select {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 8px 10px;
-    font-family: var(--mono);
-    font-size: 13px;
-    border-radius: 4px;
-    outline: none;
-    transition: border-color 0.12s;
+    background: var(--bg); border: 1px solid var(--border); color: var(--text);
+    padding: 8px 10px; font-family: var(--mono); font-size: 13px;
+    border-radius: 4px; outline: none; transition: border-color 0.12s;
+    width: 100%;
   }
-  .field input:focus, .field select:focus {
-    border-color: var(--accent);
-  }
+  .field input:focus, .field select:focus { border-color: var(--accent); }
 
-  /* Tag chips area */
+  /* Type toggle */
+  .type-toggle {
+    display: flex; gap: 0; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 4px; padding: 2px;
+  }
+  .type-toggle button {
+    flex: 1; background: transparent; border: 0; color: var(--text-dim);
+    padding: 6px 8px; font-family: var(--mono); font-size: 12px;
+    cursor: pointer; border-radius: 3px; transition: all 0.12s;
+  }
+  .type-toggle button.active {
+    background: var(--accent); color: #1a1a1a; font-weight: 600;
+  }
+  .type-toggle button:hover:not(.active) { color: var(--text); }
+
+  /* Serial input + suggest button */
+  .serial-wrap {
+    display: flex; gap: 6px;
+  }
+  .serial-wrap input { flex: 1; }
+  .serial-wrap button {
+    background: var(--panel-2); border: 1px solid var(--border-strong);
+    color: var(--text-dim); padding: 0 10px; font-size: 11px;
+    border-radius: 4px; cursor: pointer; white-space: nowrap;
+    font-family: inherit; transition: all 0.12s;
+  }
+  .serial-wrap button:hover { color: var(--accent); border-color: var(--accent); }
+  .serial-wrap button:disabled { opacity: 0.4; cursor: not-allowed; }
+  .serial-wrap button.busy { color: var(--text-faint); }
+  .serial-hint {
+    font-size: 11px; color: var(--text-faint);
+    font-family: var(--mono); margin-top: 4px; min-height: 14px;
+  }
+  .serial-hint.ok { color: var(--success); }
+  .serial-hint.err { color: var(--danger); }
+
+  /* Tag chips */
   .tags-area {
-    min-height: 60px;
-    padding: 12px;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    align-items: flex-start;
+    min-height: 60px; padding: 12px; background: var(--bg);
+    border: 1px solid var(--border); border-radius: 4px;
+    display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-start;
   }
   .tags-area:empty::before {
-    content: "尚未選取任何標籤";
-    color: var(--text-faint);
-    font-size: 13px;
-    font-style: italic;
+    content: "尚未選取任何標籤"; color: var(--text-faint); font-size: 13px; font-style: italic;
   }
   .chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 5px 10px;
-    background: var(--panel-2);
-    border: 1px solid var(--border-strong);
-    border-radius: 4px;
-    font-family: var(--mono);
-    font-size: 12px;
-    cursor: grab;
-    user-select: none;
-    transition: all 0.12s;
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 10px; background: var(--panel-2);
+    border: 1px solid var(--border-strong); border-radius: 4px;
+    font-family: var(--mono); font-size: 12px;
+    cursor: grab; user-select: none; transition: all 0.12s;
   }
-  .chip:hover {
-    border-color: var(--accent);
-  }
-  .chip.dragging {
-    opacity: 0.4;
-    cursor: grabbing;
-  }
-  .chip .ch {
-    color: var(--text-dim);
-    font-size: 11px;
-  }
-  .chip .en {
-    color: var(--text);
-    font-weight: 500;
-  }
+  .chip:hover { border-color: var(--accent); }
+  .chip.dragging { opacity: 0.4; cursor: grabbing; }
+  .chip .ch { color: var(--text-dim); font-size: 11px; }
+  .chip .en { color: var(--text); font-weight: 500; }
   .chip .cat {
-    font-size: 10px;
-    padding: 1px 5px;
-    background: var(--accent-soft);
-    color: var(--accent);
-    border-radius: 2px;
+    font-size: 10px; padding: 1px 5px; background: var(--accent-soft);
+    color: var(--accent); border-radius: 2px;
   }
   .chip .x {
-    color: var(--text-faint);
-    cursor: pointer;
-    padding: 0 2px;
-    font-size: 14px;
-    line-height: 1;
+    color: var(--text-faint); cursor: pointer;
+    padding: 0 2px; font-size: 14px; line-height: 1;
   }
   .chip .x:hover { color: var(--danger); }
 
-  /* Search */
-  .search-wrap {
-    position: relative;
-    margin-top: 12px;
-  }
+  .search-wrap { position: relative; margin-top: 12px; }
   .search-input {
-    width: 100%;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 10px 12px;
-    font-size: 14px;
-    border-radius: 4px;
-    outline: none;
-    font-family: inherit;
+    width: 100%; background: var(--bg); border: 1px solid var(--border);
+    color: var(--text); padding: 10px 12px; font-size: 14px;
+    border-radius: 4px; outline: none; font-family: inherit;
   }
-  .search-input:focus {
-    border-color: var(--accent);
-  }
+  .search-input:focus { border-color: var(--accent); }
   .search-input::placeholder { color: var(--text-faint); }
 
   .results {
-    margin-top: 4px;
-    max-height: 320px;
-    overflow-y: auto;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    background: var(--panel-2);
-    display: none;
+    margin-top: 4px; max-height: 320px; overflow-y: auto;
+    border: 1px solid var(--border); border-radius: 4px;
+    background: var(--panel-2); display: none;
   }
   .results.show { display: block; }
   .result-item {
-    padding: 8px 12px;
-    cursor: pointer;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 13px;
+    padding: 8px 12px; cursor: pointer; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px; font-size: 13px;
   }
   .result-item:last-child { border-bottom: none; }
-  .result-item:hover, .result-item.active {
-    background: var(--accent-soft);
-  }
+  .result-item:hover, .result-item.active { background: var(--accent-soft); }
   .result-item .r-ch { color: var(--text-dim); min-width: 100px; }
   .result-item .r-en { font-family: var(--mono); color: var(--text); flex: 1; }
   .result-item .r-cat {
-    font-size: 11px;
-    padding: 2px 6px;
-    background: var(--bg);
-    color: var(--text-dim);
-    border-radius: 2px;
+    font-size: 11px; padding: 2px 6px;
+    background: var(--bg); color: var(--text-dim); border-radius: 2px;
   }
   .result-item .r-arrow { color: var(--text-faint); }
   .result-empty {
-    padding: 16px;
-    text-align: center;
-    color: var(--text-faint);
-    font-size: 13px;
+    padding: 16px; text-align: center; color: var(--text-faint); font-size: 13px;
   }
-  .result-empty .add-btn {
-    margin-top: 8px;
-  }
+
+  /* Three-column small fields */
+  .triple-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  @media (max-width: 720px) { .triple-row { grid-template-columns: 1fr 1fr; } }
 
   /* Preview */
   .preview {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 20px;
-    margin-bottom: 16px;
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 6px; padding: 20px; margin-bottom: 16px;
   }
   .preview-label {
-    font-size: 11px;
-    color: var(--text-faint);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    margin-bottom: 10px;
+    font-size: 11px; color: var(--text-faint);
+    text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px;
   }
   .preview-filename {
-    font-family: var(--mono);
-    font-size: 16px;
-    color: var(--accent);
-    word-break: break-all;
-    line-height: 1.6;
-    padding: 12px;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    min-height: 48px;
+    font-family: var(--mono); font-size: 16px; color: var(--accent);
+    word-break: break-all; line-height: 1.6; padding: 12px;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 4px; min-height: 48px;
   }
   .preview-filename:empty::before {
-    content: "檔名會在這裡顯示";
-    color: var(--text-faint);
-    font-style: italic;
+    content: "檔名會在這裡顯示"; color: var(--text-faint); font-style: italic;
   }
   .preview-actions {
-    display: flex;
-    gap: 8px;
-    margin-top: 12px;
+    display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap;
   }
 
   /* Modal */
   .modal-bg {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.7);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 100;
+    position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+    display: none; align-items: center; justify-content: center; z-index: 100;
   }
   .modal-bg.show { display: flex; }
   .modal {
-    background: var(--panel);
-    border: 1px solid var(--border-strong);
-    border-radius: 8px;
-    padding: 24px;
-    max-width: 500px;
-    width: 90%;
+    background: var(--panel); border: 1px solid var(--border-strong);
+    border-radius: 8px; padding: 24px; max-width: 600px; width: 90%;
+    max-height: 80vh; overflow-y: auto;
   }
-  .modal h2 {
-    font-size: 16px;
-    margin-bottom: 16px;
+  .modal h2 { font-size: 16px; margin-bottom: 16px; }
+  .modal h3 {
+    font-size: 12px; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.08em;
+    margin: 16px 0 8px;
   }
   .modal .field { margin-bottom: 12px; }
+  .modal label.inline {
+    display: block; font-size: 11px; color: var(--text-faint);
+    text-transform: uppercase; margin-bottom: 4px;
+  }
+  .modal input.full {
+    width: 100%; padding: 8px; background: var(--bg);
+    border: 1px solid var(--border); color: var(--text);
+    border-radius: 4px; font-family: var(--mono); font-size: 12px;
+  }
   .modal-actions {
-    display: flex;
-    gap: 8px;
-    justify-content: flex-end;
-    margin-top: 16px;
+    display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px;
+  }
+  .modal .help-text {
+    font-size: 12px; color: var(--text-dim); line-height: 1.6;
   }
 
-  /* Toast */
   .toast {
-    position: fixed;
-    bottom: 24px;
-    left: 50%;
+    position: fixed; bottom: 24px; left: 50%;
     transform: translateX(-50%) translateY(20px);
-    background: var(--panel);
-    border: 1px solid var(--border-strong);
-    color: var(--text);
-    padding: 10px 18px;
-    border-radius: 6px;
-    font-size: 13px;
-    opacity: 0;
-    transition: all 0.2s;
-    pointer-events: none;
-    z-index: 200;
+    background: var(--panel); border: 1px solid var(--border-strong);
+    color: var(--text); padding: 10px 18px; border-radius: 6px;
+    font-size: 13px; opacity: 0; transition: all 0.2s;
+    pointer-events: none; z-index: 200;
   }
-  .toast.show {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   .toast.success { border-color: var(--success); }
   .toast.error { border-color: var(--danger); }
 
-  /* Help panel */
   .help {
-    margin-top: 32px;
-    padding: 16px;
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    font-size: 12px;
-    color: var(--text-dim);
-    line-height: 1.7;
+    margin-top: 32px; padding: 16px; background: var(--panel);
+    border: 1px solid var(--border); border-radius: 4px;
+    font-size: 12px; color: var(--text-dim); line-height: 1.7;
   }
   .help b { color: var(--text); }
   .help kbd {
-    display: inline-block;
-    padding: 1px 6px;
-    background: var(--bg);
-    border: 1px solid var(--border-strong);
-    border-radius: 3px;
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--text);
+    display: inline-block; padding: 1px 6px; background: var(--bg);
+    border: 1px solid var(--border-strong); border-radius: 3px;
+    font-family: var(--mono); font-size: 11px; color: var(--text);
   }
-
-  /* Utility */
-  .row { display: flex; gap: 8px; align-items: center; }
-  .grow { flex: 1; }
-  .hidden { display: none !important; }
 </style>
 </head>
 <body>
 <div class="app">
 
   <div class="header">
-    <h1>檔名命名工具 <span class="accent">·</span> <span style="color:var(--text-dim);font-weight:400;">v1 MVP</span></h1>
-    <div class="meta" id="meta">標籤庫載入中…</div>
+    <h1>檔名命名工具 <span class="accent">·</span> <span style="color:var(--text-dim);font-weight:400;">v2 · 自動編號</span></h1>
+    <div class="meta" id="meta">載入中…</div>
   </div>
 
   <div class="toolbar">
     <button class="btn ghost" id="btn-reload">重新載入標籤庫</button>
-    <button class="btn ghost" id="btn-config">設定試算表網址</button>
+    <button class="btn ghost" id="btn-config">⚙ 設定</button>
     <button class="btn ghost" id="btn-help">使用說明</button>
   </div>
 
-  <div class="status loading" id="status">正在載入標籤庫…</div>
+  <div class="status-list">
+    <div class="status loading" id="status-tags">標籤庫：載入中…</div>
+    <div class="status loading" id="status-wo">工單：尚未檢查（按「建議下一號」時才會去讀）</div>
+  </div>
 
   <!-- 固定欄位 -->
   <div class="section">
     <div class="section-header"><span class="label">固定欄位</span></div>
     <div class="section-body">
-      <div class="fields-grid">
+      <div class="top-row">
         <div class="field">
           <label>年月</label>
           <input id="f-yearmonth" type="text" placeholder="YYYYMM">
         </div>
         <div class="field">
-          <label>編號</label>
-          <input id="f-serial" type="text" placeholder="VD17 / AD01">
+          <label>類型 / 號碼</label>
+          <div style="display:flex;gap:6px;">
+            <div class="type-toggle" id="type-toggle" style="flex:0 0 auto;">
+              <button data-type="VD" class="active">VD</button>
+              <button data-type="AD">AD</button>
+            </div>
+            <div class="serial-wrap" style="flex:1;">
+              <input id="f-serial" type="text" placeholder="01" style="width:60px;">
+              <button id="btn-suggest" type="button">建議下一號</button>
+            </div>
+          </div>
+          <div class="serial-hint" id="serial-hint"></div>
+        </div>
+        <div class="field" style="grid-column: span 1;">
+          <label>子號（可選）</label>
+          <input id="f-subserial" type="text" placeholder="01" style="width:80px;">
         </div>
         <div class="field">
           <label>專案</label>
@@ -486,11 +374,11 @@
     </div>
   </div>
 
-  <!-- 後段固定 -->
+  <!-- 後段 -->
   <div class="section">
     <div class="section-header"><span class="label">後段（影片用，平面可留空）</span></div>
     <div class="section-body">
-      <div class="fields-grid">
+      <div class="triple-row">
         <div class="field">
           <label>尺寸</label>
           <select id="f-size"><option value="">—</option></select>
@@ -518,33 +406,56 @@
   </div>
 
   <div class="help">
-    <b>使用流程：</b>
-    1. 確認上方狀態列顯示「已載入」 ·
-    2. 填年月、編號、選專案 ·
-    3. 在搜尋框輸入中文或英文找標籤，<kbd>Enter</kbd> 加入第一個結果，<kbd>↑↓</kbd> 移動、<kbd>Enter</kbd> 選取 ·
-    4. 已選的標籤可以拖拉調整順序 ·
-    5. 確認預覽檔名後按「複製檔名」<br><br>
+    <b>v2 新功能 — 自動編號：</b>
+    填好年月、選好專案、選好類型 (VD / AD)，按「<b>建議下一號</b>」按鈕，工具會去讀工單，找出該月該專案該類型的最大編號 +1 填到號碼欄。號碼欄一律可手動覆寫。<br><br>
+    <b>子號</b>：例如 VD24_01、VD24_02 這種衍生版本，編號填 24，子號填 01 / 02 即可。<br><br>
+    <b>每月初做的事</b>：點上方 <b>「⚙ 設定」</b>，把工單分頁名稱換成新月份的分頁。<br><br>
     <b>快捷鍵：</b>
     <kbd>Ctrl/⌘ + K</kbd> 聚焦搜尋框 ·
     <kbd>Ctrl/⌘ + Enter</kbd> 複製檔名 ·
-    <kbd>Esc</kbd> 關閉搜尋結果<br><br>
-    <b>標籤要新增？</b>直接在你的 Google Sheets「標籤庫」分頁加一列，按上方「重新載入標籤庫」即可看到。
+    <kbd>Esc</kbd> 關閉搜尋結果
   </div>
 
 </div>
 
-<!-- Config modal -->
+<!-- Settings modal -->
 <div class="modal-bg" id="modal-config">
   <div class="modal">
-    <h2>設定試算表網址</h2>
+    <h2>設定</h2>
+
+    <h3>標籤庫</h3>
     <div class="field">
-      <label>Google Sheets ID 或完整網址</label>
-      <input id="config-input" type="text" style="width:100%;padding:8px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:4px;font-family:var(--mono);font-size:12px;">
+      <label class="inline">試算表 ID 或網址</label>
+      <input id="cfg-tag-id" class="full" type="text">
     </div>
-    <div style="font-size:12px;color:var(--text-dim);">
-      可貼完整網址或只貼 ID（網址 /d/ 跟 /edit 之間那段）。<br>
+    <div class="field">
+      <label class="inline">標籤庫分頁名稱</label>
+      <input id="cfg-tag-sheet" class="full" type="text" placeholder="標籤庫">
+    </div>
+
+    <h3>工單（用於自動編號）</h3>
+    <div class="field">
+      <label class="inline">工單試算表 ID 或網址</label>
+      <input id="cfg-wo-id" class="full" type="text">
+    </div>
+    <div class="field">
+      <label class="inline">工單分頁 GID（建議用，從網址 #gid= 抓）</label>
+      <input id="cfg-wo-gid" class="full" type="text" placeholder="例如 670184165">
+    </div>
+    <div class="field">
+      <label class="inline">或工單分頁名稱（如果不填 GID）</label>
+      <input id="cfg-wo-sheet" class="full" type="text" placeholder="例如 5月">
+    </div>
+    <div class="field">
+      <label class="inline">檔名所在欄位（從左數，A=1, B=2, C=3, D=4...）</label>
+      <input id="cfg-wo-col" class="full" type="number" min="1" max="26" value="4">
+    </div>
+
+    <p class="help-text">
+      工單會用來計算「下一個編號」。每月初請更新分頁 GID 或名稱。<br>
       試算表必須設為「知道連結的任何人可檢視」。
-    </div>
+    </p>
+
     <div class="modal-actions">
       <button class="btn ghost" onclick="closeConfig()">取消</button>
       <button class="btn primary" onclick="saveConfig()">儲存並重新載入</button>
@@ -556,48 +467,66 @@
 
 <script>
 //==============================
-// CONFIG
+// CONFIG (defaults)
 //==============================
-const DEFAULT_SHEET_ID = "1Mq-hpiQV6qJy0-wAoGO9E4WoAD_JiClCFY36_aTraxM";
-const SHEET_NAME = "標籤庫";
-const STORAGE_KEY_SHEET = "naming_tool_sheet_id";
-const STORAGE_KEY_CACHE = "naming_tool_tags_cache";
-const STORAGE_KEY_FORM = "naming_tool_last_form";
+const DEFAULT_CONFIG = {
+  tagSheetId: "1Mq-hpiQV6qJy0-wAoGO9E4WoAD_JiClCFY36_aTraxM",
+  tagSheetName: "標籤庫",
+  woSheetId: "1GmqxDMiagMs45dbiJ17IWxHYIaUXMderLJfsWUiZsOs",
+  woGid: "670184165",
+  woSheetName: "5月",
+  woFnCol: 3   // zero-indexed
+};
+const STORAGE_KEY_CFG = "naming_tool_cfg_v2";
+const STORAGE_KEY_TAGS = "naming_tool_tags_cache_v2";
+const STORAGE_KEY_FORM = "naming_tool_last_form_v2";
+
+function getConfig() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY_CFG) || "{}");
+    return Object.assign({}, DEFAULT_CONFIG, saved);
+  } catch(e) { return Object.assign({}, DEFAULT_CONFIG); }
+}
+function setConfig(cfg) {
+  localStorage.setItem(STORAGE_KEY_CFG, JSON.stringify(cfg));
+}
 
 //==============================
 // STATE
 //==============================
-let allTags = [];          // {ch, en, cat, alias, note, enabled}
-let selectedTags = [];     // [{ch, en, cat}]
+let allTags = [];
+let selectedTags = [];
 let activeResultIdx = -1;
 let searchResults = [];
+let currentType = "VD";
 
 //==============================
 // UTILITIES
 //==============================
 function $(id) { return document.getElementById(id); }
-function getSheetId() {
-  return localStorage.getItem(STORAGE_KEY_SHEET) || DEFAULT_SHEET_ID;
-}
-function setSheetId(id) {
-  localStorage.setItem(STORAGE_KEY_SHEET, id);
-}
 function showToast(msg, type = "") {
   const t = $("toast");
   t.textContent = msg;
   t.className = "toast show " + type;
-  setTimeout(() => t.className = "toast " + type, 2000);
+  setTimeout(() => t.className = "toast " + type, 2200);
 }
-function setStatus(msg, type = "loading") {
-  const s = $("status");
+function setStatus(elId, msg, type = "loading") {
+  const s = $(elId);
   s.textContent = msg;
   s.className = "status " + type;
 }
 function debounce(fn, ms) {
   let h; return (...a) => { clearTimeout(h); h = setTimeout(() => fn(...a), ms); };
 }
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"
+  })[c]);
+}
+function escapeAttr(s) {
+  return String(s).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}
 
-// Parse CSV row (handles quoted fields)
 function parseCSV(text) {
   const rows = [];
   let row = [], field = "", inQuote = false;
@@ -611,7 +540,7 @@ function parseCSV(text) {
       if (c === '"') inQuote = true;
       else if (c === ',') { row.push(field); field = ""; }
       else if (c === '\n') { row.push(field); rows.push(row); row = []; field = ""; }
-      else if (c === '\r') {} // skip
+      else if (c === '\r') {}
       else field += c;
     }
   }
@@ -619,33 +548,37 @@ function parseCSV(text) {
   return rows;
 }
 
+function extractSheetId(input) {
+  if (!input) return "";
+  const m = input.match(/\/d\/([a-zA-Z0-9-_]+)/);
+  return m ? m[1] : input.trim();
+}
+
 //==============================
-// DATA LOADING
+// TAG LIBRARY LOADING
 //==============================
 async function loadTags(force = false) {
-  const sheetId = getSheetId();
-  if (!sheetId) {
-    setStatus("尚未設定試算表，請點上方「設定試算表網址」", "error");
+  const cfg = getConfig();
+  if (!cfg.tagSheetId) {
+    setStatus("status-tags", "未設定標籤庫，請按「⚙ 設定」", "error");
     return;
   }
 
-  // Try cache first
   if (!force) {
-    const cached = localStorage.getItem(STORAGE_KEY_CACHE);
+    const cached = localStorage.getItem(STORAGE_KEY_TAGS);
     if (cached) {
       try {
         const obj = JSON.parse(cached);
-        if (obj.sheetId === sheetId) {
+        if (obj.sheetId === cfg.tagSheetId && obj.sheetName === cfg.tagSheetName) {
           allTags = obj.tags;
           afterTagsLoaded(obj.cachedAt, true);
-          // Continue to refresh in background
         }
       } catch (e) {}
     }
   }
 
-  setStatus("正在載入標籤庫…", "loading");
-  const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
+  setStatus("status-tags", "標籤庫：正在載入…", "loading");
+  const url = `https://docs.google.com/spreadsheets/d/${cfg.tagSheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(cfg.tagSheetName)}`;
 
   try {
     const resp = await fetch(url);
@@ -654,11 +587,10 @@ async function loadTags(force = false) {
     const rows = parseCSV(text);
     if (rows.length < 2) throw new Error("試算表似乎是空的");
 
-    // Header row (skip)
     const tags = [];
     for (let i = 1; i < rows.length; i++) {
       const r = rows[i];
-      if (!r[1]) continue; // English required
+      if (!r[1]) continue;
       const enabled = (r[5] || "是").trim();
       if (enabled === "否") continue;
       tags.push({
@@ -670,15 +602,15 @@ async function loadTags(force = false) {
       });
     }
     allTags = tags;
-    localStorage.setItem(STORAGE_KEY_CACHE, JSON.stringify({
-      sheetId, tags, cachedAt: Date.now()
+    localStorage.setItem(STORAGE_KEY_TAGS, JSON.stringify({
+      sheetId: cfg.tagSheetId, sheetName: cfg.tagSheetName, tags, cachedAt: Date.now()
     }));
     afterTagsLoaded(Date.now(), false);
   } catch (e) {
     if (allTags.length > 0) {
-      setStatus("線上載入失敗，使用快取版本（按重新載入再試）", "error");
+      setStatus("status-tags", `標籤庫：線上載入失敗（${e.message}），使用快取版本`, "error");
     } else {
-      setStatus("載入失敗：" + e.message + "。請確認試算表權限為「知道連結的任何人可檢視」", "error");
+      setStatus("status-tags", `標籤庫：載入失敗 — ${e.message}。請確認試算表權限為「知道連結的任何人可檢視」`, "error");
     }
   }
 }
@@ -686,26 +618,23 @@ async function loadTags(force = false) {
 function afterTagsLoaded(timestamp, fromCache) {
   const date = new Date(timestamp);
   const ts = `${date.getMonth()+1}/${date.getDate()} ${String(date.getHours()).padStart(2,"0")}:${String(date.getMinutes()).padStart(2,"0")}`;
-  setStatus(`已載入 ${allTags.length} 個標籤 · ${fromCache ? "快取" : "線上"} · ${ts}`, "success");
+  setStatus("status-tags", `標籤庫：${allTags.length} 個標籤 · ${fromCache ? "快取" : "線上"} · ${ts}`, "success");
   $("meta").textContent = `${allTags.length} tags · ${fromCache ? "cached" : "live"}`;
   populateProjectAndDropdowns();
 }
 
 function populateProjectAndDropdowns() {
-  // Build category groups
   const byCategory = {};
   for (const t of allTags) {
     if (!byCategory[t.cat]) byCategory[t.cat] = [];
     byCategory[t.cat].push(t);
   }
 
-  // Project dropdown: dedupe by English code
   const projectSelect = $("f-project");
   const currentVal = projectSelect.value;
   projectSelect.innerHTML = '<option value="">— 選擇 —</option>';
-  const projects = byCategory["專案"] || [];
   const seenEn = new Set();
-  for (const p of projects) {
+  for (const p of (byCategory["專案"] || [])) {
     if (seenEn.has(p.en)) continue;
     seenEn.add(p.en);
     const opt = document.createElement("option");
@@ -715,7 +644,6 @@ function populateProjectAndDropdowns() {
   }
   if (currentVal) projectSelect.value = currentVal;
 
-  // Size dropdown
   const sizeSelect = $("f-size");
   const sizeVal = sizeSelect.value;
   sizeSelect.innerHTML = '<option value="">—</option>';
@@ -730,7 +658,6 @@ function populateProjectAndDropdowns() {
   }
   if (sizeVal) sizeSelect.value = sizeVal;
 
-  // Lang dropdown
   const langSelect = $("f-lang");
   const langVal = langSelect.value;
   langSelect.innerHTML = '<option value="">—</option>';
@@ -744,19 +671,113 @@ function populateProjectAndDropdowns() {
 }
 
 //==============================
+// AUTO NUMBERING (WORK ORDER)
+//==============================
+async function suggestNextSerial() {
+  const cfg = getConfig();
+  const ym = $("f-yearmonth").value.trim();
+  const project = $("f-project").value.trim();
+  const type = currentType;
+
+  if (!ym || !ym.match(/^\d{6}$/)) {
+    setSerialHint("請先填年月（YYYYMM 格式）", "err");
+    return;
+  }
+  if (!project) {
+    setSerialHint("請先選專案", "err");
+    return;
+  }
+  if (!cfg.woSheetId) {
+    setSerialHint("尚未設定工單，請進設定", "err");
+    return;
+  }
+
+  const btn = $("btn-suggest");
+  btn.disabled = true;
+  btn.classList.add("busy");
+  btn.textContent = "讀取中…";
+  setStatus("status-wo", "工單：正在讀取…", "loading");
+
+  try {
+    // Build URL: prefer GID, fall back to sheet name
+    let url;
+    if (cfg.woGid) {
+      url = `https://docs.google.com/spreadsheets/d/${cfg.woSheetId}/gviz/tq?tqx=out:csv&gid=${cfg.woGid}`;
+    } else if (cfg.woSheetName) {
+      url = `https://docs.google.com/spreadsheets/d/${cfg.woSheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(cfg.woSheetName)}`;
+    } else {
+      throw new Error("沒有設定工單分頁");
+    }
+
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error("HTTP " + resp.status + "（工單可能未設為公開）");
+    const text = await resp.text();
+    const rows = parseCSV(text);
+
+    // Extract filenames from the configured column
+    const fnCol = cfg.woFnCol;
+    const filenames = [];
+    for (const r of rows) {
+      if (r.length > fnCol) {
+        const cell = (r[fnCol] || "").trim();
+        if (/^20\d{4}_/.test(cell)) filenames.push(cell);
+      }
+    }
+
+    // Match: YYYYMM_TYPE\d+(_\d+)?_PROJECT...
+    // Project must be word-boundary (followed by _ or end)
+    const re = new RegExp(`^${ym}_${type}(\\d+)(?:_\\d+)?_${project}(?:_|$)`);
+    const serials = [];
+    const matchedSamples = [];
+    for (const f of filenames) {
+      const m = f.match(re);
+      if (m) {
+        serials.push(parseInt(m[1], 10));
+        if (matchedSamples.length < 3) matchedSamples.push(f);
+      }
+    }
+
+    let next;
+    if (serials.length > 0) {
+      const max = Math.max(...serials);
+      next = max + 1;
+      setSerialHint(`找到 ${serials.length} 筆 ${ym}/${project}/${type}，最大 = ${type}${String(max).padStart(2,"0")}，建議 ${type}${String(next).padStart(2,"0")}`, "ok");
+    } else {
+      next = 1;
+      setSerialHint(`${ym}/${project}/${type} 尚無紀錄，建議 ${type}01`, "ok");
+    }
+    $("f-serial").value = String(next).padStart(2, "0");
+    updatePreview();
+
+    setStatus("status-wo", `工單：已讀取（${filenames.length} 筆有效檔名）· ${new Date().toLocaleTimeString("zh-TW", {hour12:false})}`, "success");
+  } catch (e) {
+    setSerialHint(`讀取失敗：${e.message}`, "err");
+    setStatus("status-wo", `工單：讀取失敗 — ${e.message}`, "error");
+  } finally {
+    btn.disabled = false;
+    btn.classList.remove("busy");
+    btn.textContent = "建議下一號";
+  }
+}
+
+function setSerialHint(msg, kind = "") {
+  const h = $("serial-hint");
+  h.textContent = msg;
+  h.className = "serial-hint " + kind;
+}
+
+//==============================
 // SEARCH
 //==============================
 function searchTags(query) {
   if (!query) return [];
   const q = query.toLowerCase().trim();
-  // Exclude category items already in fixed fields
   const excludeCats = new Set(["專案", "尺寸", "語系"]);
   const matches = [];
   for (const t of allTags) {
     if (excludeCats.has(t.cat)) continue;
     const haystack = (t.ch + " " + t.en + " " + t.alias).toLowerCase();
     if (haystack.includes(q)) {
-      // Score: prefix match in ch or en is highest
       let score = 0;
       if (t.en.toLowerCase().startsWith(q)) score += 10;
       if (t.ch.toLowerCase().startsWith(q)) score += 10;
@@ -780,7 +801,7 @@ function renderResults(query) {
   if (searchResults.length === 0) {
     box.innerHTML = `<div class="result-empty">
       找不到「${escapeHtml(query)}」對應的標籤<br>
-      <button class="btn add-btn" onclick="addCustomTag('${escapeAttr(query)}')">直接加入「${escapeHtml(query)}」</button>
+      <button class="btn small" style="margin-top:8px;" onclick="addCustomTag('${escapeAttr(query)}')">直接加入「${escapeHtml(query)}」</button>
     </div>`;
     box.classList.add("show");
     return;
@@ -796,22 +817,12 @@ function renderResults(query) {
   box.classList.add("show");
 }
 
-function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, c => ({
-    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"
-  })[c]);
-}
-function escapeAttr(s) {
-  return String(s).replace(/'/g, "\\'").replace(/"/g, '&quot;');
-}
-
 //==============================
 // SELECTION
 //==============================
 function addTag(idx) {
   const t = searchResults[idx];
   if (!t) return;
-  // Avoid exact duplicate (same en code)
   if (selectedTags.some(s => s.en === t.en)) {
     showToast("已加入過：" + t.en, "error");
     $("search").value = "";
@@ -827,7 +838,6 @@ function addTag(idx) {
 }
 
 function addCustomTag(value) {
-  // Use as-is, treat as freeform tag
   const v = value.trim();
   if (!v) return;
   if (selectedTags.some(s => s.en === v)) {
@@ -859,7 +869,6 @@ function renderTags() {
     </div>
   `).join("");
 
-  // Wire drag events
   let dragSrc = null;
   area.querySelectorAll(".chip").forEach(chip => {
     chip.addEventListener("dragstart", e => {
@@ -867,9 +876,7 @@ function renderTags() {
       chip.classList.add("dragging");
       e.dataTransfer.effectAllowed = "move";
     });
-    chip.addEventListener("dragend", () => {
-      chip.classList.remove("dragging");
-    });
+    chip.addEventListener("dragend", () => chip.classList.remove("dragging"));
     chip.addEventListener("dragover", e => {
       e.preventDefault();
       e.dataTransfer.dropEffect = "move";
@@ -893,11 +900,15 @@ function updatePreview() {
   const parts = [];
   const ym = $("f-yearmonth").value.trim();
   const sn = $("f-serial").value.trim();
+  const sub = $("f-subserial").value.trim();
   const pj = $("f-project").value.trim();
+
   if (ym) parts.push(ym);
-  if (sn) parts.push(sn);
+  if (sn) parts.push(currentType + sn);
+  if (sub) parts.push(sub);
   if (pj) parts.push(pj);
   for (const t of selectedTags) parts.push(t.en);
+
   const sz = $("f-size").value.trim();
   const lg = $("f-lang").value.trim();
   const vr = $("f-version").value.trim();
@@ -905,12 +916,10 @@ function updatePreview() {
   if (lg) parts.push(lg);
   if (vr) parts.push(vr);
 
-  const filename = parts.join("_");
-  $("preview").textContent = filename;
+  $("preview").textContent = parts.join("_");
 
-  // Save form to local storage (autosave)
   const formData = {
-    yearmonth: ym, serial: sn, project: pj,
+    yearmonth: ym, type: currentType, serial: sn, subserial: sub, project: pj,
     selectedTags, size: sz, lang: lg, version: vr
   };
   localStorage.setItem(STORAGE_KEY_FORM, JSON.stringify(formData));
@@ -920,7 +929,14 @@ function restoreForm() {
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY_FORM) || "{}");
     if (saved.yearmonth) $("f-yearmonth").value = saved.yearmonth;
+    if (saved.type) {
+      currentType = saved.type;
+      document.querySelectorAll("#type-toggle button").forEach(b => {
+        b.classList.toggle("active", b.dataset.type === currentType);
+      });
+    }
     if (saved.serial) $("f-serial").value = saved.serial;
+    if (saved.subserial) $("f-subserial").value = saved.subserial;
     if (saved.project) $("f-project").value = saved.project;
     if (saved.size) $("f-size").value = saved.size;
     if (saved.lang) $("f-lang").value = saved.lang;
@@ -936,12 +952,19 @@ function clearForm() {
   if (!confirm("確定要清空所有欄位嗎？")) return;
   $("f-yearmonth").value = "";
   $("f-serial").value = "";
+  $("f-subserial").value = "";
   $("f-project").value = "";
   $("f-size").value = "";
   $("f-lang").value = "";
   $("f-version").value = "";
   selectedTags = [];
+  setSerialHint("");
   renderTags();
+
+  // Reset year-month to current
+  const now = new Date();
+  $("f-yearmonth").value = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,"0")}`;
+
   updatePreview();
 }
 
@@ -954,7 +977,6 @@ function copyFilename() {
   navigator.clipboard.writeText(fn).then(() => {
     showToast("已複製：" + fn, "success");
   }).catch(() => {
-    // Fallback
     const ta = document.createElement("textarea");
     ta.value = fn;
     document.body.appendChild(ta);
@@ -969,34 +991,53 @@ function copyFilename() {
 // CONFIG MODAL
 //==============================
 function openConfig() {
-  $("config-input").value = getSheetId();
+  const cfg = getConfig();
+  $("cfg-tag-id").value = cfg.tagSheetId || "";
+  $("cfg-tag-sheet").value = cfg.tagSheetName || "";
+  $("cfg-wo-id").value = cfg.woSheetId || "";
+  $("cfg-wo-gid").value = cfg.woGid || "";
+  $("cfg-wo-sheet").value = cfg.woSheetName || "";
+  $("cfg-wo-col").value = (cfg.woFnCol != null ? cfg.woFnCol + 1 : 4);
   $("modal-config").classList.add("show");
-  $("config-input").focus();
 }
 function closeConfig() {
   $("modal-config").classList.remove("show");
 }
 function saveConfig() {
-  const v = $("config-input").value.trim();
-  if (!v) return;
-  // Extract ID from URL if pasted full URL
-  let id = v;
-  const m = v.match(/\/d\/([a-zA-Z0-9-_]+)/);
-  if (m) id = m[1];
-  setSheetId(id);
+  const cfg = {
+    tagSheetId: extractSheetId($("cfg-tag-id").value),
+    tagSheetName: $("cfg-tag-sheet").value.trim() || "標籤庫",
+    woSheetId: extractSheetId($("cfg-wo-id").value),
+    woGid: $("cfg-wo-gid").value.trim(),
+    woSheetName: $("cfg-wo-sheet").value.trim(),
+    woFnCol: Math.max(0, (parseInt($("cfg-wo-col").value, 10) || 4) - 1),
+  };
+  setConfig(cfg);
   closeConfig();
   loadTags(true);
+  showToast("設定已儲存", "success");
 }
 
 //==============================
 // EVENT WIRING
 //==============================
 window.addEventListener("DOMContentLoaded", () => {
-  // Field listeners
-  ["f-yearmonth","f-serial","f-project","f-size","f-lang","f-version"].forEach(id => {
+  ["f-yearmonth","f-serial","f-subserial","f-project","f-size","f-lang","f-version"].forEach(id => {
     $(id).addEventListener("input", updatePreview);
     $(id).addEventListener("change", updatePreview);
   });
+
+  // Type toggle
+  document.querySelectorAll("#type-toggle button").forEach(b => {
+    b.addEventListener("click", () => {
+      currentType = b.dataset.type;
+      document.querySelectorAll("#type-toggle button").forEach(x => x.classList.toggle("active", x === b));
+      updatePreview();
+    });
+  });
+
+  // Suggest button
+  $("btn-suggest").addEventListener("click", suggestNextSerial);
 
   // Search
   const searchInput = $("search");
@@ -1023,7 +1064,6 @@ window.addEventListener("DOMContentLoaded", () => {
       searchInput.blur();
     }
   });
-  // Click outside results to close
   document.addEventListener("click", e => {
     if (!e.target.closest(".search-wrap")) $("results").classList.remove("show");
   });
@@ -1037,12 +1077,10 @@ window.addEventListener("DOMContentLoaded", () => {
   $("btn-copy").addEventListener("click", copyFilename);
   $("btn-clear").addEventListener("click", clearForm);
 
-  // Modal close on bg click
   $("modal-config").addEventListener("click", e => {
     if (e.target.id === "modal-config") closeConfig();
   });
 
-  // Global keyboard shortcuts
   document.addEventListener("keydown", e => {
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
       e.preventDefault();
@@ -1057,10 +1095,11 @@ window.addEventListener("DOMContentLoaded", () => {
   // Initialize
   loadTags(false).then(() => restoreForm());
 
-  // Default year-month suggestion
+  // Default year-month
   const now = new Date();
-  const ym = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,"0")}`;
-  if (!$("f-yearmonth").value) $("f-yearmonth").value = ym;
+  if (!$("f-yearmonth").value) {
+    $("f-yearmonth").value = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,"0")}`;
+  }
   updatePreview();
 });
 </script>
