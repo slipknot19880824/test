@@ -307,7 +307,7 @@
 <div class="app">
 
   <div class="header">
-    <h1>檔名命名工具 <span class="accent">·</span> <span style="color:var(--text-dim);font-weight:400;">v2 · 自動編號</span></h1>
+    <h1>檔名命名工具 <span class="accent">·</span> <span style="color:var(--text-dim);font-weight:400;">v2.1 · 自動編號</span></h1>
     <div class="meta" id="meta">載入中…</div>
   </div>
 
@@ -528,24 +528,48 @@ function escapeAttr(s) {
 }
 
 function parseCSV(text) {
+  // gviz CSV wraps EACH ROW in double quotes, with internal quotes escaped as \"
+  // Example raw text:
+  //   "\"\",\"\",\"\",\"202505_VD46_DARA_...\""
+  //   "\"5/7\",\"完成\",..."
+  // We detect this by looking at first non-empty char of each line.
+  // Otherwise treat as standard CSV.
+  const lines = text.split(/\r?\n/);
   const rows = [];
-  let row = [], field = "", inQuote = false;
-  for (let i = 0; i < text.length; i++) {
-    const c = text[i];
+  for (const line of lines) {
+    if (!line.trim()) continue;
+    // Detect gviz wrapped row: starts with " and contains \"
+    if (line.startsWith('"') && line.endsWith('"') && line.includes('\\"')) {
+      // Strip outer quotes
+      const inner = line.slice(1, -1);
+      // Unescape internal: \" -> "  ,  \\ -> \
+      const unescaped = inner.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+      // Now parse as standard CSV row
+      rows.push(parseCsvRow(unescaped));
+    } else {
+      rows.push(parseCsvRow(line));
+    }
+  }
+  return rows;
+}
+
+function parseCsvRow(line) {
+  const out = [];
+  let field = "", inQuote = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
     if (inQuote) {
-      if (c === '"' && text[i+1] === '"') { field += '"'; i++; }
+      if (c === '"' && line[i+1] === '"') { field += '"'; i++; }
       else if (c === '"') inQuote = false;
       else field += c;
     } else {
       if (c === '"') inQuote = true;
-      else if (c === ',') { row.push(field); field = ""; }
-      else if (c === '\n') { row.push(field); rows.push(row); row = []; field = ""; }
-      else if (c === '\r') {}
+      else if (c === ',') { out.push(field); field = ""; }
       else field += c;
     }
   }
-  if (field || row.length) { row.push(field); rows.push(row); }
-  return rows;
+  out.push(field);
+  return out;
 }
 
 function extractSheetId(input) {
@@ -742,12 +766,26 @@ async function suggestNextSerial() {
       const max = Math.max(...serials);
       next = max + 1;
       setSerialHint(`找到 ${serials.length} 筆 ${ym}/${project}/${type}，最大 = ${type}${String(max).padStart(2,"0")}，建議 ${type}${String(next).padStart(2,"0")}`, "ok");
+    } else if (filenames.length === 0) {
+      next = 1;
+      setSerialHint(`工單讀到 0 筆檔名（請檢查設定中的「檔名所在欄位」是否正確），建議 ${type}01`, "err");
     } else {
       next = 1;
-      setSerialHint(`${ym}/${project}/${type} 尚無紀錄，建議 ${type}01`, "ok");
+      setSerialHint(`工單讀到 ${filenames.length} 筆檔名，但無 ${ym}/${project}/${type} 的紀錄，建議 ${type}01`, "ok");
     }
     $("f-serial").value = String(next).padStart(2, "0");
     updatePreview();
+
+    // Debug info to console
+    console.group("[建議下一號 除錯資訊]");
+    console.log(`工單列數: ${rows.length}`);
+    console.log(`有效檔名數: ${filenames.length}`);
+    console.log(`目標: ${ym} / ${project} / ${type}`);
+    console.log(`正則: ${re}`);
+    console.log(`符合筆數: ${serials.length}`);
+    if (filenames.length > 0) console.log(`前 5 筆檔名:`, filenames.slice(0, 5));
+    if (matchedSamples.length > 0) console.log(`符合的範例:`, matchedSamples);
+    console.groupEnd();
 
     setStatus("status-wo", `工單：已讀取（${filenames.length} 筆有效檔名）· ${new Date().toLocaleTimeString("zh-TW", {hour12:false})}`, "success");
   } catch (e) {
