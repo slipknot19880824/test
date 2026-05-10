@@ -581,25 +581,34 @@
   .suggest-item .si-ch { color: var(--text-dim); min-width: 80px; }
   .suggest-item .si-en { font-family: var(--mono); color: var(--text); flex: 1; }
 
-  /* Modify preview row to allow checkbox */
-  .batch-preview-row .check {
-    margin-right: 4px; flex: 0 0 auto;
-  }
+  /* Preview row styling (no checkbox in v4.3) */
   .batch-preview-row {
     cursor: default;
   }
-  .batch-preview-row.selectable { cursor: pointer; }
-  .batch-preview-row.selectable:hover { background: var(--panel-2); }
-  .batch-preview-row.checked {
-    background: var(--accent-soft);
+
+  /* Segment-level coloring for modified parts (v4.3) */
+  .seg-orig { color: var(--accent); }       /* unchanged: gold */
+  .seg-replaced { color: #6ea4d9; }         /* replaced existing: blue */
+  /* Expansion (newly inserted) — gradient from deep red to lighter red */
+  .seg-new-1 { color: #d96f6f; }            /* deepest red (1st new) */
+  .seg-new-2 { color: #e08585; }
+  .seg-new-3 { color: #e69b9b; }
+  .seg-new-4 { color: #ecb1b1; }
+  .seg-new-5 { color: #f0c1c1; }            /* lightest (5th+) */
+  /* Tags not in the loaded library — extra wavy underline */
+  .seg-not-in-lib {
+    text-decoration: underline dotted;
+    text-underline-offset: 3px;
   }
+  /* Hover tooltip-like styling (the title attribute does the actual tip) */
+  .batch-preview-row .fn span { cursor: help; }
 </style>
 </head>
 <body>
 <div class="app">
 
   <div class="header">
-    <h1>檔名命名工具 <span class="accent">·</span> <span style="color:var(--text-dim);font-weight:400;">v4.2 · 標籤化批次</span></h1>
+    <h1>檔名命名工具 <span class="accent">·</span> <span style="color:var(--text-dim);font-weight:400;">v4.3 · 標籤化批次</span></h1>
     <div class="meta" id="meta">載入中…</div>
   </div>
 
@@ -717,15 +726,15 @@
   </div>
 
   <div class="help">
-    <b>v4.2 — 編輯介面簡化：</b><br>
-    <b>· 拿掉「對勾選的行套用替換」橫條</b>：所有編輯都在上方小格子做，不再有重複的入口。<br>
-    <b>· 每份小格子右上 ✕</b>：清空這份的所有標籤、並自動取消下方預覽的勾選；份數不變。<br>
-    <b>· 標籤上的小 ✕</b>：只移除單一標籤，不影響勾選。<br><br>
+    <b>v4.3 — 預覽染色 + 介面瘦身：</b><br>
+    <b>· 預覽改過的段染色</b>：替換現有欄位 = <span style="color:#6ea4d9;">藍色</span>；新增的「擴充新位置」 = <span style="color:#d96f6f;">紅色</span>（多個新增由深到淺）；標籤庫沒有的新標籤會多一條虛線底線提示。沒改的段保持金色。<br>
+    <b>· 拿掉預覽勾選框</b>：行只負責顯示。<br>
+    <b>· 「全部套用」</b>：快速貼上的按鈕改名，更直觀。<br>
+    <b>· 批次內也能新增標籤</b>：在小格子裡輸入標籤庫沒有的字後直接按 Enter 即加入；批次自訂標籤面板已支援單筆/全部複製貼回標籤庫。<br><br>
     <b>v4 — 標籤化批次：</b><br>
     <b>· 每欄為每份指定值</b>：每個選的欄位會展開成 N 個小格子（份數），每格裡可加多個標籤、可從標籤庫搜尋推薦。<br>
     <b>· 擴充新位置</b>：欄位列最後的「＋ 擴充新位置」可在標籤群中插入新位置。<br>
-    <b>· 快速貼上</b>：每個欄位上方的快速貼上輸入框，可一次貼入多個值（換行或逗號分隔）。<br>
-    <b>· 批次內的自訂標籤</b>：批次模式裡新增的非標籤庫標籤會列在預覽下方，補完後可一次複製貼回標籤庫。<br><br>
+    <b>· 快速貼上</b>：每個欄位上方的快速貼上輸入框，可一次貼入多個值（換行或逗號分隔）。<br><br>
     <b>v3.2 — 自訂標籤面板</b>：找不到標籤時加入的「自訂」標籤會列在主介面下方，補完後可單筆或一次複製全部。<br><br>
     <b>v2.1 — 自動編號</b>：填好年月、選好專案、選好類型，按「<b>建議下一號</b>」讀工單算最大編號 +1。<br><br>
     <b>每月初做的事</b>：點 <b>「⚙ 設定」</b>，把工單分頁 GID 換成新月份。<br><br>
@@ -1571,6 +1580,11 @@ function buildPartsFromForm() {
 }
 
 // Compose filename from parts (with overrides for specific indexes)
+// Returns { filename: string, segments: Array<{val, kind, srcIdx, status}> }
+//   status: "orig" | "replaced" | "new" | "auto"
+//   - "replaced": user overrode the value for an existing (non-expansion) part
+//   - "new": expansion part with content, OR auto-inserted subserial
+//   - "orig": unchanged original part
 function composeFromParts(parts, overrides /* Map idx → newValue */, serialOffset, subOffset, numbering) {
   const hasSubserial = parts.some(p => p.kind === "subserial");
   const result = [];
@@ -1579,43 +1593,49 @@ function composeFromParts(parts, overrides /* Map idx → newValue */, serialOff
   parts.forEach((p, idx) => {
     if (overrides && overrides.has(idx)) {
       const v = overrides.get(idx);
+      // Determine status: expansion is always "new" (originally empty); others = "replaced"
+      const status = (p.kind === "expansion") ? "new" : "replaced";
       if (p.kind === "serial" && v != null) {
-        result.push({val: v, kind: p.kind, srcIdx: idx});
+        result.push({val: v, kind: p.kind, srcIdx: idx, status});
         serialOutputIdx = result.length - 1;
         return;
       }
-      result.push({val: v, kind: p.kind, srcIdx: idx});
+      result.push({val: v, kind: p.kind, srcIdx: idx, status});
       return;
     }
-    // Apply numbering offset
+    // Apply numbering offset (serial / subserial increments — these are the "rule" not user-edit)
     if (p.kind === "serial" && numbering === "serial") {
       const newNum = parseInt(p._num, 10) + serialOffset;
-      result.push({val: p._typePrefix + String(newNum).padStart(2, "0"), kind: p.kind, srcIdx: idx});
+      result.push({val: p._typePrefix + String(newNum).padStart(2, "0"), kind: p.kind, srcIdx: idx, status: "orig"});
       serialOutputIdx = result.length - 1;
       return;
     }
     if (p.kind === "subserial" && numbering === "subserial") {
       const newNum = parseInt(p.value, 10) + subOffset;
-      result.push({val: String(newNum).padStart(2, "0"), kind: p.kind, srcIdx: idx});
+      result.push({val: String(newNum).padStart(2, "0"), kind: p.kind, srcIdx: idx, status: "orig"});
       return;
     }
     if (p.kind === "serial") {
       serialOutputIdx = result.length;
     }
     if (p.kind === "expansion") {
-      result.push({val: p.value || "", kind: p.kind, srcIdx: idx});
+      // Expansion with no override and empty value -> emit empty (will be filtered)
+      result.push({val: p.value || "", kind: p.kind, srcIdx: idx, status: p.value ? "new" : "orig"});
       return;
     }
-    result.push({val: p.value, kind: p.kind, srcIdx: idx});
+    result.push({val: p.value, kind: p.kind, srcIdx: idx, status: "orig"});
   });
 
   // If user wants subserial+1 but no subserial part exists, auto-insert one after serial
   if (numbering === "subserial" && !hasSubserial && serialOutputIdx >= 0) {
     const subVal = String(1 + subOffset).padStart(2, "0");
-    result.splice(serialOutputIdx + 1, 0, {val: subVal, kind: "subserial-auto"});
+    result.splice(serialOutputIdx + 1, 0, {val: subVal, kind: "subserial-auto", status: "auto"});
   }
 
-  return result.map(r => r.val).filter(x => x !== "" && x != null).join("_");
+  // Filter out empty segments
+  const segments = result.filter(r => r.val !== "" && r.val != null);
+  const filename = segments.map(r => r.val).join("_");
+  return { filename, segments };
 }
 
 // Batch modal state
@@ -1654,7 +1674,7 @@ function openBatch() {
 
   // Default: don't preselect any field. User explicitly picks what to vary.
 
-  $("batch-base").textContent = composeFromParts(parts, null, 0, 0, "none");
+  $("batch-base").textContent = composeFromParts(parts, null, 0, 0, "none").filename;
   $("batch-count").value = "6";
   document.querySelector('input[name="batch-numbering"][value="serial"]').checked = true;
 
@@ -1813,13 +1833,13 @@ function renderBatchFieldConfigs() {
                    onkeydown="onQuickFillKey(event, ${idx}, this)"
                    onblur="setTimeout(() => hideQuickFillSuggest(${idx}), 200)">
             <div id="qf-suggest-${idx}" class="batch-cell-suggest" style="left:0; right:auto; top:100%;"></div>
-            <button onclick="quickFillCells(${idx})">套用</button>
+            <button onclick="quickFillCells(${idx})">全部套用</button>
           </span>
         </div>
         <div class="batch-row-grid">
           ${Array.from({length: count}, (_, r) => {
             const tags = (cellArr[r] || []);
-            const hasContent = tags.length > 0 || batchState.checkedRows.has(r);
+            const hasContent = tags.length > 0;
             const tagsHtml = tags.map((t, ti) => `
               <span class="batch-mini-chip">
                 ${escapeHtml(t)}
@@ -1833,8 +1853,8 @@ function renderBatchFieldConfigs() {
               <div class="batch-row-cell">
                 <div class="batch-row-cell-header">
                   <span>第 ${r+1} 份</span>
-                  <button class="batch-row-cell-clear" title="清空此份的標籤並取消勾選"
-                          onclick="clearCellAndUncheck(${r})"
+                  <button class="batch-row-cell-clear" title="清空此份的標籤"
+                          onclick="clearCellRow(${r})"
                           ${hasContent ? '' : 'disabled'}>✕</button>
                 </div>
                 <div class="batch-row-cell-tags">${tagsHtml}${origHtml}</div>
@@ -1866,31 +1886,40 @@ function ensureCellArrays() {
 }
 
 function onCellInput(partIdx, rowIdx, inputEl) {
+  // Reset arrow-selected flag when user is actively typing
+  inputEl.dataset.arrowSelected = "";
   showCellSuggest(partIdx, rowIdx, inputEl);
 }
 
 function onCellKey(e, partIdx, rowIdx, inputEl) {
   if (e.key === "Enter") {
     e.preventDefault();
-    // Add the typed value, or the active suggestion
     const popup = inputEl.parentElement.querySelector(".batch-cell-suggest");
     const active = popup?.querySelector(".suggest-item.active");
+    const userArrowed = inputEl.dataset.arrowSelected === "1";
     let val;
-    if (active) {
+    // User typed something AND didn't actively arrow-select → respect their typing
+    // (so they can add new tags not in library, like INADS, FISH, SLOTS)
+    if (active && userArrowed) {
       val = active.dataset.en;
-    } else {
+    } else if (inputEl.value.trim()) {
       val = inputEl.value.trim();
+    } else if (active) {
+      val = active.dataset.en;
     }
     if (!val) return;
     addCellTag(partIdx, rowIdx, val);
     inputEl.value = "";
+    inputEl.dataset.arrowSelected = "";
     hideCellSuggest(partIdx, rowIdx);
     inputEl.focus();
   } else if (e.key === "Escape") {
     inputEl.value = "";
+    inputEl.dataset.arrowSelected = "";
     hideCellSuggest(partIdx, rowIdx);
   } else if (e.key === "ArrowDown" || e.key === "ArrowUp") {
     e.preventDefault();
+    inputEl.dataset.arrowSelected = "1";
     moveCellSuggestActive(partIdx, rowIdx, e.key === "ArrowDown" ? 1 : -1);
   }
 }
@@ -2019,7 +2048,8 @@ function removeCellTag(partIdx, rowIdx, tagIdx) {
 }
 
 // Clear ALL tags across ALL fields for this row, and uncheck the preview row
-function clearCellAndUncheck(rowIdx) {
+// Clear ALL tags across ALL fields for this row.
+function clearCellRow(rowIdx) {
   // Clear this row's tags in every selected field
   for (const idx of batchState.selectedFieldIndexes) {
     const arr = batchState.cellTags.get(idx);
@@ -2031,8 +2061,6 @@ function clearCellAndUncheck(rowIdx) {
   if (batchState.rowOverrides[rowIdx]) {
     batchState.rowOverrides[rowIdx] = null;
   }
-  // Uncheck this row in the preview
-  batchState.checkedRows.delete(rowIdx);
   renderBatchFieldConfigs();
   renderBatchPreview();
 }
@@ -2243,7 +2271,7 @@ function generateBatch() {
 
   ensureCellArrays();
   const indexes = Array.from(batchState.selectedFieldIndexes).sort((a,b) => a-b);
-  const out = [];
+  const rows = []; // { filename, segments }
   const warnings = [];
 
   for (let n = 0; n < count; n++) {
@@ -2272,26 +2300,64 @@ function generateBatch() {
     let serialOffset = 0, subOffset = 0;
     if (numbering === "serial") serialOffset = n;
     if (numbering === "subserial") subOffset = n;
-    const fn = composeFromParts(batchState.parts, overrides, serialOffset, subOffset, numbering);
-    out.push(fn);
+    const composed = composeFromParts(batchState.parts, overrides, serialOffset, subOffset, numbering);
+    rows.push(composed);
   }
 
   // Check for duplicates
   const seen = new Set();
   const dup = [];
-  out.forEach((fn, i) => {
-    if (seen.has(fn)) dup.push(i);
-    seen.add(fn);
+  rows.forEach((r, i) => {
+    if (seen.has(r.filename)) dup.push(i);
+    seen.add(r.filename);
   });
   if (dup.length > 0) {
     warnings.push(`有 ${dup.length} 個重複檔名（在第 ${dup.map(i=>i+1).join(", ")} 行）`);
   }
 
-  return { filenames: out, warnings };
+  const filenames = rows.map(r => r.filename);
+  return { filenames, rows, warnings };
+}
+
+// Render a filename's segments with semantic coloring.
+// Each segment may be one or more underscore-joined sub-values (when user picked
+// multiple tags for a single override). We color the WHOLE segment as a unit.
+function renderColoredFilename(segments) {
+  // Count "new" expansion segments to gradient them
+  let newOrdinal = 0;
+  return segments.map((seg, i) => {
+    let cls = "seg-orig";
+    let tipParts = [];
+    if (seg.status === "replaced") {
+      cls = "seg-replaced";
+      tipParts.push("已替換原欄位");
+    } else if (seg.status === "new") {
+      newOrdinal++;
+      const shade = Math.min(newOrdinal, 5);
+      cls = `seg-new-${shade}`;
+      tipParts.push(`新增 (第 ${newOrdinal} 個)`);
+    } else if (seg.status === "auto") {
+      cls = "seg-replaced";
+      tipParts.push("自動子號");
+    }
+    // Detect tags-not-in-library: check each underscore-joined sub-value
+    if (seg.status === "replaced" || seg.status === "new") {
+      const subs = String(seg.val).split("_");
+      const inLib = (s) => allTags.some(t => t.en === s);
+      const anyMissing = subs.some(s => s && !inLib(s) && !/^\d+$/.test(s));
+      if (anyMissing) {
+        cls += " seg-not-in-lib";
+        tipParts.push("非標籤庫");
+      }
+    }
+    const tip = tipParts.length > 0 ? ` title="${escapeAttr(tipParts.join(" · "))}"` : "";
+    const sep = i < segments.length - 1 ? '<span class="seg-orig">_</span>' : '';
+    return `<span class="${cls}"${tip}>${escapeHtml(seg.val)}</span>${sep}`;
+  }).join("");
 }
 
 function renderBatchPreview() {
-  const { filenames, warnings } = generateBatch();
+  const { filenames, rows, warnings } = generateBatch();
   batchState.cachedFilenames = filenames;
   const summary = $("batch-summary");
   if (warnings.length > 0) {
@@ -2306,29 +2372,12 @@ function renderBatchPreview() {
   const seenCounts = {};
   filenames.forEach(f => seenCounts[f] = (seenCounts[f] || 0) + 1);
 
-  // Drop checked rows that are no longer in range
-  const newChecked = new Set();
-  for (const i of batchState.checkedRows) {
-    if (i < filenames.length) newChecked.add(i);
-  }
-  batchState.checkedRows = newChecked;
-
-  box.innerHTML = filenames.map((f, i) => `
-    <div class="batch-preview-row selectable ${seenCounts[f] > 1 ? 'warn' : ''} ${batchState.checkedRows.has(i) ? 'checked' : ''}"
-         onclick="toggleCheckRow(${i})">
-      <input type="checkbox" class="check" ${batchState.checkedRows.has(i) ? 'checked' : ''}
-             onclick="event.stopPropagation(); toggleCheckRow(${i});">
+  box.innerHTML = rows.map((row, i) => `
+    <div class="batch-preview-row ${seenCounts[row.filename] > 1 ? 'warn' : ''}">
       <span class="num">${i+1}.</span>
-      <span class="fn">${escapeHtml(f)}</span>
+      <span class="fn">${renderColoredFilename(row.segments)}</span>
     </div>
   `).join("");
-}
-
-function toggleCheckRow(i) {
-  if (batchState.checkedRows.has(i)) batchState.checkedRows.delete(i);
-  else batchState.checkedRows.add(i);
-  renderBatchFieldConfigs();
-  renderBatchPreview();
 }
 
 function batchCopyAll() {
