@@ -523,6 +523,115 @@
   }
   .modal { position: relative; }
 
+  /* Modify modal (v4.6) */
+  .mod-pick-row {
+    display: flex; gap: 8px; padding: 4px 6px;
+    border-radius: 3px; cursor: pointer; user-select: none;
+    align-items: center;
+  }
+  .mod-pick-row:hover { background: var(--panel-2); }
+  .mod-pick-row.checked { background: var(--accent-soft); color: var(--accent); }
+  .mod-pick-row .mp-num { color: var(--text-faint); min-width: 30px; text-align: right; }
+  .mod-pick-row .mp-key { color: var(--text-dim); min-width: 80px; }
+  .mod-pick-row .mp-fn { flex: 1; word-break: break-all; }
+  .mod-pick-row input[type="checkbox"] { margin: 0; }
+
+  .mod-edit-row {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 6px; margin-bottom: 10px; padding: 10px 12px;
+  }
+  .mod-edit-row-header {
+    font-size: 11px; color: var(--text-dim);
+    display: flex; align-items: center; gap: 8px; margin-bottom: 6px;
+  }
+  .mod-edit-row-header .mer-orig {
+    font-family: var(--mono); color: var(--text-faint); font-size: 11px;
+    word-break: break-all;
+  }
+  .mod-edit-row-header button {
+    margin-left: auto; background: transparent; border: 0;
+    color: var(--text-faint); cursor: pointer; font-size: 12px;
+  }
+  .mod-edit-row-header button:hover { color: var(--danger); }
+
+  .mod-edit-segments {
+    display: flex; flex-wrap: wrap; gap: 4px; align-items: center;
+  }
+  .mod-edit-seg {
+    display: inline-flex; flex-direction: column; gap: 2px;
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 3px; padding: 4px 6px; min-width: 80px;
+  }
+  .mod-edit-seg-label {
+    font-size: 9px; color: var(--text-faint);
+    text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .mod-edit-seg input {
+    background: var(--bg); border: 1px solid var(--border);
+    color: var(--text); padding: 3px 6px; font-size: 12px;
+    border-radius: 2px; outline: none; font-family: var(--mono);
+    width: 100%; min-width: 70px;
+  }
+  .mod-edit-seg input:focus { border-color: var(--accent); }
+  .mod-edit-seg input.changed {
+    border-color: #5fa8ff; color: #5fa8ff;
+  }
+  .mod-edit-seg input.new-seg {
+    border-color: #ff3b3b; color: #ff3b3b;
+  }
+  .mod-edit-seg .seg-x {
+    background: transparent; border: 0; color: var(--text-faint);
+    cursor: pointer; padding: 0; font-size: 11px;
+    align-self: flex-end; line-height: 1;
+  }
+  .mod-edit-seg .seg-x:hover { color: var(--danger); }
+  .mod-edit-add-btn {
+    background: transparent; border: 1px dashed var(--border-strong);
+    color: var(--text-dim); border-radius: 3px;
+    padding: 4px 8px; font-size: 11px; cursor: pointer;
+    font-family: inherit; transition: all 0.12s;
+  }
+  .mod-edit-add-btn:hover { color: #ff3b3b; border-color: #ff3b3b; }
+  .mod-edit-row-suggest {
+    position: absolute; background: var(--panel-2);
+    border: 1px solid var(--border-strong); border-radius: 4px;
+    max-height: 200px; overflow-y: auto; z-index: 1000;
+    min-width: 200px; display: none;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+  }
+  .mod-edit-row-suggest.show { display: block; }
+  .mod-edit-seg { position: relative; }
+
+  .mod-edit-preview-group {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 4px; margin-bottom: 8px; overflow: hidden;
+  }
+  .mod-edit-preview-group-header {
+    padding: 6px 12px; background: var(--panel-2);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; color: var(--text-dim);
+  }
+  .mod-edit-preview-group-header .mepg-range {
+    font-family: var(--mono); color: var(--accent); font-weight: 500;
+  }
+  .mod-edit-preview-group-header button {
+    margin-left: auto;
+    background: var(--panel); border: 1px solid var(--border-strong);
+    color: var(--text-dim); padding: 3px 8px; font-size: 11px;
+    border-radius: 3px; cursor: pointer; font-family: inherit;
+  }
+  .mod-edit-preview-group-header button:hover {
+    color: var(--accent); border-color: var(--accent);
+  }
+  .mod-edit-preview-group-body {
+    padding: 6px 12px; font-family: var(--mono); font-size: 12px;
+    line-height: 1.7;
+  }
+  .mod-edit-preview-group-body .pgb-row {
+    word-break: break-all; padding: 1px 0;
+  }
+
   /* Custom tags panel (need 4) */
   .custom-tags-section {
     margin-bottom: 16px;
@@ -616,7 +725,7 @@
 <div class="app">
 
   <div class="header">
-    <h1>檔名命名工具 <span class="accent">·</span> <span style="color:var(--text-dim);font-weight:400;">v4.5 · 標籤化批次</span></h1>
+    <h1>檔名命名工具 <span class="accent">·</span> <span style="color:var(--text-dim);font-weight:400;">v4.6 · 修改既有檔名</span></h1>
     <div class="meta" id="meta">載入中…</div>
   </div>
 
@@ -712,6 +821,7 @@
     <div class="preview-actions">
       <button class="btn primary" id="btn-copy">複製檔名</button>
       <button class="btn" id="btn-batch">批次複製…</button>
+      <button class="btn" id="btn-modify">修改既有檔名…</button>
       <button class="btn" id="btn-clear">清空</button>
     </div>
   </div>
@@ -735,6 +845,12 @@
   </div>
 
   <div class="help">
+    <b>v4.6 — 修改既有檔名：</b><br>
+    <b>· 主介面新按鈕「修改既有檔名…」</b>：讀取工單既有檔名 → 篩選/勾選想改的 → 進入編輯。<br>
+    <b>· 第一階段（選取）</b>：用「快速範圍輸入」輸入 <code>VD25-28</code>、<code>VD30,32</code>、<code>AD40</code> 等格式按「套用篩選」累積勾選。也可直接從清單勾選。<br>
+    <b>· 第二階段（編輯）</b>：每行獨立編輯。原段位改了會變藍色；按「＋ 新位置」可在末尾追加紅色新欄位。<br>
+    <b>· 連號自動分組</b>：產出時 <code>VD25-28</code> 一組、<code>VD30-31</code> 另一組、<code>VD40</code> 單獨一組。每組都有獨立「複製」按鈕，方便依序貼回工單；「複製全部」會用空行分組分隔。<br>
+    <b>· 追加</b>：編輯途中可按「追加更多…」回去再補加檔名。<br><br>
     <b>v4.5 — 兩層染色 + 主介面下拉可打字：</b><br>
     <b>· 已有「新位置」時隱藏「擴充新位置」按鈕</b>：避免重複，新位置裡可堆疊多個標籤即可。<br>
     <b>· 染色兩層分級</b>：欄位之間按色彩（紅/橙/黃/綠/青）；同欄位內的多個堆疊標籤同色但明度由深到淺。<br>
@@ -854,6 +970,80 @@
       <button class="btn ghost" onclick="closeBatch()">取消</button>
       <button class="btn" id="batch-download">⬇ 下載 csv</button>
       <button class="btn primary" id="batch-copy">📋 複製全部</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modify Pick modal -->
+<div class="modal-bg" id="modal-mod-pick">
+  <div class="modal batch-modal">
+    <button class="modal-x" onclick="closeModPick()" title="關閉">✕</button>
+    <h2>修改既有檔名 · 選取要改的</h2>
+
+    <div class="batch-controls">
+      <span style="font-size:12px;color:var(--text-dim);">從工單讀到的檔名（依年月、類型、編號、子號識別）</span>
+      <button class="btn small" id="mod-reload" style="margin-left:auto;">🔄 重新讀工單</button>
+    </div>
+
+    <h3>快速範圍輸入</h3>
+    <div class="batch-controls" style="gap:8px;">
+      <input id="mod-range-input" type="text" placeholder="例：VD25-28  或  VD30,32  或  AD40"
+             style="flex:1;min-width:200px;background:var(--panel);border:1px solid var(--border);color:var(--text);padding:6px 10px;font-family:var(--mono);font-size:12px;border-radius:3px;outline:none;">
+      <button class="btn" id="mod-range-apply">套用篩選</button>
+      <button class="btn ghost small" id="mod-range-clear">清除篩選</button>
+    </div>
+    <div id="mod-range-hint" style="font-size:11px;color:var(--text-faint);margin-bottom:10px;font-family:var(--mono);min-height:14px;"></div>
+
+    <div class="batch-controls" style="margin-bottom:8px;">
+      <span class="row-label" style="font-size:12px;color:var(--text-dim);">
+        共 <span id="mod-pick-total" style="color:var(--accent);font-family:var(--mono);">0</span> 筆，
+        勾選 <span id="mod-pick-selected" style="color:var(--accent);font-family:var(--mono);">0</span> 筆
+      </span>
+      <button class="btn ghost small" id="mod-select-all" style="margin-left:auto;">全選</button>
+      <button class="btn ghost small" id="mod-select-none">清除勾選</button>
+    </div>
+
+    <div id="mod-pick-list" style="max-height:380px;overflow-y:auto;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:6px;font-family:var(--mono);font-size:12px;line-height:1.6;"></div>
+
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="closeModPick()">取消</button>
+      <button class="btn primary" id="mod-pick-go">修改選定的 →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modify Edit modal (per-row editing) -->
+<div class="modal-bg" id="modal-mod-edit">
+  <div class="modal batch-modal">
+    <button class="modal-x" onclick="closeModEdit()" title="關閉">✕</button>
+    <h2>修改既有檔名 · 編輯</h2>
+
+    <div class="batch-controls">
+      <span style="font-size:12px;color:var(--text-dim);">
+        共 <span id="mod-edit-count" style="color:var(--accent);font-family:var(--mono);">0</span> 筆，
+        每行可獨立改任一段（藍色）；按「擴充新位置」在末尾加欄位（紅色）。
+      </span>
+      <button class="btn small" id="mod-edit-add-more" style="margin-left:auto;">➕ 追加更多…</button>
+    </div>
+
+    <h3>每行可獨立編輯</h3>
+    <div id="mod-edit-rows"></div>
+
+    <h3>預覽（依連號分組）</h3>
+    <div id="mod-edit-preview"></div>
+
+    <div id="mod-edit-custom-section" style="display:none; margin-top: 12px;">
+      <h3 style="display:flex; justify-content:space-between; align-items:center;">
+        <span>本次新增的自訂標籤</span>
+        <button class="btn small" id="mod-edit-copy-all-custom" style="font-size:11px;">📋 複製全部</button>
+      </h3>
+      <div id="mod-edit-custom-list" style="display:flex;flex-direction:column;gap:6px;"></div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="closeModEdit()">取消</button>
+      <button class="btn" id="mod-edit-download">⬇ 下載 csv</button>
+      <button class="btn primary" id="mod-edit-copy-all">📋 複製全部（含分組空行）</button>
     </div>
   </div>
 </div>
@@ -2469,6 +2659,653 @@ function batchDownloadCsv() {
 }
 
 //==============================
+// MODIFY EXISTING FILENAMES (v4.6)
+//==============================
+//
+// Two-stage flow:
+//  1) Pick: load work-order, parse rows, allow user to filter/select which to modify
+//  2) Edit: per-row free editing (each filename is split by _ into segments;
+//           any segment can be replaced (blue), new segments appended (red))
+//
+// Data model:
+//   modState.rawRows: Array<{ key, ym, type, num, sub, fullName, segments: string[] }>
+//     - "key" is the unique identifier "VD25" or "VD25-01" etc.
+//     - "segments" is fullName.split("_")
+//   modState.pickedKeys: Set<string> -- which keys go into Edit stage
+//   modState.editRows: Array<{ key, ym, type, num, sub, originalSegments, currentSegments, newSegments }>
+//     - currentSegments[i]: the (possibly edited) value for the i-th original segment
+//                           if differs from originalSegments[i] => "replaced" (blue)
+//     - newSegments: array of strings appended after originalSegments (red)
+//   modState.customTagsAdded: { en: { ch, cat } } -- new tags introduced during edit
+
+let modState = {
+  rawRows: [],
+  pickedKeys: new Set(),
+  editRows: [],
+  customTagsAdded: {},
+  lastFilter: "",
+};
+
+async function openModPick() {
+  const cfg = getConfig();
+  if (!cfg.woSheetId) {
+    showToast("尚未設定工單，請進設定", "error");
+    return;
+  }
+  $("modal-mod-pick").classList.add("show");
+  // If editRows already has data (returning from edit via "追加"), don't reload — just show
+  if (modState.rawRows.length === 0) {
+    await reloadModRows();
+  } else {
+    renderModPickList();
+  }
+}
+
+function closeModPick() {
+  $("modal-mod-pick").classList.remove("show");
+}
+
+async function reloadModRows() {
+  const cfg = getConfig();
+  const list = $("mod-pick-list");
+  list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-dim);">讀取工單中…</div>';
+  try {
+    let url;
+    if (cfg.woGid) {
+      url = `https://docs.google.com/spreadsheets/d/${cfg.woSheetId}/gviz/tq?tqx=out:csv&gid=${cfg.woGid}`;
+    } else if (cfg.woSheetName) {
+      url = `https://docs.google.com/spreadsheets/d/${cfg.woSheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(cfg.woSheetName)}`;
+    } else {
+      throw new Error("沒有設定工單分頁");
+    }
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error("HTTP " + resp.status);
+    const text = await resp.text();
+    const rows = parseCSV(text);
+    const fnCol = cfg.woFnCol;
+    const parsed = [];
+    const seenKeys = new Set();
+    for (const r of rows) {
+      if (r.length <= fnCol) continue;
+      const cell = (r[fnCol] || "").trim();
+      // Match: YYYYMM_(VD|AD)NN(_SS)?_...
+      const m = cell.match(/^(20\d{4})_((?:VD|AD))(\d+)(?:_(\d+))?(?:_(.+))?$/);
+      if (!m) continue;
+      const [, ym, type, num, sub, rest] = m;
+      const key = `${ym}_${type}${num}${sub ? "_" + sub : ""}`;
+      if (seenKeys.has(key)) continue;
+      seenKeys.add(key);
+      parsed.push({
+        key, ym, type, num, sub: sub || null, fullName: cell,
+        segments: cell.split("_"),
+      });
+    }
+    // Sort by ym, type, num (numeric), sub
+    parsed.sort((a, b) => {
+      if (a.ym !== b.ym) return a.ym.localeCompare(b.ym);
+      if (a.type !== b.type) return a.type.localeCompare(b.type);
+      const an = parseInt(a.num, 10), bn = parseInt(b.num, 10);
+      if (an !== bn) return an - bn;
+      const as = parseInt(a.sub || "0", 10), bs = parseInt(b.sub || "0", 10);
+      return as - bs;
+    });
+    modState.rawRows = parsed;
+    modState.pickedKeys = new Set();
+    renderModPickList();
+  } catch (e) {
+    list.innerHTML = `<div style="padding:20px;text-align:center;color:var(--danger);">讀取失敗：${escapeHtml(e.message)}</div>`;
+  }
+}
+
+// Filter is union — every applied filter ADDS matched rows to picked set
+// User input examples: "VD25-28", "VD30,32,40", "AD15-18, AD20", "25-28" (no prefix = current type any)
+function applyModRangeFilter() {
+  const raw = $("mod-range-input").value.trim();
+  if (!raw) {
+    setModRangeHint("請輸入範圍，例如 VD25-28、VD30,32 或 AD40", "err");
+    return;
+  }
+  // Split by comma or semicolon
+  const tokens = raw.split(/[,，;；\s]+/).filter(Boolean);
+  let currentType = null; // type from most recent token; persists if next token is bare number
+  let added = 0;
+  let invalid = [];
+
+  for (const tok of tokens) {
+    // Try patterns:
+    //   "VD25-28" or "AD25-28"
+    //   "VD25" or "AD25"
+    //   "25-28" (uses currentType or first VD/AD token)
+    //   "25" (single)
+    let m;
+    let type = null, lo = null, hi = null;
+    if ((m = tok.match(/^(VD|AD|vd|ad)(\d+)(?:-(\d+))?$/))) {
+      type = m[1].toUpperCase();
+      lo = parseInt(m[2], 10);
+      hi = m[3] ? parseInt(m[3], 10) : lo;
+      currentType = type;
+    } else if ((m = tok.match(/^(\d+)(?:-(\d+))?$/))) {
+      if (!currentType) {
+        invalid.push(tok);
+        continue;
+      }
+      type = currentType;
+      lo = parseInt(m[1], 10);
+      hi = m[2] ? parseInt(m[2], 10) : lo;
+    } else {
+      invalid.push(tok);
+      continue;
+    }
+    if (lo > hi) [lo, hi] = [hi, lo];
+
+    for (const row of modState.rawRows) {
+      if (row.type !== type) continue;
+      const n = parseInt(row.num, 10);
+      if (n < lo || n > hi) continue;
+      if (!modState.pickedKeys.has(row.key)) {
+        modState.pickedKeys.add(row.key);
+        added++;
+      }
+    }
+  }
+
+  if (invalid.length > 0) {
+    setModRangeHint(`套用 +${added} 筆。無法解析：${invalid.join(", ")}`, "err");
+  } else if (added === 0) {
+    setModRangeHint(`找不到符合「${escapeHtml(raw)}」的檔名（已勾選的不會重複加）`, "err");
+  } else {
+    setModRangeHint(`套用 +${added} 筆，目前勾選共 ${modState.pickedKeys.size} 筆`, "ok");
+  }
+  modState.lastFilter = raw;
+  $("mod-range-input").value = "";
+  renderModPickList();
+}
+
+function setModRangeHint(msg, kind) {
+  const el = $("mod-range-hint");
+  el.textContent = msg;
+  el.style.color = kind === "err" ? "var(--danger)" : kind === "ok" ? "var(--success)" : "var(--text-dim)";
+}
+
+function renderModPickList() {
+  const list = $("mod-pick-list");
+  $("mod-pick-total").textContent = modState.rawRows.length;
+  $("mod-pick-selected").textContent = modState.pickedKeys.size;
+  if (modState.rawRows.length === 0) {
+    list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-faint);">工單沒讀到任何符合格式的檔名</div>';
+    return;
+  }
+  list.innerHTML = modState.rawRows.map((r, i) => {
+    const checked = modState.pickedKeys.has(r.key);
+    return `
+      <div class="mod-pick-row ${checked ? 'checked' : ''}" onclick="toggleModPick('${escapeAttr(r.key)}')">
+        <input type="checkbox" ${checked ? 'checked' : ''} onclick="event.stopPropagation(); toggleModPick('${escapeAttr(r.key)}');">
+        <span class="mp-num">${i+1}.</span>
+        <span class="mp-key">${escapeHtml(r.ym + "_" + r.type + r.num + (r.sub ? "_" + r.sub : ""))}</span>
+        <span class="mp-fn">${escapeHtml(r.fullName)}</span>
+      </div>
+    `;
+  }).join("");
+}
+
+function toggleModPick(key) {
+  if (modState.pickedKeys.has(key)) modState.pickedKeys.delete(key);
+  else modState.pickedKeys.add(key);
+  renderModPickList();
+}
+
+function modSelectAll() {
+  for (const r of modState.rawRows) modState.pickedKeys.add(r.key);
+  renderModPickList();
+}
+
+function modSelectNone() {
+  modState.pickedKeys.clear();
+  renderModPickList();
+}
+
+// Move from Pick to Edit stage
+function modGoEdit() {
+  if (modState.pickedKeys.size === 0) {
+    showToast("請先勾選要修改的檔名", "error");
+    return;
+  }
+  // Build editRows from picked keys (preserve order from rawRows)
+  // If editRows already exists (returning from "追加"), MERGE: keep existing edits, add new ones
+  const existingByKey = new Map();
+  for (const er of modState.editRows) existingByKey.set(er.key, er);
+
+  const newEditRows = [];
+  for (const r of modState.rawRows) {
+    if (!modState.pickedKeys.has(r.key)) continue;
+    if (existingByKey.has(r.key)) {
+      newEditRows.push(existingByKey.get(r.key));
+    } else {
+      newEditRows.push({
+        key: r.key, ym: r.ym, type: r.type, num: r.num, sub: r.sub,
+        originalSegments: r.segments.slice(),
+        currentSegments: r.segments.slice(),
+        newSegments: [],
+      });
+    }
+  }
+  modState.editRows = newEditRows;
+
+  closeModPick();
+  openModEdit();
+}
+
+function openModEdit() {
+  $("modal-mod-edit").classList.add("show");
+  renderModEditRows();
+  renderModEditPreview();
+  renderModEditCustomTags();
+}
+
+function closeModEdit() {
+  $("modal-mod-edit").classList.remove("show");
+}
+
+function renderModEditRows() {
+  $("mod-edit-count").textContent = modState.editRows.length;
+  const box = $("mod-edit-rows");
+  if (modState.editRows.length === 0) {
+    box.innerHTML = '<div class="batch-matrix-empty">沒有要編輯的檔名。</div>';
+    return;
+  }
+  box.innerHTML = modState.editRows.map((row, ri) => {
+    const origLen = row.originalSegments.length;
+    const segHtml = row.currentSegments.map((val, si) => {
+      const orig = row.originalSegments[si];
+      const changed = val !== orig;
+      return `
+        <div class="mod-edit-seg">
+          <span class="mod-edit-seg-label">原: ${escapeHtml(orig)}</span>
+          <input type="text" value="${escapeAttr(val)}"
+                 class="${changed ? 'changed' : ''}"
+                 oninput="onModEditSegInput(${ri}, ${si}, this)"
+                 onfocus="showModEditSuggest(${ri}, ${si}, this, false)"
+                 onblur="setTimeout(() => hideModEditSuggest(this), 200)"
+                 onkeydown="onModEditSegKey(event, ${ri}, ${si}, this, false)">
+        </div>
+      `;
+    }).join("");
+    const newSegHtml = row.newSegments.map((val, ni) => `
+      <div class="mod-edit-seg">
+        <span class="mod-edit-seg-label" style="color:#ff3b3b;">新位置 ${ni+1}
+          <button class="seg-x" onclick="removeModNewSeg(${ri}, ${ni})" style="margin-left:4px;">✕</button>
+        </span>
+        <input type="text" value="${escapeAttr(val)}"
+               class="new-seg"
+               oninput="onModEditNewSegInput(${ri}, ${ni}, this)"
+               onfocus="showModEditSuggest(${ri}, ${ni}, this, true)"
+               onblur="setTimeout(() => hideModEditSuggest(this), 200)"
+               onkeydown="onModEditSegKey(event, ${ri}, ${ni}, this, true)">
+      </div>
+    `).join("");
+    return `
+      <div class="mod-edit-row">
+        <div class="mod-edit-row-header">
+          <span style="color:var(--accent);font-family:var(--mono);">${escapeHtml(row.ym + "_" + row.type + row.num + (row.sub ? "_" + row.sub : ""))}</span>
+          <span class="mer-orig">原: ${escapeHtml(row.originalSegments.join("_"))}</span>
+          <button onclick="removeModEditRow(${ri})" title="從編輯清單移除這筆">移除</button>
+        </div>
+        <div class="mod-edit-segments">
+          ${segHtml}
+          ${newSegHtml}
+          <button class="mod-edit-add-btn" onclick="addModNewSeg(${ri})">＋ 新位置</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+function onModEditSegInput(rowIdx, segIdx, inputEl) {
+  modState.editRows[rowIdx].currentSegments[segIdx] = inputEl.value;
+  // Update class
+  const orig = modState.editRows[rowIdx].originalSegments[segIdx];
+  inputEl.classList.toggle("changed", inputEl.value !== orig);
+  trackModCustomTag(inputEl.value);
+  renderModEditPreview();
+  showModEditSuggest(rowIdx, segIdx, inputEl, false);
+}
+
+function onModEditNewSegInput(rowIdx, newIdx, inputEl) {
+  modState.editRows[rowIdx].newSegments[newIdx] = inputEl.value;
+  trackModCustomTag(inputEl.value);
+  renderModEditPreview();
+  showModEditSuggest(rowIdx, newIdx, inputEl, true);
+}
+
+function onModEditSegKey(e, rowIdx, segIdx, inputEl, isNew) {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    inputEl.blur();
+  } else if (e.key === "Escape") {
+    hideModEditSuggest(inputEl);
+    inputEl.blur();
+  } else if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+    const popup = inputEl.parentElement.querySelector(".mod-edit-row-suggest");
+    if (!popup || !popup.classList.contains("show")) return;
+    e.preventDefault();
+    const items = Array.from(popup.querySelectorAll(".suggest-item"));
+    if (items.length === 0) return;
+    let cur = items.findIndex(it => it.classList.contains("active"));
+    if (cur < 0) cur = 0;
+    cur = (cur + (e.key === "ArrowDown" ? 1 : -1) + items.length) % items.length;
+    items.forEach(it => it.classList.remove("active"));
+    items[cur].classList.add("active");
+    items[cur].scrollIntoView({block:"nearest"});
+  }
+}
+
+function showModEditSuggest(rowIdx, segIdx, inputEl, isNew) {
+  const q = (inputEl.value || "").toLowerCase().trim();
+  if (!q) { hideModEditSuggest(inputEl); return; }
+  const pool = allTags.filter(t => !["專案","尺寸","語系"].includes(t.cat));
+  let sugs = pool.filter(t =>
+    (t.ch + " " + t.en + " " + t.alias).toLowerCase().includes(q)
+  );
+  const seen = new Set();
+  sugs = sugs.filter(t => { if (seen.has(t.en)) return false; seen.add(t.en); return true; }).slice(0, 15);
+
+  let popup = inputEl.parentElement.querySelector(".mod-edit-row-suggest");
+  if (!popup) {
+    popup = document.createElement("div");
+    popup.className = "mod-edit-row-suggest";
+    popup.style.left = "0";
+    popup.style.top = "100%";
+    inputEl.parentElement.appendChild(popup);
+  }
+  if (sugs.length === 0) {
+    popup.classList.remove("show");
+    return;
+  }
+  popup.innerHTML = sugs.map((t, i) => `
+    <div class="suggest-item ${i === 0 ? 'active' : ''}" data-en="${escapeAttr(t.en)}"
+         onmousedown="event.preventDefault(); pickModEditSuggest(${rowIdx}, ${segIdx}, '${escapeAttr(t.en)}', ${isNew});">
+      <span class="si-ch">${escapeHtml(t.ch)}</span>
+      <span class="si-en">${escapeHtml(t.en)}</span>
+    </div>
+  `).join("");
+  popup.classList.add("show");
+}
+
+function hideModEditSuggest(inputEl) {
+  const popup = inputEl.parentElement.querySelector(".mod-edit-row-suggest");
+  if (popup) popup.classList.remove("show");
+}
+
+function pickModEditSuggest(rowIdx, segIdx, en, isNew) {
+  if (isNew) {
+    modState.editRows[rowIdx].newSegments[segIdx] = en;
+  } else {
+    modState.editRows[rowIdx].currentSegments[segIdx] = en;
+  }
+  trackModCustomTag(en);
+  renderModEditRows();
+  renderModEditPreview();
+}
+
+function addModNewSeg(rowIdx) {
+  modState.editRows[rowIdx].newSegments.push("");
+  renderModEditRows();
+  renderModEditPreview();
+  // Focus the new input
+  setTimeout(() => {
+    const rows = document.querySelectorAll(".mod-edit-row");
+    const lastInput = rows[rowIdx]?.querySelectorAll("input.new-seg");
+    if (lastInput && lastInput.length > 0) {
+      lastInput[lastInput.length - 1].focus();
+    }
+  }, 0);
+}
+
+function removeModNewSeg(rowIdx, newIdx) {
+  modState.editRows[rowIdx].newSegments.splice(newIdx, 1);
+  renderModEditRows();
+  renderModEditPreview();
+}
+
+function removeModEditRow(rowIdx) {
+  const row = modState.editRows[rowIdx];
+  modState.pickedKeys.delete(row.key);
+  modState.editRows.splice(rowIdx, 1);
+  renderModEditRows();
+  renderModEditPreview();
+}
+
+function trackModCustomTag(val) {
+  if (!val) return;
+  const v = val.trim();
+  if (!v || /^\d+$/.test(v)) return;
+  if (allTags.some(t => t.en === v)) return;
+  if (modState.customTagsAdded[v]) return;
+  modState.customTagsAdded[v] = { ch: v, cat: "" };
+  renderModEditCustomTags();
+}
+
+// Group rows by (ym, type) and consecutive num
+// Returns: Array<{ ym, type, range: "VD25-28", rows: [editRow...] }>
+function groupModEditRows() {
+  const groups = [];
+  let cur = null;
+  for (const row of modState.editRows) {
+    const n = parseInt(row.num, 10);
+    if (cur && cur.ym === row.ym && cur.type === row.type && n === cur.lastNum + 1
+        && !row.sub && !cur.lastHadSub) {
+      // Consecutive
+      cur.rows.push(row);
+      cur.lastNum = n;
+      cur.lastHadSub = !!row.sub;
+    } else {
+      if (cur) groups.push(cur);
+      cur = {
+        ym: row.ym, type: row.type, firstNum: n, lastNum: n,
+        lastHadSub: !!row.sub, rows: [row]
+      };
+    }
+  }
+  if (cur) groups.push(cur);
+
+  // Generate human label
+  for (const g of groups) {
+    if (g.firstNum === g.lastNum) {
+      g.range = `${g.type}${String(g.firstNum).padStart(2,"0")}` + (g.rows[0].sub ? `_${g.rows[0].sub}` : "");
+    } else {
+      g.range = `${g.type}${String(g.firstNum).padStart(2,"0")}-${String(g.lastNum).padStart(2,"0")}`;
+    }
+    g.label = `${g.ym} · ${g.range}（${g.rows.length} 筆）`;
+  }
+  return groups;
+}
+
+function composeModRow(row) {
+  // current + new (filter empty)
+  const all = row.currentSegments.concat(row.newSegments).filter(s => s != null && s !== "");
+  return all.join("_");
+}
+
+// Render colored preview for a single edit row
+// Reuses the same color logic as batch preview
+function renderModRowColored(row) {
+  const inLib = (s) => allTags.some(t => t.en === s);
+  const sep = '<span class="seg-orig">_</span>';
+  const out = [];
+  // Original segments (orig if unchanged, blue if changed)
+  row.currentSegments.forEach((val, i) => {
+    if (i > 0) out.push(sep);
+    if (val == null || val === "") return;
+    const orig = row.originalSegments[i];
+    if (val === orig) {
+      out.push(`<span class="seg-orig">${escapeHtml(val)}</span>`);
+    } else {
+      const notLib = !inLib(val) && !/^\d+$/.test(val);
+      const cls = notLib ? "seg-not-in-lib" : "";
+      const tip = "已替換原欄位" + (notLib ? " · 非標籤庫" : "");
+      out.push(`<span class="${cls}" style="color:#5fa8ff;font-weight:600;" title="${escapeAttr(tip)}">${escapeHtml(val)}</span>`);
+    }
+  });
+  // New segments (red shades by ordinal)
+  const newPalette = ['#ff3b3b','#ff6b6b','#ff9595','#ffb8b8','#ffd6d6'];
+  row.newSegments.forEach((val, i) => {
+    if (val == null || val === "") return;
+    out.push(sep);
+    const color = newPalette[Math.min(i, newPalette.length - 1)];
+    const notLib = !inLib(val) && !/^\d+$/.test(val);
+    const cls = notLib ? "seg-not-in-lib" : "";
+    const tip = `新增 (第 ${i+1} 個)` + (notLib ? " · 非標籤庫" : "");
+    out.push(`<span class="${cls}" style="color:${color};font-weight:700;" title="${escapeAttr(tip)}">${escapeHtml(val)}</span>`);
+  });
+  return out.join("");
+}
+
+function renderModEditPreview() {
+  const box = $("mod-edit-preview");
+  if (modState.editRows.length === 0) {
+    box.innerHTML = '<div class="batch-matrix-empty">沒有預覽。</div>';
+    return;
+  }
+  const groups = groupModEditRows();
+  box.innerHTML = groups.map((g, gi) => {
+    const rowsHtml = g.rows.map((r, ri) =>
+      `<div class="pgb-row">${ri+1}. ${renderModRowColored(r)}</div>`
+    ).join("");
+    return `
+      <div class="mod-edit-preview-group">
+        <div class="mod-edit-preview-group-header">
+          <span>第 ${gi+1} 組 ·</span>
+          <span class="mepg-range">${escapeHtml(g.label)}</span>
+          <button onclick="copyModGroup(${gi})">📋 複製此組</button>
+        </div>
+        <div class="mod-edit-preview-group-body">${rowsHtml}</div>
+      </div>
+    `;
+  }).join("");
+}
+
+function copyModGroup(gi) {
+  const groups = groupModEditRows();
+  const g = groups[gi];
+  if (!g) return;
+  const text = g.rows.map(composeModRow).join("\n");
+  navigator.clipboard.writeText(text).then(() => {
+    showToast(`已複製「${g.label}」`, "success");
+  }).catch(() => {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    document.body.removeChild(ta);
+    showToast("已複製", "success");
+  });
+}
+
+function copyAllModEdits() {
+  const groups = groupModEditRows();
+  if (groups.length === 0) {
+    showToast("沒有資料可複製", "error");
+    return;
+  }
+  // Each group separated by a blank line
+  const text = groups.map(g =>
+    g.rows.map(composeModRow).join("\n")
+  ).join("\n\n");
+  navigator.clipboard.writeText(text).then(() => {
+    const total = modState.editRows.length;
+    showToast(`已複製 ${total} 筆 · 分 ${groups.length} 組（用空行隔開）`, "success");
+  }).catch(() => {});
+}
+
+function downloadModEdits() {
+  const total = modState.editRows.length;
+  if (total === 0) { showToast("沒有資料", "error"); return; }
+  const groups = groupModEditRows();
+  let csv = "組,原檔名,新檔名\n";
+  for (const g of groups) {
+    for (const r of g.rows) {
+      const orig = r.originalSegments.join("_");
+      const fresh = composeModRow(r);
+      csv += `"${g.range}","${orig}","${fresh}"\n`;
+    }
+  }
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  const now = new Date();
+  const stamp = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,"0")}${String(now.getDate()).padStart(2,"0")}_${String(now.getHours()).padStart(2,"0")}${String(now.getMinutes()).padStart(2,"0")}`;
+  a.download = `modify_filenames_${stamp}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast(`已下載 ${total} 行`, "success");
+}
+
+function renderModEditCustomTags() {
+  const items = Object.entries(modState.customTagsAdded);
+  const section = $("mod-edit-custom-section");
+  const list = $("mod-edit-custom-list");
+  if (items.length === 0) {
+    section.style.display = "none";
+    return;
+  }
+  section.style.display = "";
+  const cats = Array.from(new Set(allTags.map(t => t.cat).filter(Boolean))).sort();
+  list.innerHTML = items.map(([en, data]) => {
+    const enEsc = escapeAttr(en);
+    return `
+      <div class="custom-tag-row" data-en="${escapeHtml(en)}">
+        <input type="text" placeholder="中文名" value="${escapeHtml(data.ch || '')}"
+               oninput="updateModCustomField('${enEsc}', 'ch', this.value)">
+        <span class="ctr-en">${escapeHtml(en)}</span>
+        <select onchange="updateModCustomField('${enEsc}', 'cat', this.value)">
+          <option value="">— 選分類 —</option>
+          ${cats.map(c => `<option value="${escapeHtml(c)}" ${data.cat === c ? 'selected' : ''}>${escapeHtml(c)}</option>`).join('')}
+        </select>
+        <span style="font-size:11px;color:var(--text-faint);">補完中文/分類後可複製</span>
+        <button onclick="copyModCustomRow('${enEsc}')">📋 複製這列</button>
+      </div>
+    `;
+  }).join("");
+}
+
+function updateModCustomField(en, key, value) {
+  if (!modState.customTagsAdded[en]) modState.customTagsAdded[en] = {};
+  modState.customTagsAdded[en][key] = value;
+}
+
+function copyModCustomRow(en) {
+  const data = modState.customTagsAdded[en];
+  if (!data) return;
+  const tsv = [data.ch || "", en, data.cat || "", "", "", "是"].join("\t");
+  navigator.clipboard.writeText(tsv).then(() => {
+    showToast(`已複製：${en}`, "success");
+  }).catch(() => {});
+}
+
+function copyModAllCustom() {
+  const items = Object.entries(modState.customTagsAdded);
+  if (items.length === 0) { showToast("沒有自訂標籤", "error"); return; }
+  const tsv = items.map(([en, data]) =>
+    [data.ch || "", en, data.cat || "", "", "", "是"].join("\t")
+  ).join("\n");
+  navigator.clipboard.writeText(tsv).then(() => {
+    showToast(`已複製 ${items.length} 個標籤`, "success");
+  }).catch(() => {});
+}
+
+// 追加: re-open pick modal without losing edit state
+async function modAddMore() {
+  // pickedKeys reflects current editRows; let user add more
+  modState.pickedKeys = new Set(modState.editRows.map(r => r.key));
+  closeModEdit();
+  await openModPick();
+}
+
+//==============================
 // EVENT WIRING
 //==============================
 window.addEventListener("DOMContentLoaded", () => {
@@ -2547,8 +3384,28 @@ window.addEventListener("DOMContentLoaded", () => {
   });
   $("btn-copy").addEventListener("click", copyFilename);
   $("btn-batch").addEventListener("click", openBatch);
+  $("btn-modify").addEventListener("click", openModPick);
   $("btn-clear").addEventListener("click", clearForm);
   $("btn-copy-all-custom").addEventListener("click", copyAllCustomTags);
+
+  // Modify-existing dialog interactions
+  $("mod-reload").addEventListener("click", () => reloadModRows());
+  $("mod-range-apply").addEventListener("click", applyModRangeFilter);
+  $("mod-range-input").addEventListener("keydown", e => {
+    if (e.key === "Enter") { e.preventDefault(); applyModRangeFilter(); }
+  });
+  $("mod-range-clear").addEventListener("click", () => {
+    modState.pickedKeys.clear();
+    setModRangeHint("已清除全部勾選", "");
+    renderModPickList();
+  });
+  $("mod-select-all").addEventListener("click", modSelectAll);
+  $("mod-select-none").addEventListener("click", modSelectNone);
+  $("mod-pick-go").addEventListener("click", modGoEdit);
+  $("mod-edit-add-more").addEventListener("click", modAddMore);
+  $("mod-edit-copy-all").addEventListener("click", copyAllModEdits);
+  $("mod-edit-download").addEventListener("click", downloadModEdits);
+  $("mod-edit-copy-all-custom").addEventListener("click", copyModAllCustom);
 
   // Batch dialog interactions
   $("batch-count").addEventListener("input", () => {
