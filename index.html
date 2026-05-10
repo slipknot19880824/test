@@ -755,7 +755,7 @@
 <div class="app">
 
   <div class="header">
-    <h1>檔名命名工具 <span class="accent">·</span> <span style="color:var(--text-dim);font-weight:400;">v4.9 · 修改既有檔名</span></h1>
+    <h1>檔名命名工具 <span class="accent">·</span> <span style="color:var(--text-dim);font-weight:400;">v4.10 · 中文防呆</span></h1>
     <div class="meta" id="meta">載入中…</div>
   </div>
 
@@ -763,6 +763,7 @@
     <button class="btn ghost" id="btn-reload">重新載入標籤庫</button>
     <button class="btn ghost" id="btn-config">⚙ 設定</button>
     <button class="btn ghost" id="btn-help">使用說明</button>
+    <button class="btn ghost" id="btn-translate" title="開 Google 翻譯（中→英）" style="margin-left:auto;">🌐 翻譯</button>
   </div>
 
   <div class="status-list">
@@ -875,6 +876,10 @@
   </div>
 
   <div class="help">
+    <b>v4.10 — 中文防呆 + 翻譯快捷鍵：</b><br>
+    <b>· 檔名只接受英文/數字</b>：年月、編號、版本、自訂標籤、批次格子、修改既有檔名 ── 全部會即時擋掉中文輸入並跳提示。<br>
+    <b>· 標籤搜尋仍可打中文</b>：主介面的標籤搜尋、批次/修改的搜尋下拉都仍能用中文搜尋並從標籤庫匹配（這部分是搜尋輔助，不會直接進檔名）。<br>
+    <b>· 右上角「🌐 翻譯」按鈕</b>：一鍵開 Google 翻譯（中→英），翻完複製英文回來貼到欄位即可。<br><br>
     <b>v4.9 — 分組與套用範圍精修：</b><br>
     <b>· 分組改成只看主編號連號</b>：VD25-28 整個是一組（不論中間誰有沒有子號）；同主編號下的子號用淺底色斑馬條紋區分視覺，但複製時整大組一起複製。<br>
     <b>· 套用範圍三選一</b>：跨組勾選不會誤套用。確認框現在有「套用到全部勾選 / 套用到同組勾選 / 只改這一行 / 取消」四個選項；同組與全部相同時自動隱藏「同組」按鈕。<br>
@@ -1171,6 +1176,60 @@ function escapeHtml(s) {
 }
 function escapeAttr(s) {
   return String(s).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}
+
+//==============================
+// CJK guard helpers (v4.10)
+//==============================
+// Detect any CJK character (Chinese/Japanese/Korean ideographs + Hiragana/Katakana + full-width
+// punctuation typically typed by Chinese IME)
+const CJK_RE = /[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff00-\uffef]/;
+const CJK_RE_GLOBAL = /[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff00-\uffef]+/g;
+
+function hasCJK(s) {
+  return CJK_RE.test(String(s || ""));
+}
+function stripCJK(s) {
+  return String(s || "").replace(CJK_RE_GLOBAL, "");
+}
+
+// Throttled toast for CJK reject (avoid spamming when user types/pastes long Chinese)
+let _cjkToastT = 0;
+function cjkRejectToast(extraHint) {
+  const now = Date.now();
+  if (now - _cjkToastT < 800) return;
+  _cjkToastT = now;
+  showToast("檔名只能用英文｜可點右上「翻譯」查英文", "error");
+}
+
+// Hook this onto inputs that must NOT contain CJK.
+// Strips any CJK chars on input, preserves caret as best-effort, and shows a toast.
+function attachCjkGuard(inputEl) {
+  if (!inputEl || inputEl.dataset.cjkGuarded === "1") return;
+  inputEl.dataset.cjkGuarded = "1";
+  inputEl.addEventListener("input", e => {
+    const v = e.target.value;
+    if (!hasCJK(v)) return;
+    const caret = e.target.selectionStart || 0;
+    // Count how many CJK chars are BEFORE the caret to adjust position
+    const before = v.slice(0, caret);
+    const cjkBefore = (before.match(CJK_RE_GLOBAL) || []).join("").length;
+    const cleaned = stripCJK(v);
+    e.target.value = cleaned;
+    const newCaret = Math.max(0, caret - cjkBefore);
+    try { e.target.setSelectionRange(newCaret, newCaret); } catch (e) {}
+    cjkRejectToast();
+  });
+}
+
+// Build a Google Translate URL with optional pre-filled text
+function googleTranslateUrl(text) {
+  const t = (text || "").trim();
+  const base = "https://translate.google.com/?sl=zh-TW&tl=en&op=translate";
+  return t ? `${base}&text=${encodeURIComponent(t)}` : base;
+}
+function openGoogleTranslate(text) {
+  window.open(googleTranslateUrl(text), "_blank", "noopener");
 }
 
 function parseCSV(text) {
@@ -1505,6 +1564,12 @@ function addTag(idx) {
 function addCustomTag(value) {
   const v = value.trim();
   if (!v) return;
+  if (hasCJK(v)) {
+    cjkRejectToast();
+    $("search").value = "";
+    $("results").classList.remove("show");
+    return;
+  }
   if (selectedTags.some(s => s.en === v)) {
     showToast("已加入過：" + v, "error");
     return;
@@ -2144,6 +2209,14 @@ function ensureCellArrays() {
 }
 
 function onCellInput(partIdx, rowIdx, inputEl) {
+  // CJK guard: strip Chinese chars typed into batch cell
+  if (hasCJK(inputEl.value)) {
+    const caret = inputEl.selectionStart || 0;
+    const cjkBefore = (inputEl.value.slice(0, caret).match(CJK_RE_GLOBAL) || []).join("").length;
+    inputEl.value = stripCJK(inputEl.value);
+    try { inputEl.setSelectionRange(Math.max(0, caret - cjkBefore), Math.max(0, caret - cjkBefore)); } catch(e) {}
+    cjkRejectToast();
+  }
   // Reset arrow-selected flag when user is actively typing
   inputEl.dataset.arrowSelected = "";
   showCellSuggest(partIdx, rowIdx, inputEl);
@@ -2300,6 +2373,7 @@ function pickCellSuggest(partIdx, rowIdx, en) {
 }
 
 function addCellTag(partIdx, rowIdx, value) {
+  if (hasCJK(value)) { cjkRejectToast(); return; }
   ensureCellArrays();
   const arr = batchState.cellTags.get(partIdx);
   if (!arr) return;
@@ -2344,6 +2418,14 @@ function clearCellRow(rowIdx) {
 }
 
 function onQuickFillInput(partIdx, inputEl) {
+  // CJK guard
+  if (hasCJK(inputEl.value)) {
+    const caret = inputEl.selectionStart || 0;
+    const cjkBefore = (inputEl.value.slice(0, caret).match(CJK_RE_GLOBAL) || []).join("").length;
+    inputEl.value = stripCJK(inputEl.value);
+    try { inputEl.setSelectionRange(Math.max(0, caret - cjkBefore), Math.max(0, caret - cjkBefore)); } catch(e) {}
+    cjkRejectToast();
+  }
   const part = batchState.parts[partIdx];
   const cats = getCategoriesForPart(part);
   if (cats !== null && cats.length === 0) {
@@ -2441,7 +2523,17 @@ function quickFillCells(partIdx) {
   if (!input) return;
   const raw = input.value.trim();
   if (!raw) return;
-  const values = raw.split(/[\n,，]/).map(s => s.trim()).filter(Boolean);
+  const allValues = raw.split(/[\n,，]/).map(s => s.trim()).filter(Boolean);
+  // Filter out values containing CJK
+  const values = allValues.filter(v => !hasCJK(v));
+  if (values.length < allValues.length) {
+    cjkRejectToast();
+  }
+  if (values.length === 0) {
+    input.value = "";
+    hideQuickFillSuggest(partIdx);
+    return;
+  }
   ensureCellArrays();
   const arr = batchState.cellTags.get(partIdx);
   if (!arr) return;
@@ -3115,6 +3207,14 @@ function deactivateModSeg() {
 }
 
 function onModEditSegInput(rowIdx, segIdx, inputEl) {
+  // CJK guard
+  if (hasCJK(inputEl.value)) {
+    const caret = inputEl.selectionStart || 0;
+    const cjkBefore = (inputEl.value.slice(0, caret).match(CJK_RE_GLOBAL) || []).join("").length;
+    inputEl.value = stripCJK(inputEl.value);
+    try { inputEl.setSelectionRange(Math.max(0, caret - cjkBefore), Math.max(0, caret - cjkBefore)); } catch(e) {}
+    cjkRejectToast();
+  }
   modState.editRows[rowIdx].currentSegments[segIdx] = inputEl.value;
   // Live: update class while typing
   const orig = modState.editRows[rowIdx].originalSegments[segIdx];
@@ -3124,6 +3224,14 @@ function onModEditSegInput(rowIdx, segIdx, inputEl) {
 }
 
 function onModEditNewSegInput(rowIdx, newIdx, inputEl) {
+  // CJK guard
+  if (hasCJK(inputEl.value)) {
+    const caret = inputEl.selectionStart || 0;
+    const cjkBefore = (inputEl.value.slice(0, caret).match(CJK_RE_GLOBAL) || []).join("").length;
+    inputEl.value = stripCJK(inputEl.value);
+    try { inputEl.setSelectionRange(Math.max(0, caret - cjkBefore), Math.max(0, caret - cjkBefore)); } catch(e) {}
+    cjkRejectToast();
+  }
   modState.editRows[rowIdx].newSegments[newIdx] = inputEl.value;
   showModEditSuggest(rowIdx, newIdx, inputEl, true);
 }
@@ -3651,6 +3759,9 @@ window.addEventListener("DOMContentLoaded", () => {
     $(id).addEventListener("change", updatePreview);
   });
 
+  // CJK guard for plain text fields that go straight into the filename
+  ["f-yearmonth","f-serial","f-subserial","f-version"].forEach(id => attachCjkGuard($(id)));
+
   // Combobox auto-resolve: if user typed Chinese name (or alias), convert to English code on blur
   // This lets people type "達拉" and have it become "DARA" automatically.
   function resolveComboboxValue(el, category) {
@@ -3667,6 +3778,12 @@ window.addEventListener("DOMContentLoaded", () => {
     // Try case-insensitive en
     const byEnCi = allTags.find(t => t.cat === category && t.en.toLowerCase() === v.toLowerCase());
     if (byEnCi) { el.value = byEnCi.en; updatePreview(); return; }
+    // Couldn't resolve. If still contains CJK, strip it and toast.
+    if (hasCJK(v)) {
+      el.value = stripCJK(v);
+      cjkRejectToast();
+      updatePreview();
+    }
   }
   $("f-project").addEventListener("blur", e => resolveComboboxValue(e.target, "專案"));
   $("f-size").addEventListener("blur", e => resolveComboboxValue(e.target, "尺寸"));
@@ -3719,6 +3836,7 @@ window.addEventListener("DOMContentLoaded", () => {
   $("btn-help").addEventListener("click", () => {
     document.querySelector(".help").scrollIntoView({behavior:"smooth"});
   });
+  $("btn-translate").addEventListener("click", () => openGoogleTranslate(""));
   $("btn-copy").addEventListener("click", copyFilename);
   $("btn-batch").addEventListener("click", openBatch);
   $("btn-modify").addEventListener("click", openModPick);
