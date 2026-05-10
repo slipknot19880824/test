@@ -616,7 +616,7 @@
 <div class="app">
 
   <div class="header">
-    <h1>檔名命名工具 <span class="accent">·</span> <span style="color:var(--text-dim);font-weight:400;">v4.4 · 標籤化批次</span></h1>
+    <h1>檔名命名工具 <span class="accent">·</span> <span style="color:var(--text-dim);font-weight:400;">v4.5 · 標籤化批次</span></h1>
     <div class="meta" id="meta">載入中…</div>
   </div>
 
@@ -660,9 +660,8 @@
         </div>
         <div class="field">
           <label>專案</label>
-          <select id="f-project">
-            <option value="">— 選擇 —</option>
-          </select>
+          <input id="f-project" type="text" list="dl-project" placeholder="輸入或選擇" autocomplete="off">
+          <datalist id="dl-project"></datalist>
         </div>
       </div>
     </div>
@@ -690,11 +689,13 @@
       <div class="triple-row">
         <div class="field">
           <label>尺寸</label>
-          <select id="f-size"><option value="">—</option></select>
+          <input id="f-size" type="text" list="dl-size" placeholder="—" autocomplete="off">
+          <datalist id="dl-size"></datalist>
         </div>
         <div class="field">
           <label>語系</label>
-          <select id="f-lang"><option value="">—</option></select>
+          <input id="f-lang" type="text" list="dl-lang" placeholder="—" autocomplete="off">
+          <datalist id="dl-lang"></datalist>
         </div>
         <div class="field">
           <label>版本</label>
@@ -734,6 +735,10 @@
   </div>
 
   <div class="help">
+    <b>v4.5 — 兩層染色 + 主介面下拉可打字：</b><br>
+    <b>· 已有「新位置」時隱藏「擴充新位置」按鈕</b>：避免重複，新位置裡可堆疊多個標籤即可。<br>
+    <b>· 染色兩層分級</b>：欄位之間按色彩（紅/橙/黃/綠/青）；同欄位內的多個堆疊標籤同色但明度由深到淺。<br>
+    <b>· 主介面下拉改成可打字搜尋</b>：專案/尺寸/語系都能直接打字過濾，也保留下拉選擇。打中文（如「達拉」）失焦時會自動轉成英文（DARA）。<br><br>
     <b>v4.4 — 染色加大、彈窗修正：</b><br>
     <b>· 染色色階拉開</b>：紅 → 橙 → 黃 → 綠 → 青，五階對比明顯。<br>
     <b>· 批次格子內也能新增非標籤庫的標籤</b>：找不到時會顯示「＋ 直接加入「X」」按下 Enter 即加入。<br>
@@ -1044,44 +1049,25 @@ function populateProjectAndDropdowns() {
     byCategory[t.cat].push(t);
   }
 
-  const projectSelect = $("f-project");
-  const currentVal = projectSelect.value;
-  projectSelect.innerHTML = '<option value="">— 選擇 —</option>';
-  const seenEn = new Set();
-  for (const p of (byCategory["專案"] || [])) {
-    if (seenEn.has(p.en)) continue;
-    seenEn.add(p.en);
-    const opt = document.createElement("option");
-    opt.value = p.en;
-    opt.textContent = `${p.en} · ${p.ch}`;
-    projectSelect.appendChild(opt);
+  // Helper: fill a datalist with deduped tag options
+  // Each option: value=en, label=ch (Chrome shows label after value in dropdown)
+  function fillDatalist(dlId, items) {
+    const dl = $(dlId);
+    if (!dl) return;
+    const seen = new Set();
+    const html = items.filter(t => {
+      if (seen.has(t.en)) return false;
+      seen.add(t.en);
+      return true;
+    }).map(t =>
+      `<option value="${escapeAttr(t.en)}" label="${escapeAttr(t.ch)}">${escapeHtml(t.en)} · ${escapeHtml(t.ch)}</option>`
+    ).join("");
+    dl.innerHTML = html;
   }
-  if (currentVal) projectSelect.value = currentVal;
 
-  const sizeSelect = $("f-size");
-  const sizeVal = sizeSelect.value;
-  sizeSelect.innerHTML = '<option value="">—</option>';
-  const sizeSeen = new Set();
-  for (const s of (byCategory["尺寸"] || [])) {
-    if (sizeSeen.has(s.en)) continue;
-    sizeSeen.add(s.en);
-    const opt = document.createElement("option");
-    opt.value = s.en;
-    opt.textContent = `${s.en} · ${s.ch}`;
-    sizeSelect.appendChild(opt);
-  }
-  if (sizeVal) sizeSelect.value = sizeVal;
-
-  const langSelect = $("f-lang");
-  const langVal = langSelect.value;
-  langSelect.innerHTML = '<option value="">—</option>';
-  for (const l of (byCategory["語系"] || [])) {
-    const opt = document.createElement("option");
-    opt.value = l.en;
-    opt.textContent = `${l.en} · ${l.ch}`;
-    langSelect.appendChild(opt);
-  }
-  if (langVal) langSelect.value = langVal;
+  fillDatalist("dl-project", byCategory["專案"] || []);
+  fillDatalist("dl-size", byCategory["尺寸"] || []);
+  fillDatalist("dl-lang", byCategory["語系"] || []);
 }
 
 //==============================
@@ -1591,56 +1577,65 @@ function buildPartsFromForm() {
 }
 
 // Compose filename from parts (with overrides for specific indexes)
-// Returns { filename: string, segments: Array<{val, kind, srcIdx, status}> }
+// Returns { filename: string, segments: Array<{val, subValues, kind, srcIdx, status}> }
+//   override values may be a string OR an array of strings (multiple stacked tags in one field)
+//   subValues is always the array form (length 1 if single)
 //   status: "orig" | "replaced" | "new" | "auto"
-//   - "replaced": user overrode the value for an existing (non-expansion) part
-//   - "new": expansion part with content, OR auto-inserted subserial
-//   - "orig": unchanged original part
-function composeFromParts(parts, overrides /* Map idx → newValue */, serialOffset, subOffset, numbering) {
+function composeFromParts(parts, overrides /* Map idx → string|string[] */, serialOffset, subOffset, numbering) {
   const hasSubserial = parts.some(p => p.kind === "subserial");
   const result = [];
   let serialOutputIdx = -1;
 
+  // Helper: normalize a value into { val: joined-string, subValues: array }
+  const norm = (v) => {
+    if (Array.isArray(v)) {
+      const arr = v.filter(x => x !== "" && x != null);
+      return { val: arr.join("_"), subValues: arr };
+    }
+    return { val: v == null ? "" : String(v), subValues: (v == null || v === "") ? [] : [String(v)] };
+  };
+
   parts.forEach((p, idx) => {
     if (overrides && overrides.has(idx)) {
-      const v = overrides.get(idx);
-      // Determine status: expansion is always "new" (originally empty); others = "replaced"
+      const raw = overrides.get(idx);
+      const { val, subValues } = norm(raw);
       const status = (p.kind === "expansion") ? "new" : "replaced";
-      if (p.kind === "serial" && v != null) {
-        result.push({val: v, kind: p.kind, srcIdx: idx, status});
+      if (p.kind === "serial" && val != null) {
+        result.push({ val, subValues, kind: p.kind, srcIdx: idx, status });
         serialOutputIdx = result.length - 1;
         return;
       }
-      result.push({val: v, kind: p.kind, srcIdx: idx, status});
+      result.push({ val, subValues, kind: p.kind, srcIdx: idx, status });
       return;
     }
-    // Apply numbering offset (serial / subserial increments — these are the "rule" not user-edit)
     if (p.kind === "serial" && numbering === "serial") {
       const newNum = parseInt(p._num, 10) + serialOffset;
-      result.push({val: p._typePrefix + String(newNum).padStart(2, "0"), kind: p.kind, srcIdx: idx, status: "orig"});
+      const v = p._typePrefix + String(newNum).padStart(2, "0");
+      result.push({ val: v, subValues: [v], kind: p.kind, srcIdx: idx, status: "orig" });
       serialOutputIdx = result.length - 1;
       return;
     }
     if (p.kind === "subserial" && numbering === "subserial") {
       const newNum = parseInt(p.value, 10) + subOffset;
-      result.push({val: String(newNum).padStart(2, "0"), kind: p.kind, srcIdx: idx, status: "orig"});
+      const v = String(newNum).padStart(2, "0");
+      result.push({ val: v, subValues: [v], kind: p.kind, srcIdx: idx, status: "orig" });
       return;
     }
     if (p.kind === "serial") {
       serialOutputIdx = result.length;
     }
     if (p.kind === "expansion") {
-      // Expansion with no override and empty value -> emit empty (will be filtered)
-      result.push({val: p.value || "", kind: p.kind, srcIdx: idx, status: p.value ? "new" : "orig"});
+      const v = p.value || "";
+      result.push({ val: v, subValues: v ? [v] : [], kind: p.kind, srcIdx: idx, status: v ? "new" : "orig" });
       return;
     }
-    result.push({val: p.value, kind: p.kind, srcIdx: idx, status: "orig"});
+    result.push({ val: p.value, subValues: [p.value], kind: p.kind, srcIdx: idx, status: "orig" });
   });
 
   // If user wants subserial+1 but no subserial part exists, auto-insert one after serial
   if (numbering === "subserial" && !hasSubserial && serialOutputIdx >= 0) {
     const subVal = String(1 + subOffset).padStart(2, "0");
-    result.splice(serialOutputIdx + 1, 0, {val: subVal, kind: "subserial-auto", status: "auto"});
+    result.splice(serialOutputIdx + 1, 0, { val: subVal, subValues: [subVal], kind: "subserial-auto", status: "auto" });
   }
 
   // Filter out empty segments
@@ -1703,6 +1698,7 @@ function closeBatch() {
 function renderBatchFields() {
   const box = $("batch-fields");
   const parts = batchState.parts;
+  const hasExpansion = parts.some(p => p.kind === "expansion");
   const html = parts.map((p, idx) => {
     const isSelected = batchState.selectedFieldIndexes.has(idx);
     const isExp = p.kind === "expansion";
@@ -1716,9 +1712,9 @@ function renderBatchFields() {
       </label>
     `;
   }).join("");
-  box.innerHTML = html + `
+  box.innerHTML = html + (hasExpansion ? '' : `
     <button class="batch-expand-btn" onclick="addExpansion()">＋ 擴充新位置</button>
-  `;
+  `);
 }
 
 function toggleBatchField(idx) {
@@ -2311,15 +2307,13 @@ function generateBatch() {
       const arr = batchState.cellTags.get(idx) || [];
       const tags = arr[n] || [];
       if (tags.length > 0) {
-        // Multiple tags joined with underscore form a compound value
-        overrides.set(idx, tags.join("_"));
+        // Pass the array directly so we can color-grade per sub-tag
+        overrides.set(idx, tags.slice());
       } else {
-        // Empty - for expansion, empty means skip; for non-expansion, override null = use original
         const part = batchState.parts[idx];
         if (part?.kind === "expansion") {
-          overrides.set(idx, ""); // explicit empty -> filtered
+          overrides.set(idx, "");
         }
-        // else: leave as original
       }
     }
     // Apply post-hoc per-row overrides
@@ -2351,39 +2345,68 @@ function generateBatch() {
 }
 
 // Render a filename's segments with semantic coloring.
-// Each segment may be one or more underscore-joined sub-values (when user picked
-// multiple tags for a single override). We color the WHOLE segment as a unit.
+// Two-level grading:
+//   1) BETWEEN fields: hue cycles through red→orange→yellow→green→cyan
+//      (replaced segments are blue regardless of order)
+//   2) WITHIN a field with multiple stacked sub-tags: same hue, brightness fades
+//      (deepest first, lighter for each subsequent sub-tag)
 function renderColoredFilename(segments) {
-  // Count "new" expansion segments to gradient them
+  // Hue palette per "new field index"
+  // Each entry: array of brightness shades from deepest to lightest
+  const newPalette = [
+    // 1st new field: red shades (deep -> light)
+    ['#ff3b3b', '#ff6b6b', '#ff9595', '#ffb8b8', '#ffd6d6'],
+    // 2nd: orange
+    ['#ff8a3d', '#ffa466', '#ffbc8c', '#ffd0ad', '#ffdfc4'],
+    // 3rd: yellow
+    ['#ffd23d', '#ffdc66', '#ffe588', '#ffeca6', '#fff2c0'],
+    // 4th: green
+    ['#9be36f', '#b1ea8e', '#c4f0a8', '#d4f4be', '#e1f7d1'],
+    // 5th+: cyan
+    ['#6ed4ff', '#8ddcff', '#a6e3ff', '#bce9ff', '#cfeeff'],
+  ];
+  // Replaced field: blue shades
+  const replacedShades = ['#5fa8ff', '#7eb9ff', '#9bcaff', '#b3d6ff', '#c5dfff'];
+
   let newOrdinal = 0;
-  return segments.map((seg, i) => {
-    let cls = "seg-orig";
-    let tipParts = [];
+  return segments.map((seg, segIdx) => {
+    const subs = (seg.subValues && seg.subValues.length > 0) ? seg.subValues : [seg.val];
+    const inLib = (s) => allTags.some(t => t.en === s);
+    const sepAfter = (segIdx < segments.length - 1) ? '<span class="seg-orig">_</span>' : '';
+
+    // Determine palette to use
+    let palette = null;
+    let titleBase = "";
+    let weight = 400;
     if (seg.status === "replaced") {
-      cls = "seg-replaced";
-      tipParts.push("已替換原欄位");
+      palette = replacedShades;
+      titleBase = "已替換原欄位";
+      weight = 600;
     } else if (seg.status === "new") {
       newOrdinal++;
-      const shade = Math.min(newOrdinal, 5);
-      cls = `seg-new-${shade}`;
-      tipParts.push(`新增 (第 ${newOrdinal} 個)`);
+      palette = newPalette[Math.min(newOrdinal, newPalette.length) - 1];
+      titleBase = `新增 (第 ${newOrdinal} 個欄位)`;
+      weight = newOrdinal === 1 ? 700 : 600;
     } else if (seg.status === "auto") {
-      cls = "seg-replaced";
-      tipParts.push("自動子號");
+      palette = replacedShades;
+      titleBase = "自動子號";
+      weight = 600;
+    } else {
+      // orig: gold, no shading needed
+      const html = subs.map(s => `<span class="seg-orig">${escapeHtml(s)}</span>`).join('<span class="seg-orig">_</span>');
+      return html + sepAfter;
     }
-    // Detect tags-not-in-library: check each underscore-joined sub-value
-    if (seg.status === "replaced" || seg.status === "new") {
-      const subs = String(seg.val).split("_");
-      const inLib = (s) => allTags.some(t => t.en === s);
-      const anyMissing = subs.some(s => s && !inLib(s) && !/^\d+$/.test(s));
-      if (anyMissing) {
-        cls += " seg-not-in-lib";
-        tipParts.push("非標籤庫");
-      }
-    }
-    const tip = tipParts.length > 0 ? ` title="${escapeAttr(tipParts.join(" · "))}"` : "";
-    const sep = i < segments.length - 1 ? '<span class="seg-orig">_</span>' : '';
-    return `<span class="${cls}"${tip}>${escapeHtml(seg.val)}</span>${sep}`;
+
+    // Build colored sub-tags
+    const subHtml = subs.map((s, i) => {
+      const color = palette[Math.min(i, palette.length - 1)];
+      const notInLib = s && !inLib(s) && !/^\d+$/.test(s);
+      const cls = notInLib ? "seg-not-in-lib" : "";
+      const tip = (titleBase + (notInLib ? " · 非標籤庫" : "") + (subs.length > 1 ? ` · 第 ${i+1} 個標籤` : ""));
+      return `<span class="${cls}" style="color:${color};font-weight:${weight};" title="${escapeAttr(tip)}">${escapeHtml(s)}</span>`;
+    }).join('<span class="seg-orig">_</span>');
+
+    return subHtml + sepAfter;
   }).join("");
 }
 
@@ -2453,6 +2476,27 @@ window.addEventListener("DOMContentLoaded", () => {
     $(id).addEventListener("input", updatePreview);
     $(id).addEventListener("change", updatePreview);
   });
+
+  // Combobox auto-resolve: if user typed Chinese name (or alias), convert to English code on blur
+  // This lets people type "達拉" and have it become "DARA" automatically.
+  function resolveComboboxValue(el, category) {
+    const v = (el.value || "").trim();
+    if (!v) return;
+    // Already an exact en match? leave alone.
+    if (allTags.some(t => t.cat === category && t.en === v)) return;
+    // Try exact ch match
+    const byCh = allTags.find(t => t.cat === category && t.ch === v);
+    if (byCh) { el.value = byCh.en; updatePreview(); return; }
+    // Try alias match
+    const byAlias = allTags.find(t => t.cat === category && t.alias && t.alias.split(/[,，;；\s]+/).includes(v));
+    if (byAlias) { el.value = byAlias.en; updatePreview(); return; }
+    // Try case-insensitive en
+    const byEnCi = allTags.find(t => t.cat === category && t.en.toLowerCase() === v.toLowerCase());
+    if (byEnCi) { el.value = byEnCi.en; updatePreview(); return; }
+  }
+  $("f-project").addEventListener("blur", e => resolveComboboxValue(e.target, "專案"));
+  $("f-size").addEventListener("blur", e => resolveComboboxValue(e.target, "尺寸"));
+  $("f-lang").addEventListener("blur", e => resolveComboboxValue(e.target, "語系"));
 
   // Type toggle
   document.querySelectorAll("#type-toggle button").forEach(b => {
