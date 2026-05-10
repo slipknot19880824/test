@@ -536,45 +536,79 @@
   .mod-pick-row .mp-fn { flex: 1; word-break: break-all; }
   .mod-pick-row input[type="checkbox"] { margin: 0; }
 
-  .mod-edit-row {
+  /* Edit row container — flat & compact (v4.8) */
+  .mer-group {
+    margin-bottom: 8px; border-radius: 4px;
     background: var(--bg); border: 1px solid var(--border);
-    border-radius: 6px; margin-bottom: 8px; padding: 8px 12px;
+    overflow: visible;
   }
-  .mod-edit-row-header {
+  .mer-group.consecutive {
+    border: 1px solid #6ec991;
+    box-shadow: 0 0 0 1px rgba(110, 201, 145, 0.15);
+  }
+  .mer-group-header {
+    padding: 5px 10px; background: var(--panel-2);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 8px;
     font-size: 11px; color: var(--text-dim);
-    display: flex; align-items: center; gap: 8px; margin-bottom: 4px;
   }
-  .mod-edit-row-header button {
+  .mer-group.consecutive .mer-group-header {
+    background: rgba(110, 201, 145, 0.08);
+    border-bottom-color: rgba(110, 201, 145, 0.25);
+  }
+  .mer-group-header .mgh-range {
+    font-family: var(--mono); color: var(--accent); font-weight: 500;
+  }
+  .mer-group.consecutive .mer-group-header .mgh-range { color: #6ec991; }
+  .mer-group-header .mgh-tag {
+    font-size: 10px; padding: 1px 6px; border-radius: 2px;
+    background: rgba(110, 201, 145, 0.15); color: #6ec991;
+  }
+  .mer-group-header button {
+    margin-left: auto;
+    background: var(--panel); border: 1px solid var(--border-strong);
+    color: var(--text-dim); padding: 2px 8px; font-size: 11px;
+    border-radius: 3px; cursor: pointer; font-family: inherit;
+  }
+  .mer-group-header button:hover {
+    color: var(--accent); border-color: var(--accent);
+  }
+
+  .mod-edit-row {
+    padding: 4px 10px;
+    display: flex; align-items: center; gap: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .mod-edit-row:last-child { border-bottom: none; }
+  .mod-edit-row:hover { background: rgba(255,255,255,0.015); }
+  .mer-row-check { flex: 0 0 auto; cursor: pointer; }
+  .mer-row-remove {
     background: transparent; border: 0;
     color: var(--text-faint); cursor: pointer; font-size: 11px;
+    padding: 0 4px; flex: 0 0 auto;
   }
-  .mod-edit-row-header button:hover { color: var(--danger); }
+  .mer-row-remove:hover { color: var(--danger); }
 
   /* Inline segment line */
   .mer-segline {
-    font-family: var(--mono); font-size: 13px;
-    word-break: break-all; line-height: 1.8;
+    font-family: var(--mono); font-size: 12px;
+    word-break: break-all; line-height: 1.6;
+    flex: 1;
   }
   .mer-seg {
     display: inline; padding: 1px 3px; border-radius: 2px;
     cursor: pointer; transition: background 0.1s;
     color: var(--accent);
   }
-  .mer-seg:hover {
-    background: var(--accent-soft);
-  }
-  .mer-seg-changed {
-    color: #5fa8ff; font-weight: 600;
-  }
+  .mer-seg:hover { background: var(--accent-soft); }
+  .mer-seg-changed { color: #5fa8ff; font-weight: 600; }
   .mer-seg-new {
     color: #ff3b3b; font-weight: 700;
     border: 1px dashed rgba(255, 59, 59, 0.4);
     padding: 1px 5px;
     position: relative;
   }
-  .mer-seg-new:hover {
-    background: rgba(255, 59, 59, 0.1);
-  }
+  .mer-seg-new:hover { background: rgba(255, 59, 59, 0.1); }
   .mer-seg-remove-inline {
     background: transparent; border: 0;
     color: var(--text-faint); cursor: pointer;
@@ -582,20 +616,16 @@
     vertical-align: baseline;
   }
   .mer-seg-remove-inline:hover { color: var(--danger); }
-
-  .mer-sep {
-    color: var(--text-faint); padding: 0 1px;
-  }
+  .mer-sep { color: var(--text-faint); padding: 0 1px; }
 
   .mer-seg-input-wrap {
     display: inline-block; position: relative; vertical-align: baseline;
   }
   .mer-seg-input {
     background: var(--panel-2); border: 1px solid var(--accent);
-    color: var(--text); padding: 1px 6px; font-size: 13px;
+    color: var(--text); padding: 1px 6px; font-size: 12px;
     border-radius: 2px; outline: none; font-family: var(--mono);
-    min-width: 80px; width: auto;
-    box-sizing: content-box;
+    min-width: 80px; width: auto; box-sizing: content-box;
   }
   .mer-seg-input.changed { color: #5fa8ff; border-color: #5fa8ff; }
   .mer-seg-input.new-seg { color: #ff3b3b; border-color: #ff3b3b; }
@@ -612,9 +642,9 @@
   .mod-edit-add-btn {
     background: transparent; border: 1px dashed var(--border-strong);
     color: var(--text-dim); border-radius: 3px;
-    padding: 2px 8px; font-size: 11px; cursor: pointer;
+    padding: 1px 6px; font-size: 11px; cursor: pointer;
     font-family: inherit; transition: all 0.12s;
-    vertical-align: middle;
+    vertical-align: middle; margin-left: 4px;
   }
   .mod-edit-add-btn:hover { color: #ff3b3b; border-color: #ff3b3b; }
 
@@ -628,44 +658,6 @@
   }
   .mod-edit-row-suggest.show { display: block; }
   .mer-seg-suggest-anchor { position: absolute; left: 0; top: 100%; }
-
-  /* Preview groups */
-  .mod-edit-preview-group {
-    background: var(--bg); border: 1px solid var(--border);
-    border-radius: 4px; margin-bottom: 8px; overflow: hidden;
-  }
-  .mod-edit-preview-group.consecutive {
-    border: 1px solid #6ec991;
-    box-shadow: 0 0 0 1px rgba(110, 201, 145, 0.15);
-  }
-  .mod-edit-preview-group-header {
-    padding: 6px 12px; background: var(--panel-2);
-    border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; gap: 8px;
-    font-size: 12px; color: var(--text-dim);
-  }
-  .mod-edit-preview-group-header .mepg-range {
-    font-family: var(--mono); color: var(--accent); font-weight: 500;
-  }
-  .mod-edit-preview-group.consecutive .mod-edit-preview-group-header .mepg-range {
-    color: #6ec991;
-  }
-  .mod-edit-preview-group-header button {
-    margin-left: auto;
-    background: var(--panel); border: 1px solid var(--border-strong);
-    color: var(--text-dim); padding: 3px 8px; font-size: 11px;
-    border-radius: 3px; cursor: pointer; font-family: inherit;
-  }
-  .mod-edit-preview-group-header button:hover {
-    color: var(--accent); border-color: var(--accent);
-  }
-  .mod-edit-preview-group-body {
-    padding: 6px 12px; font-family: var(--mono); font-size: 12px;
-    line-height: 1.7;
-  }
-  .mod-edit-preview-group-body .pgb-row {
-    word-break: break-all; padding: 1px 0;
-  }
 
   /* Custom tags panel (need 4) */
   .custom-tags-section {
@@ -760,7 +752,7 @@
 <div class="app">
 
   <div class="header">
-    <h1>檔名命名工具 <span class="accent">·</span> <span style="color:var(--text-dim);font-weight:400;">v4.7 · 修改既有檔名</span></h1>
+    <h1>檔名命名工具 <span class="accent">·</span> <span style="color:var(--text-dim);font-weight:400;">v4.8 · 修改既有檔名</span></h1>
     <div class="meta" id="meta">載入中…</div>
   </div>
 
@@ -880,6 +872,11 @@
   </div>
 
   <div class="help">
+    <b>v4.8 — 編輯區大整理：</b><br>
+    <b>· 連號分組真的生效</b>：主編號連續（VD25-28）或子號連續（VD27_01-06）都算同組，整組綠框包起來，整組一個複製按鈕。<br>
+    <b>· 拿掉下方預覽</b>：上方編輯區的文字本身就是預覽，直接看染色狀態；行高縮減，整頁不再過長。<br>
+    <b>· 行前 checkbox + 批次套用</b>：勾選多行後做的「修改某段」或「加新位置」會跳小確認框 — 「只改這一行 / 套用到勾選的全部」。例如同一個欄位三行都有 Cash，可一次改成 InAds。<br>
+    <b>· 修「不在標籤庫」提示</b>：編輯時打的字不在標籤庫，下拉會顯示「＋ 直接加入」按鈕。<br><br>
     <b>v4.7 — 修改介面瘦身：</b><br>
     <b>· 編輯改成「點才展開」</b>：每行預設純文字顯示，點某段才變輸入框；改完點別處（或 Enter）變回純文字。修改過的段藍色，新位置紅色。<br>
     <b>· 連號用綠框框起來</b>：連號的組視覺上明顯一個區塊，整組一個複製按鈕；不連號的孤兒（如 VD40）獨立一組。<br>
@@ -1059,17 +1056,20 @@
 
     <div class="batch-controls">
       <span style="font-size:12px;color:var(--text-dim);">
-        共 <span id="mod-edit-count" style="color:var(--accent);font-family:var(--mono);">0</span> 筆，
-        每行可獨立改任一段（藍色）；按「擴充新位置」在末尾加欄位（紅色）。
+        共 <span id="mod-edit-count" style="color:var(--accent);font-family:var(--mono);">0</span> 筆 ·
+        勾選 <span id="mod-edit-checked-count" style="color:var(--accent);font-family:var(--mono);">0</span> 筆
       </span>
+      <button class="btn ghost small" id="mod-edit-select-all">全選</button>
+      <button class="btn ghost small" id="mod-edit-select-none">清除勾選</button>
       <button class="btn small" id="mod-edit-add-more" style="margin-left:auto;">➕ 追加更多…</button>
     </div>
 
-    <h3>每行可獨立編輯</h3>
-    <div id="mod-edit-rows"></div>
+    <div style="font-size:11px;color:var(--text-faint);margin-bottom:8px;line-height:1.5;">
+      點任一段文字 → 變輸入框可改（藍色）。點「＋ 新位置」加紅色新欄位。<br>
+      勾選多行後做的修改會詢問是否同步套用。連號自動分組，整組可一鍵複製。
+    </div>
 
-    <h3>預覽（依連號分組）</h3>
-    <div id="mod-edit-preview"></div>
+    <div id="mod-edit-rows"></div>
 
     <div id="mod-edit-custom-section" style="display:none; margin-top: 12px;">
       <h3 style="display:flex; justify-content:space-between; align-items:center;">
@@ -1083,6 +1083,19 @@
       <button class="btn ghost" onclick="closeModEdit()">取消</button>
       <button class="btn" id="mod-edit-download">⬇ 下載 csv</button>
       <button class="btn primary" id="mod-edit-copy-all">📋 複製全部（含分組空行）</button>
+    </div>
+  </div>
+</div>
+
+<!-- Apply-to-checked confirmation dialog -->
+<div class="modal-bg" id="modal-apply-confirm" style="z-index:120;">
+  <div class="modal" style="max-width:440px;">
+    <h2 id="apply-confirm-title">同步套用？</h2>
+    <p id="apply-confirm-msg" style="color:var(--text-dim);font-size:13px;line-height:1.6;margin-bottom:16px;"></p>
+    <div class="modal-actions" style="flex-direction:column;gap:8px;align-items:stretch;">
+      <button class="btn primary" id="apply-confirm-all">套用到勾選的全部</button>
+      <button class="btn" id="apply-confirm-one">只改這一行</button>
+      <button class="btn ghost" id="apply-confirm-cancel">取消</button>
     </div>
   </div>
 </div>
@@ -2724,6 +2737,8 @@ let modState = {
   customTagsAdded: {},
   lastFilter: "",
   activeEdit: null,  // {rowIdx, segIdx, isNew, justActivated} or null
+  checkedKeys: new Set(),  // v4.8 row checkboxes for bulk apply
+  pendingApply: null, // v4.8 {kind: "edit"|"new", rowIdx, segIdx, newValue, isNew} pending user choice
 };
 
 async function openModPick() {
@@ -2938,7 +2953,6 @@ function modGoEdit() {
 function openModEdit() {
   $("modal-mod-edit").classList.add("show");
   renderModEditRows();
-  renderModEditPreview();
   renderModEditCustomTags();
 }
 
@@ -2948,74 +2962,43 @@ function closeModEdit() {
 
 function renderModEditRows() {
   $("mod-edit-count").textContent = modState.editRows.length;
+  $("mod-edit-checked-count").textContent = modState.checkedKeys.size;
   const box = $("mod-edit-rows");
   if (modState.editRows.length === 0) {
     box.innerHTML = '<div class="batch-matrix-empty">沒有要編輯的檔名。</div>';
     return;
   }
-  // Each row: inline text spans by default. Click a segment span -> turns into input.
-  // Activated input is tracked in modState.activeEdit so we re-render correctly.
-  box.innerHTML = modState.editRows.map((row, ri) => {
-    const segs = [];
-    // Original segments
-    row.currentSegments.forEach((val, si) => {
-      const orig = row.originalSegments[si];
-      const changed = val !== orig;
-      const isActive = modState.activeEdit &&
-        modState.activeEdit.rowIdx === ri &&
-        modState.activeEdit.segIdx === si &&
-        !modState.activeEdit.isNew;
-      if (isActive) {
-        segs.push(`
-          <span class="mer-seg-input-wrap">
-            <input type="text" class="mer-seg-input ${changed ? 'changed' : ''}" value="${escapeAttr(val)}"
-                   data-row="${ri}" data-seg="${si}" data-isnew="0"
-                   oninput="onModEditSegInput(${ri}, ${si}, this)"
-                   onblur="onModEditSegBlur(${ri}, ${si}, this, false)"
-                   onkeydown="onModEditSegKey(event, ${ri}, ${si}, this, false)">
-            <span class="mer-seg-suggest-anchor"></span>
-          </span>
-        `);
-      } else {
-        const cls = changed ? "mer-seg mer-seg-changed" : "mer-seg";
-        segs.push(`<span class="${cls}" onclick="activateModSeg(${ri}, ${si}, false)" title="${changed ? '原: ' + escapeAttr(orig) + ' (點擊再次編輯)' : '點擊編輯'}">${escapeHtml(val)}</span>`);
-      }
-    });
-    // New segments
-    row.newSegments.forEach((val, ni) => {
-      const isActive = modState.activeEdit &&
-        modState.activeEdit.rowIdx === ri &&
-        modState.activeEdit.segIdx === ni &&
-        modState.activeEdit.isNew;
-      if (isActive) {
-        segs.push(`
-          <span class="mer-seg-input-wrap">
-            <input type="text" class="mer-seg-input new-seg" value="${escapeAttr(val)}"
-                   data-row="${ri}" data-seg="${ni}" data-isnew="1"
-                   placeholder="輸入或搜尋…"
-                   oninput="onModEditNewSegInput(${ri}, ${ni}, this)"
-                   onblur="onModEditSegBlur(${ri}, ${ni}, this, true)"
-                   onkeydown="onModEditSegKey(event, ${ri}, ${ni}, this, true)">
-            <button class="mer-seg-remove" onclick="removeModNewSeg(${ri}, ${ni})" title="移除此新位置">✕</button>
-            <span class="mer-seg-suggest-anchor"></span>
-          </span>
-        `);
-      } else {
-        const display = val || "(新位置)";
-        segs.push(`<span class="mer-seg mer-seg-new" onclick="activateModSeg(${ri}, ${ni}, true)" title="新位置 (點擊再次編輯)">${escapeHtml(display)}<button class="mer-seg-remove-inline" onclick="event.stopPropagation();removeModNewSeg(${ri}, ${ni});" title="移除">✕</button></span>`);
-      }
-    });
-    // Join segments with literal underscore separator
-    const segLine = segs.join('<span class="mer-sep">_</span>');
+
+  // Build a row->index map so we can address each row's editor by global rowIdx
+  const rowIndexByKey = new Map();
+  modState.editRows.forEach((r, i) => rowIndexByKey.set(r.key, i));
+
+  const groups = groupModEditRows();
+  box.innerHTML = groups.map((g, gi) => {
+    const isConsec = g.rows.length > 1;
+    const rowsHtml = g.rows.map(row => {
+      const ri = rowIndexByKey.get(row.key);
+      const segLine = renderModEditRowSegments(row, ri);
+      const checked = modState.checkedKeys.has(row.key);
+      return `
+        <div class="mod-edit-row">
+          <input type="checkbox" class="mer-row-check" ${checked ? 'checked' : ''}
+                 onclick="event.stopPropagation(); toggleModRowCheck('${escapeAttr(row.key)}');">
+          <div class="mer-segline">
+            ${segLine}<button class="mod-edit-add-btn" onclick="addModNewSeg(${ri})">＋ 新位置</button>
+          </div>
+          <button class="mer-row-remove" onclick="removeModEditRow(${ri})" title="從編輯清單移除這筆">移除</button>
+        </div>
+      `;
+    }).join("");
     return `
-      <div class="mod-edit-row">
-        <div class="mod-edit-row-header">
-          <span style="color:var(--accent);font-family:var(--mono);">${escapeHtml(row.ym + "_" + row.type + row.num + (row.sub ? "_" + row.sub : ""))}</span>
-          <button onclick="removeModEditRow(${ri})" title="從編輯清單移除這筆" style="margin-left:auto;">移除</button>
+      <div class="mer-group ${isConsec ? 'consecutive' : ''}">
+        <div class="mer-group-header">
+          <span class="mgh-range">${escapeHtml(g.label)}</span>
+          ${isConsec ? '<span class="mgh-tag">連號</span>' : ''}
+          <button onclick="copyModGroup(${gi})">📋 複製此組</button>
         </div>
-        <div class="mer-segline">
-          ${segLine}<button class="mod-edit-add-btn" onclick="addModNewSeg(${ri})" style="margin-left:8px;">＋ 新位置</button>
-        </div>
+        ${rowsHtml}
       </div>
     `;
   }).join("");
@@ -3028,12 +3011,78 @@ function renderModEditRows() {
       if (el) {
         el.focus();
         el.select();
-        // Show suggest if the active value is not empty (or if it's a new empty slot)
         showModEditSuggest(modState.activeEdit.rowIdx, modState.activeEdit.segIdx, el, modState.activeEdit.isNew);
       }
       if (modState.activeEdit) modState.activeEdit.justActivated = false;
     }, 0);
   }
+}
+
+// Helper extracted: render the segments of one row (used by renderModEditRows)
+function renderModEditRowSegments(row, ri) {
+  const segs = [];
+  row.currentSegments.forEach((val, si) => {
+    const orig = row.originalSegments[si];
+    const changed = val !== orig;
+    const isActive = modState.activeEdit &&
+      modState.activeEdit.rowIdx === ri &&
+      modState.activeEdit.segIdx === si &&
+      !modState.activeEdit.isNew;
+    if (isActive) {
+      segs.push(`
+        <span class="mer-seg-input-wrap">
+          <input type="text" class="mer-seg-input ${changed ? 'changed' : ''}" value="${escapeAttr(val)}"
+                 data-row="${ri}" data-seg="${si}" data-isnew="0"
+                 oninput="onModEditSegInput(${ri}, ${si}, this)"
+                 onblur="onModEditSegBlur(${ri}, ${si}, this, false)"
+                 onkeydown="onModEditSegKey(event, ${ri}, ${si}, this, false)">
+          <span class="mer-seg-suggest-anchor"></span>
+        </span>
+      `);
+    } else {
+      const cls = changed ? "mer-seg mer-seg-changed" : "mer-seg";
+      segs.push(`<span class="${cls}" onclick="activateModSeg(${ri}, ${si}, false)" title="${changed ? '原: ' + escapeAttr(orig) + ' (點擊再次編輯)' : '點擊編輯'}">${escapeHtml(val)}</span>`);
+    }
+  });
+  row.newSegments.forEach((val, ni) => {
+    const isActive = modState.activeEdit &&
+      modState.activeEdit.rowIdx === ri &&
+      modState.activeEdit.segIdx === ni &&
+      modState.activeEdit.isNew;
+    if (isActive) {
+      segs.push(`
+        <span class="mer-seg-input-wrap">
+          <input type="text" class="mer-seg-input new-seg" value="${escapeAttr(val)}"
+                 data-row="${ri}" data-seg="${ni}" data-isnew="1"
+                 placeholder="輸入或搜尋…"
+                 oninput="onModEditNewSegInput(${ri}, ${ni}, this)"
+                 onblur="onModEditSegBlur(${ri}, ${ni}, this, true)"
+                 onkeydown="onModEditSegKey(event, ${ri}, ${ni}, this, true)">
+          <button class="mer-seg-remove" onclick="removeModNewSeg(${ri}, ${ni})" title="移除此新位置">✕</button>
+          <span class="mer-seg-suggest-anchor"></span>
+        </span>
+      `);
+    } else {
+      const display = val || "(新位置)";
+      segs.push(`<span class="mer-seg mer-seg-new" onclick="activateModSeg(${ri}, ${ni}, true)" title="新位置 (點擊再次編輯)">${escapeHtml(display)}<button class="mer-seg-remove-inline" onclick="event.stopPropagation();removeModNewSeg(${ri}, ${ni});" title="移除">✕</button></span>`);
+    }
+  });
+  return segs.join('<span class="mer-sep">_</span>');
+}
+
+function toggleModRowCheck(key) {
+  if (modState.checkedKeys.has(key)) modState.checkedKeys.delete(key);
+  else modState.checkedKeys.add(key);
+  renderModEditRows();
+}
+
+function modEditSelectAll() {
+  for (const r of modState.editRows) modState.checkedKeys.add(r.key);
+  renderModEditRows();
+}
+function modEditSelectNone() {
+  modState.checkedKeys.clear();
+  renderModEditRows();
 }
 
 function activateModSeg(rowIdx, segIdx, isNew) {
@@ -3060,35 +3109,131 @@ function onModEditSegInput(rowIdx, segIdx, inputEl) {
   // Live: update class while typing
   const orig = modState.editRows[rowIdx].originalSegments[segIdx];
   inputEl.classList.toggle("changed", inputEl.value !== orig);
-  // Live preview update + suggest
-  renderModEditPreview();
   showModEditSuggest(rowIdx, segIdx, inputEl, false);
-  // NOTE: do NOT trackModCustomTag here — that runs on blur/Enter only (v4.7 fix)
+  // NOTE: do NOT trackModCustomTag here — that runs on blur/Enter only
 }
 
 function onModEditNewSegInput(rowIdx, newIdx, inputEl) {
   modState.editRows[rowIdx].newSegments[newIdx] = inputEl.value;
-  renderModEditPreview();
   showModEditSuggest(rowIdx, newIdx, inputEl, true);
-  // NOTE: do NOT trackModCustomTag here — runs on blur/Enter only
 }
 
 function onModEditSegBlur(rowIdx, segIdx, inputEl, isNew) {
-  // Commit the value (already done via input event); track custom tag NOW (final value)
   const finalVal = inputEl.value.trim();
   if (finalVal) trackModCustomTag(finalVal);
-  // Defer deactivation slightly so suggest mousedown can fire first
   setTimeout(() => {
-    // If user clicked into a suggest item, mousedown calls pickModEditSuggest which also sets active... so we need to check
-    // Just deactivate — pickModEditSuggest will re-activate if needed
-    if (modState.activeEdit && modState.activeEdit.rowIdx === rowIdx && modState.activeEdit.segIdx === segIdx && modState.activeEdit.isNew === isNew) {
-      // Make sure no suggest is open
+    if (modState.activeEdit && modState.activeEdit.rowIdx === rowIdx
+        && modState.activeEdit.segIdx === segIdx
+        && modState.activeEdit.isNew === isNew) {
       hideModEditSuggest(inputEl);
-      deactivateModSeg();
-      renderModEditRows();
-      renderModEditPreview();
+      // Commit (potentially with bulk-apply confirmation)
+      commitModSegEdit(rowIdx, segIdx, isNew, finalVal);
+      // Note: commitModSegEdit will handle re-render
     }
   }, 200);
+}
+
+// Commit a segment edit. May trigger a confirmation modal if multiple rows are checked.
+function commitModSegEdit(rowIdx, segIdx, isNew, newValue) {
+  const row = modState.editRows[rowIdx];
+  if (!row) { deactivateModSeg(); renderModEditRows(); return; }
+
+  // Determine if we should ask about bulk apply
+  const isThisRowChecked = modState.checkedKeys.has(row.key);
+  const totalChecked = modState.checkedKeys.size;
+  const shouldAsk = isThisRowChecked && totalChecked > 1;
+
+  if (!shouldAsk) {
+    // Just commit to this row (already done via oninput); deactivate and rerender
+    deactivateModSeg();
+    renderModEditRows();
+    return;
+  }
+
+  // Stash & ask
+  modState.pendingApply = { rowIdx, segIdx, isNew, newValue };
+  showApplyConfirm(isNew ? "new" : "edit", row, segIdx, newValue);
+}
+
+function showApplyConfirm(kind, row, segIdx, newValue) {
+  const totalChecked = modState.checkedKeys.size;
+  const title = kind === "edit" ? "修改要套用到其他勾選行嗎？" : "新位置要套用到其他勾選行嗎？";
+  let msg;
+  if (kind === "edit") {
+    const orig = row.originalSegments[segIdx];
+    msg = `已把「${orig}」改成「${newValue}」。要套用到全部 ${totalChecked} 個勾選的行嗎？\n（套用範圍：第 ${segIdx + 1} 個欄位都會被改）`;
+  } else {
+    msg = `已加新位置「${newValue || '(空)'}」。要在全部 ${totalChecked} 個勾選的行也加同樣的新位置嗎？`;
+  }
+  $("apply-confirm-title").textContent = title;
+  $("apply-confirm-msg").textContent = msg;
+  $("modal-apply-confirm").classList.add("show");
+}
+
+function applyConfirmAll() {
+  const p = modState.pendingApply;
+  if (!p) { closeApplyConfirm(); return; }
+  const thisRow = modState.editRows[p.rowIdx];
+  if (!thisRow) { closeApplyConfirm(); return; }
+
+  // Apply to ALL checked rows
+  for (const r of modState.editRows) {
+    if (!modState.checkedKeys.has(r.key)) continue;
+    if (r.key === thisRow.key) continue; // already applied via oninput
+    if (p.isNew) {
+      // Add a new segment to each checked row (at the same new-index position if possible,
+      // otherwise just append)
+      while (r.newSegments.length < p.segIdx) r.newSegments.push("");
+      if (p.segIdx >= r.newSegments.length) r.newSegments.push(p.newValue);
+      else r.newSegments[p.segIdx] = p.newValue;
+    } else {
+      // Replace the same segment index — only if it exists
+      if (p.segIdx < r.currentSegments.length) {
+        r.currentSegments[p.segIdx] = p.newValue;
+      }
+      // If the row doesn't have that many original segments, skip silently
+    }
+  }
+  if (p.newValue) trackModCustomTag(p.newValue);
+  showToast(`已套用到 ${modState.checkedKeys.size} 行`, "success");
+  closeApplyConfirm();
+  deactivateModSeg();
+  renderModEditRows();
+}
+
+function applyConfirmOne() {
+  // Just commit to this row (already done); close & rerender
+  closeApplyConfirm();
+  deactivateModSeg();
+  renderModEditRows();
+}
+
+function applyConfirmCancel() {
+  // Revert: restore the original (or the value before editing)
+  const p = modState.pendingApply;
+  if (p) {
+    const r = modState.editRows[p.rowIdx];
+    if (r) {
+      if (p.isNew) {
+        // Remove the new segment if it was just added empty, OR revert to empty if pending
+        // Simplest: remove the slot if its value was the pending value (just added)
+        if (p.segIdx === r.newSegments.length - 1) {
+          r.newSegments.splice(p.segIdx, 1);
+        }
+      } else {
+        // Revert to original
+        r.currentSegments[p.segIdx] = r.originalSegments[p.segIdx];
+      }
+    }
+  }
+  closeApplyConfirm();
+  deactivateModSeg();
+  renderModEditRows();
+}
+
+function closeApplyConfirm() {
+  $("modal-apply-confirm").classList.remove("show");
+  modState.pendingApply = null;
 }
 
 function onModEditSegKey(e, rowIdx, segIdx, inputEl, isNew) {
@@ -3132,7 +3277,15 @@ function showModEditSuggest(rowIdx, segIdx, inputEl, isNew) {
     inputEl.parentElement.appendChild(popup);
   }
   if (sugs.length === 0) {
-    popup.classList.remove("show");
+    // Show "add custom" hint, similar to other places
+    popup.innerHTML = `
+      <div class="suggest-item suggest-add-custom active" data-en="${escapeAttr(q)}"
+           onmousedown="event.preventDefault(); pickModEditSuggest(${rowIdx}, ${segIdx}, '${escapeAttr(q)}', ${isNew});">
+        <span class="si-ch" style="color:var(--accent);">＋ 直接加入</span>
+        <span class="si-en">「${escapeHtml(q)}」</span>
+      </div>
+    `;
+    popup.classList.add("show");
     return;
   }
   popup.innerHTML = sugs.map((t, i) => `
@@ -3156,10 +3309,9 @@ function pickModEditSuggest(rowIdx, segIdx, en, isNew) {
   } else {
     modState.editRows[rowIdx].currentSegments[segIdx] = en;
   }
-  trackModCustomTag(en);  // OK here — this is a final commit
-  deactivateModSeg();
-  renderModEditRows();
-  renderModEditPreview();
+  trackModCustomTag(en);
+  // Same commit logic — may ask about bulk-apply
+  commitModSegEdit(rowIdx, segIdx, isNew, en);
 }
 
 function addModNewSeg(rowIdx) {
@@ -3168,28 +3320,24 @@ function addModNewSeg(rowIdx) {
   // Activate the newly added slot so user can type immediately
   modState.activeEdit = { rowIdx, segIdx: newIdx, isNew: true, justActivated: true };
   renderModEditRows();
-  renderModEditPreview();
 }
 
 function removeModNewSeg(rowIdx, newIdx) {
   modState.editRows[rowIdx].newSegments.splice(newIdx, 1);
-  // If we were editing the removed slot, clear active
   if (modState.activeEdit && modState.activeEdit.rowIdx === rowIdx && modState.activeEdit.isNew && modState.activeEdit.segIdx === newIdx) {
     deactivateModSeg();
   } else if (modState.activeEdit && modState.activeEdit.rowIdx === rowIdx && modState.activeEdit.isNew && modState.activeEdit.segIdx > newIdx) {
-    // Shift active index down
     modState.activeEdit.segIdx--;
   }
   renderModEditRows();
-  renderModEditPreview();
 }
 
 function removeModEditRow(rowIdx) {
   const row = modState.editRows[rowIdx];
   modState.pickedKeys.delete(row.key);
+  modState.checkedKeys.delete(row.key);
   modState.editRows.splice(rowIdx, 1);
   renderModEditRows();
-  renderModEditPreview();
 }
 
 function trackModCustomTag(val) {
@@ -3209,17 +3357,29 @@ function groupModEditRows() {
   let cur = null;
   for (const row of modState.editRows) {
     const n = parseInt(row.num, 10);
-    if (cur && cur.ym === row.ym && cur.type === row.type && n === cur.lastNum + 1
-        && !row.sub && !cur.lastHadSub) {
-      // Consecutive
+    const s = row.sub ? parseInt(row.sub, 10) : null;
+    let consecutive = false;
+    if (cur && cur.ym === row.ym && cur.type === row.type) {
+      // Case A: both have no sub, main numbers consecutive (VD25, VD26)
+      if (cur.lastSub === null && s === null && n === cur.lastNum + 1) {
+        consecutive = true;
+      }
+      // Case B: same main number, sub numbers consecutive (VD27_01, VD27_02)
+      else if (cur.lastSub !== null && s !== null && n === cur.lastNum && s === cur.lastSub + 1) {
+        consecutive = true;
+      }
+    }
+    if (consecutive) {
       cur.rows.push(row);
       cur.lastNum = n;
-      cur.lastHadSub = !!row.sub;
+      cur.lastSub = s;
     } else {
       if (cur) groups.push(cur);
       cur = {
-        ym: row.ym, type: row.type, firstNum: n, lastNum: n,
-        lastHadSub: !!row.sub, rows: [row]
+        ym: row.ym, type: row.type,
+        firstNum: n, lastNum: n,
+        firstSub: s, lastSub: s,
+        rows: [row]
       };
     }
   }
@@ -3227,9 +3387,15 @@ function groupModEditRows() {
 
   // Generate human label
   for (const g of groups) {
-    if (g.firstNum === g.lastNum) {
-      g.range = `${g.type}${String(g.firstNum).padStart(2,"0")}` + (g.rows[0].sub ? `_${g.rows[0].sub}` : "");
+    if (g.rows.length === 1) {
+      // Single row
+      const r = g.rows[0];
+      g.range = `${r.type}${String(r.num).padStart(2,"0")}` + (r.sub ? `_${r.sub}` : "");
+    } else if (g.firstSub !== null) {
+      // Sub-consecutive: VD27_01 to VD27_06
+      g.range = `${g.type}${String(g.firstNum).padStart(2,"0")}_${String(g.firstSub).padStart(2,"0")}-${String(g.lastSub).padStart(2,"0")}`;
     } else {
+      // Main-consecutive: VD25 to VD28
       g.range = `${g.type}${String(g.firstNum).padStart(2,"0")}-${String(g.lastNum).padStart(2,"0")}`;
     }
     g.label = `${g.ym} · ${g.range}（${g.rows.length} 筆）`;
@@ -3275,32 +3441,6 @@ function renderModRowColored(row) {
     out.push(`<span class="${cls}" style="color:${color};font-weight:700;" title="${escapeAttr(tip)}">${escapeHtml(val)}</span>`);
   });
   return out.join("");
-}
-
-function renderModEditPreview() {
-  const box = $("mod-edit-preview");
-  if (modState.editRows.length === 0) {
-    box.innerHTML = '<div class="batch-matrix-empty">沒有預覽。</div>';
-    return;
-  }
-  const groups = groupModEditRows();
-  box.innerHTML = groups.map((g, gi) => {
-    const rowsHtml = g.rows.map((r, ri) =>
-      `<div class="pgb-row">${ri+1}. ${renderModRowColored(r)}</div>`
-    ).join("");
-    const isConsecutive = g.rows.length > 1;
-    return `
-      <div class="mod-edit-preview-group ${isConsecutive ? 'consecutive' : ''}">
-        <div class="mod-edit-preview-group-header">
-          <span>第 ${gi+1} 組 ·</span>
-          <span class="mepg-range">${escapeHtml(g.label)}</span>
-          ${isConsecutive ? '<span style="font-size:10px;color:#6ec991;">連號</span>' : ''}
-          <button onclick="copyModGroup(${gi})">📋 複製此組</button>
-        </div>
-        <div class="mod-edit-preview-group-body">${rowsHtml}</div>
-      </div>
-    `;
-  }).join("");
 }
 
 function copyModGroup(gi) {
@@ -3525,6 +3665,11 @@ window.addEventListener("DOMContentLoaded", () => {
   $("mod-edit-copy-all").addEventListener("click", copyAllModEdits);
   $("mod-edit-download").addEventListener("click", downloadModEdits);
   $("mod-edit-copy-all-custom").addEventListener("click", copyModAllCustom);
+  $("mod-edit-select-all").addEventListener("click", modEditSelectAll);
+  $("mod-edit-select-none").addEventListener("click", modEditSelectNone);
+  $("apply-confirm-all").addEventListener("click", applyConfirmAll);
+  $("apply-confirm-one").addEventListener("click", applyConfirmOne);
+  $("apply-confirm-cancel").addEventListener("click", applyConfirmCancel);
 
   // Batch dialog interactions
   $("batch-count").addEventListener("input", () => {
