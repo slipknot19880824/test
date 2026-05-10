@@ -279,16 +279,22 @@
   }
 
   .toast {
-    position: fixed; bottom: 24px; left: 50%;
-    transform: translateX(-50%) translateY(20px);
+    position: fixed; top: 24px; left: 50%;
+    transform: translateX(-50%) translateY(-20px);
     background: var(--panel); border: 1px solid var(--border-strong);
-    color: var(--text); padding: 10px 18px; border-radius: 6px;
-    font-size: 13px; opacity: 0; transition: all 0.2s;
+    color: var(--text); padding: 12px 22px; border-radius: 6px;
+    font-size: 14px; font-weight: 500;
+    opacity: 0; transition: all 0.25s;
     pointer-events: none; z-index: 200;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.5);
+    max-width: 90vw;
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   .toast.success { border-color: var(--success); }
-  .toast.error { border-color: var(--danger); }
+  .toast.error {
+    border-color: var(--danger);
+    background: rgba(217, 111, 111, 0.12);
+  }
 
   .help {
     margin-top: 32px; padding: 16px; background: var(--panel);
@@ -755,7 +761,7 @@
 <div class="app">
 
   <div class="header">
-    <h1>檔名命名工具 <span class="accent">·</span> <span style="color:var(--text-dim);font-weight:400;">v4.10 · 中文防呆</span></h1>
+    <h1>檔名命名工具 <span class="accent">·</span> <span style="color:var(--text-dim);font-weight:400;">v4.11 · 中文防呆</span></h1>
     <div class="meta" id="meta">載入中…</div>
   </div>
 
@@ -876,6 +882,9 @@
   </div>
 
   <div class="help">
+    <b>v4.11 — 防呆規則修正：</b><br>
+    <b>· 批次/修改的輸入框可打中文搜尋，但不能寫入檔名</b>：跟主介面標籤搜尋一致 — 邊打邊搜推薦，但按 Enter / blur 時若仍是中文會被擋下並提示。<br>
+    <b>· toast 提示移到頂部、停留 5 秒</b>：原本在底部容易漏看，改到上方更醒目，錯誤提示停留更久方便閱讀。<br><br>
     <b>v4.10 — 中文防呆 + 翻譯快捷鍵：</b><br>
     <b>· 檔名只接受英文/數字</b>：年月、編號、版本、自訂標籤、批次格子、修改既有檔名 ── 全部會即時擋掉中文輸入並跳提示。<br>
     <b>· 標籤搜尋仍可打中文</b>：主介面的標籤搜尋、批次/修改的搜尋下拉都仍能用中文搜尋並從標籤庫匹配（這部分是搜尋輔助，不會直接進檔名）。<br>
@@ -1155,11 +1164,13 @@ let currentType = "VD";
 // UTILITIES
 //==============================
 function $(id) { return document.getElementById(id); }
-function showToast(msg, type = "") {
+function showToast(msg, type = "", duration) {
   const t = $("toast");
   t.textContent = msg;
   t.className = "toast show " + type;
-  setTimeout(() => t.className = "toast " + type, 2200);
+  // Default: error toasts stay longer (5s) so user has time to react
+  const ms = duration != null ? duration : (type === "error" ? 5000 : 2200);
+  setTimeout(() => t.className = "toast " + type, ms);
 }
 function setStatus(elId, msg, type = "loading") {
   const s = $(elId);
@@ -1197,9 +1208,9 @@ function stripCJK(s) {
 let _cjkToastT = 0;
 function cjkRejectToast(extraHint) {
   const now = Date.now();
-  if (now - _cjkToastT < 800) return;
+  if (now - _cjkToastT < 1500) return;
   _cjkToastT = now;
-  showToast("檔名只能用英文｜可點右上「翻譯」查英文", "error");
+  showToast("⚠ 檔名只能用英文／數字｜可點右上「🌐 翻譯」查英文", "error", 5000);
 }
 
 // Hook this onto inputs that must NOT contain CJK.
@@ -2209,14 +2220,6 @@ function ensureCellArrays() {
 }
 
 function onCellInput(partIdx, rowIdx, inputEl) {
-  // CJK guard: strip Chinese chars typed into batch cell
-  if (hasCJK(inputEl.value)) {
-    const caret = inputEl.selectionStart || 0;
-    const cjkBefore = (inputEl.value.slice(0, caret).match(CJK_RE_GLOBAL) || []).join("").length;
-    inputEl.value = stripCJK(inputEl.value);
-    try { inputEl.setSelectionRange(Math.max(0, caret - cjkBefore), Math.max(0, caret - cjkBefore)); } catch(e) {}
-    cjkRejectToast();
-  }
   // Reset arrow-selected flag when user is actively typing
   inputEl.dataset.arrowSelected = "";
   showCellSuggest(partIdx, rowIdx, inputEl);
@@ -2239,6 +2242,11 @@ function onCellKey(e, partIdx, rowIdx, inputEl) {
       val = active.dataset.en;
     }
     if (!val) return;
+    // If value contains CJK, reject and keep input so user can re-type / translate
+    if (hasCJK(val)) {
+      cjkRejectToast();
+      return;
+    }
     addCellTag(partIdx, rowIdx, val);
     inputEl.value = "";
     inputEl.dataset.arrowSelected = "";
@@ -2418,14 +2426,6 @@ function clearCellRow(rowIdx) {
 }
 
 function onQuickFillInput(partIdx, inputEl) {
-  // CJK guard
-  if (hasCJK(inputEl.value)) {
-    const caret = inputEl.selectionStart || 0;
-    const cjkBefore = (inputEl.value.slice(0, caret).match(CJK_RE_GLOBAL) || []).join("").length;
-    inputEl.value = stripCJK(inputEl.value);
-    try { inputEl.setSelectionRange(Math.max(0, caret - cjkBefore), Math.max(0, caret - cjkBefore)); } catch(e) {}
-    cjkRejectToast();
-  }
   const part = batchState.parts[partIdx];
   const cats = getCategoriesForPart(part);
   if (cats !== null && cats.length === 0) {
@@ -3207,37 +3207,42 @@ function deactivateModSeg() {
 }
 
 function onModEditSegInput(rowIdx, segIdx, inputEl) {
-  // CJK guard
-  if (hasCJK(inputEl.value)) {
-    const caret = inputEl.selectionStart || 0;
-    const cjkBefore = (inputEl.value.slice(0, caret).match(CJK_RE_GLOBAL) || []).join("").length;
-    inputEl.value = stripCJK(inputEl.value);
-    try { inputEl.setSelectionRange(Math.max(0, caret - cjkBefore), Math.max(0, caret - cjkBefore)); } catch(e) {}
-    cjkRejectToast();
-  }
   modState.editRows[rowIdx].currentSegments[segIdx] = inputEl.value;
   // Live: update class while typing
   const orig = modState.editRows[rowIdx].originalSegments[segIdx];
   inputEl.classList.toggle("changed", inputEl.value !== orig);
   showModEditSuggest(rowIdx, segIdx, inputEl, false);
   // NOTE: do NOT trackModCustomTag here — that runs on blur/Enter only
+  // CJK guard happens at commit (blur / pickSuggest), not while typing
 }
 
 function onModEditNewSegInput(rowIdx, newIdx, inputEl) {
-  // CJK guard
-  if (hasCJK(inputEl.value)) {
-    const caret = inputEl.selectionStart || 0;
-    const cjkBefore = (inputEl.value.slice(0, caret).match(CJK_RE_GLOBAL) || []).join("").length;
-    inputEl.value = stripCJK(inputEl.value);
-    try { inputEl.setSelectionRange(Math.max(0, caret - cjkBefore), Math.max(0, caret - cjkBefore)); } catch(e) {}
-    cjkRejectToast();
-  }
   modState.editRows[rowIdx].newSegments[newIdx] = inputEl.value;
   showModEditSuggest(rowIdx, newIdx, inputEl, true);
 }
 
 function onModEditSegBlur(rowIdx, segIdx, inputEl, isNew) {
   const finalVal = inputEl.value.trim();
+  // CJK rejection at commit point
+  if (hasCJK(finalVal)) {
+    cjkRejectToast();
+    // Revert state to original / remove the new slot
+    const r = modState.editRows[rowIdx];
+    if (r) {
+      if (isNew) {
+        // Remove the new segment slot we added
+        if (segIdx < r.newSegments.length) r.newSegments.splice(segIdx, 1);
+      } else {
+        // Restore original
+        r.currentSegments[segIdx] = r.originalSegments[segIdx];
+      }
+    }
+    setTimeout(() => {
+      deactivateModSeg();
+      renderModEditRows();
+    }, 200);
+    return;
+  }
   if (finalVal) trackModCustomTag(finalVal);
   setTimeout(() => {
     if (modState.activeEdit && modState.activeEdit.rowIdx === rowIdx
