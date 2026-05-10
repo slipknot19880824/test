@@ -402,6 +402,21 @@
   .batch-row-cell-header {
     font-size: 10px; color: var(--text-faint);
     text-transform: uppercase; letter-spacing: 0.05em;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .batch-row-cell-clear {
+    background: transparent; border: 0; color: var(--text-faint);
+    cursor: pointer; padding: 0 4px; font-size: 12px; line-height: 1;
+    border-radius: 2px; transition: all 0.12s;
+  }
+  .batch-row-cell-clear:hover {
+    color: var(--danger); background: rgba(217, 111, 111, 0.1);
+  }
+  .batch-row-cell-clear:disabled {
+    opacity: 0.3; cursor: not-allowed;
+  }
+  .batch-row-cell-clear:disabled:hover {
+    color: var(--text-faint); background: transparent;
   }
   .batch-row-cell-tags {
     display: flex; flex-wrap: wrap; gap: 3px; min-height: 22px;
@@ -566,28 +581,6 @@
   .suggest-item .si-ch { color: var(--text-dim); min-width: 80px; }
   .suggest-item .si-en { font-family: var(--mono); color: var(--text); flex: 1; }
 
-  /* Apply-to-selected button bar (need 1) */
-  .apply-bar {
-    display: none; gap: 8px; align-items: center; flex-wrap: wrap;
-    padding: 8px 12px; margin-bottom: 8px;
-    background: var(--accent-soft); border: 1px solid var(--accent);
-    border-radius: 4px; font-size: 12px;
-  }
-  .apply-bar.show { display: flex; }
-  .apply-bar .count { color: var(--accent); font-family: var(--mono); }
-  .apply-bar select {
-    background: var(--panel); border: 1px solid var(--border);
-    color: var(--text); padding: 4px 8px; font-size: 12px;
-    border-radius: 3px; outline: none; font-family: inherit;
-  }
-  .apply-bar input {
-    background: var(--panel); border: 1px solid var(--border);
-    color: var(--text); padding: 4px 8px; font-size: 12px;
-    border-radius: 3px; outline: none; font-family: var(--mono);
-    flex: 1; min-width: 100px;
-  }
-  .apply-bar input:focus, .apply-bar select:focus { border-color: var(--accent); }
-
   /* Modify preview row to allow checkbox */
   .batch-preview-row .check {
     margin-right: 4px; flex: 0 0 auto;
@@ -606,7 +599,7 @@
 <div class="app">
 
   <div class="header">
-    <h1>檔名命名工具 <span class="accent">·</span> <span style="color:var(--text-dim);font-weight:400;">v4.1 · 標籤化批次</span></h1>
+    <h1>檔名命名工具 <span class="accent">·</span> <span style="color:var(--text-dim);font-weight:400;">v4.2 · 標籤化批次</span></h1>
     <div class="meta" id="meta">載入中…</div>
   </div>
 
@@ -724,13 +717,16 @@
   </div>
 
   <div class="help">
-    <b>v4 全面升級 — 標籤化批次：</b><br>
-    <b>· 每欄為每份指定值</b>：批次模式裡，每個選的欄位都會展開成 N 個小格子（份數），每格裡可以加多個標籤、可從標籤庫搜尋推薦。<br>
-    <b>· 擴充新位置</b>：欄位列最後的「＋ 擴充新位置」可在標籤群中插入新位置，每份檔名都能在這個新位置填不同的標籤組合。<br>
-    <b>· 快速貼上</b>：每個欄位上方有快速貼上輸入框，可一次貼入多個值（換行或逗號分隔），自動套用到前 N 份。<br>
-    <b>· 批次內的自訂標籤</b>：在批次模式裡新增的非標籤庫標籤，會列在批次預覽下方，補完中文/分類後可一次複製貼回標籤庫。<br>
-    <b>· X 關閉鈕</b>：對話框右上 ✕，避免誤點背景關掉。<br><br>
-    <b>v3.2 — 自訂標籤面板</b>：找不到標籤時加入的「自訂」標籤會列在主介面下方，補完後可單筆或一次複製全部，貼進標籤庫即可。<br><br>
+    <b>v4.2 — 編輯介面簡化：</b><br>
+    <b>· 拿掉「對勾選的行套用替換」橫條</b>：所有編輯都在上方小格子做，不再有重複的入口。<br>
+    <b>· 每份小格子右上 ✕</b>：清空這份的所有標籤、並自動取消下方預覽的勾選；份數不變。<br>
+    <b>· 標籤上的小 ✕</b>：只移除單一標籤，不影響勾選。<br><br>
+    <b>v4 — 標籤化批次：</b><br>
+    <b>· 每欄為每份指定值</b>：每個選的欄位會展開成 N 個小格子（份數），每格裡可加多個標籤、可從標籤庫搜尋推薦。<br>
+    <b>· 擴充新位置</b>：欄位列最後的「＋ 擴充新位置」可在標籤群中插入新位置。<br>
+    <b>· 快速貼上</b>：每個欄位上方的快速貼上輸入框，可一次貼入多個值（換行或逗號分隔）。<br>
+    <b>· 批次內的自訂標籤</b>：批次模式裡新增的非標籤庫標籤會列在預覽下方，補完後可一次複製貼回標籤庫。<br><br>
+    <b>v3.2 — 自訂標籤面板</b>：找不到標籤時加入的「自訂」標籤會列在主介面下方，補完後可單筆或一次複製全部。<br><br>
     <b>v2.1 — 自動編號</b>：填好年月、選好專案、選好類型，按「<b>建議下一號</b>」讀工單算最大編號 +1。<br><br>
     <b>每月初做的事</b>：點 <b>「⚙ 設定」</b>，把工單分頁 GID 換成新月份。<br><br>
     <b>快捷鍵：</b>
@@ -815,21 +811,8 @@
     <h3 style="margin-top:8px;">每欄為每份檔名指定值（可填多個標籤、可搜尋標籤庫）</h3>
     <div id="batch-field-configs"></div>
 
-    <h3>預覽（可勾選多行後對勾選的行套用替換）</h3>
+    <h3>預覽</h3>
     <div class="batch-summary" id="batch-summary"></div>
-
-    <!-- Apply-to-selected bar -->
-    <div class="apply-bar" id="apply-bar">
-      <span>對勾選的 <span class="count" id="apply-count">0</span> 行：把</span>
-      <select id="apply-field"></select>
-      <span>替換成</span>
-      <div class="suggest-wrap" style="flex:1; min-width:140px;">
-        <input id="apply-value" type="text" placeholder="輸入新值（可從標籤庫推薦）">
-        <div class="suggest-popup" id="apply-suggest"></div>
-      </div>
-      <button class="btn small" id="apply-go">套用</button>
-      <button class="btn ghost small" onclick="clearChecked()">清除勾選</button>
-    </div>
 
     <div class="batch-preview" id="batch-preview"></div>
 
@@ -1643,8 +1626,8 @@ function composeFromParts(parts, overrides /* Map idx → newValue */, serialOff
 // - cellTags: Map<partIdx, Array<count>{ row: Array<string> }>
 //     i.e. cellTags.get(partIdx)[rowIdx] = array of tag strings (joined by _ in output)
 //     when undefined => use the original part value
-// - rowOverrides: per-row post-hoc overrides (still keep, used by apply-to-checked)
-// - checkedRows: rows selected for batch apply
+// - rowOverrides: legacy per-row post-hoc overrides (kept for compat; apply-bar removed in v4.2)
+// - checkedRows: rows selected (preview checkboxes; their use TBD)
 let batchState = {
   parts: [],
   selectedFieldIndexes: new Set(),
@@ -1836,6 +1819,7 @@ function renderBatchFieldConfigs() {
         <div class="batch-row-grid">
           ${Array.from({length: count}, (_, r) => {
             const tags = (cellArr[r] || []);
+            const hasContent = tags.length > 0 || batchState.checkedRows.has(r);
             const tagsHtml = tags.map((t, ti) => `
               <span class="batch-mini-chip">
                 ${escapeHtml(t)}
@@ -1847,7 +1831,12 @@ function renderBatchFieldConfigs() {
             ` : "";
             return `
               <div class="batch-row-cell">
-                <div class="batch-row-cell-header">第 ${r+1} 份</div>
+                <div class="batch-row-cell-header">
+                  <span>第 ${r+1} 份</span>
+                  <button class="batch-row-cell-clear" title="清空此份的標籤並取消勾選"
+                          onclick="clearCellAndUncheck(${r})"
+                          ${hasContent ? '' : 'disabled'}>✕</button>
+                </div>
                 <div class="batch-row-cell-tags">${tagsHtml}${origHtml}</div>
                 <div style="position:relative;">
                   <input class="batch-mini-input" placeholder="搜尋標籤庫或直接輸入"
@@ -2025,6 +2014,25 @@ function removeCellTag(partIdx, rowIdx, tagIdx) {
   const arr = batchState.cellTags.get(partIdx);
   if (!arr || !arr[rowIdx]) return;
   arr[rowIdx].splice(tagIdx, 1);
+  renderBatchFieldConfigs();
+  renderBatchPreview();
+}
+
+// Clear ALL tags across ALL fields for this row, and uncheck the preview row
+function clearCellAndUncheck(rowIdx) {
+  // Clear this row's tags in every selected field
+  for (const idx of batchState.selectedFieldIndexes) {
+    const arr = batchState.cellTags.get(idx);
+    if (arr && arr[rowIdx]) {
+      arr[rowIdx] = [];
+    }
+  }
+  // Also clear any post-hoc rowOverrides for this row
+  if (batchState.rowOverrides[rowIdx]) {
+    batchState.rowOverrides[rowIdx] = null;
+  }
+  // Uncheck this row in the preview
+  batchState.checkedRows.delete(rowIdx);
   renderBatchFieldConfigs();
   renderBatchPreview();
 }
@@ -2314,150 +2322,12 @@ function renderBatchPreview() {
       <span class="fn">${escapeHtml(f)}</span>
     </div>
   `).join("");
-
-  updateApplyBar();
 }
 
 function toggleCheckRow(i) {
   if (batchState.checkedRows.has(i)) batchState.checkedRows.delete(i);
   else batchState.checkedRows.add(i);
-  renderBatchPreview();
-}
-
-function clearChecked() {
-  batchState.checkedRows.clear();
-  renderBatchPreview();
-}
-
-function updateApplyBar() {
-  const bar = $("apply-bar");
-  const count = batchState.checkedRows.size;
-  if (count === 0) {
-    bar.classList.remove("show");
-    return;
-  }
-  bar.classList.add("show");
-  $("apply-count").textContent = count;
-
-  // Populate field dropdown with all parts
-  const fieldSel = $("apply-field");
-  const prevVal = fieldSel.value;
-  fieldSel.innerHTML = batchState.parts.map((p, idx) =>
-    `<option value="${idx}">${escapeHtml(p.label)}</option>`
-  ).join("");
-  if (prevVal && fieldSel.querySelector(`option[value="${prevVal}"]`)) {
-    fieldSel.value = prevVal;
-  }
-  // Trigger suggest population for the current selected field
-  refreshApplySuggestions();
-}
-
-// Suggest tags based on which part type is being edited
-function getSuggestionsForPart(partIdx) {
-  const part = batchState.parts[partIdx];
-  if (!part) return [];
-  // Map part.kind -> tag categories to filter
-  const kindToCats = {
-    project: ["專案"],
-    size: ["尺寸"],
-    lang: ["語系"],
-    tag: null,  // all non-fixed cats
-    expansion: null,  // all non-fixed cats
-  };
-  if (part.kind === "tag") {
-    // Suggest tags whose cat matches this tag's cat (label looks like "標籤·主題")
-    const tagCat = part.label.replace(/^標籤·/, "");
-    if (tagCat && tagCat !== "自訂") {
-      return allTags.filter(t => t.cat === tagCat);
-    }
-    return allTags.filter(t => !["專案","尺寸","語系"].includes(t.cat));
-  }
-  if (part.kind === "expansion") {
-    return allTags.filter(t => !["專案","尺寸","語系"].includes(t.cat));
-  }
-  if (kindToCats[part.kind]) {
-    const cats = kindToCats[part.kind];
-    return allTags.filter(t => cats.includes(t.cat));
-  }
-  return [];
-}
-
-function refreshApplySuggestions() {
-  const partIdx = parseInt($("apply-field").value, 10);
-  const input = $("apply-value");
-  const popup = $("apply-suggest");
-
-  // Update placeholder hint based on field type
-  const part = batchState.parts[partIdx];
-  if (part) {
-    const cats = getCategoriesForPart(part);
-    if (cats !== null && cats.length === 0) {
-      input.placeholder = "此欄位無標籤推薦，請手動輸入（例：VD47、202506、V2）";
-    } else if (cats === null) {
-      input.placeholder = "輸入中文/英文搜尋標籤庫";
-    } else {
-      input.placeholder = `輸入搜尋（推薦：${cats.join("/")}）`;
-    }
-  }
-
-  const q = (input.value || "").toLowerCase().trim();
-  let suggestions = getSuggestionsForPart(partIdx);
-  if (q) {
-    suggestions = suggestions.filter(t =>
-      (t.ch + " " + t.en + " " + t.alias).toLowerCase().includes(q)
-    );
-  }
-  // Dedupe by en
-  const seen = new Set();
-  suggestions = suggestions.filter(t => {
-    if (seen.has(t.en)) return false;
-    seen.add(t.en);
-    return true;
-  }).slice(0, 30);
-
-  if (suggestions.length === 0) {
-    popup.classList.remove("show");
-    return;
-  }
-  popup.innerHTML = suggestions.map((t, i) => `
-    <div class="suggest-item ${i === 0 ? 'active' : ''}" data-en="${escapeAttr(t.en)}"
-         onmousedown="event.preventDefault(); pickApplyValue('${escapeAttr(t.en)}');">
-      <span class="si-ch">${escapeHtml(t.ch)}</span>
-      <span class="si-en">${escapeHtml(t.en)}</span>
-    </div>
-  `).join("");
-  popup.classList.add("show");
-}
-
-function pickApplyValue(en) {
-  $("apply-value").value = en;
-  $("apply-suggest").classList.remove("show");
-  $("apply-value").focus();
-}
-
-function applyToChecked() {
-  const partIdx = parseInt($("apply-field").value, 10);
-  const value = $("apply-value").value.trim();
-  if (!value) {
-    showToast("請先填入替換值", "error");
-    return;
-  }
-  if (batchState.checkedRows.size === 0) {
-    showToast("請先勾選要套用的行", "error");
-    return;
-  }
-  let count = 0;
-  for (const rowIdx of batchState.checkedRows) {
-    if (!batchState.rowOverrides[rowIdx]) {
-      batchState.rowOverrides[rowIdx] = new Map();
-    }
-    batchState.rowOverrides[rowIdx].set(partIdx, value);
-    count++;
-  }
-  showToast(`已套用到 ${count} 行`, "success");
-  $("apply-value").value = "";
-  $("apply-suggest").classList.remove("show");
-  // Don't clear checked rows; user might want to apply more
+  renderBatchFieldConfigs();
   renderBatchPreview();
 }
 
@@ -2571,28 +2441,6 @@ window.addEventListener("DOMContentLoaded", () => {
   $("modal-batch").addEventListener("click", e => {
     // Disabled: don't close on bg click - user must use Cancel/X
     // if (e.target.id === "modal-batch") closeBatch();
-  });
-
-  // Apply-to-selected interactions
-  $("apply-field").addEventListener("change", () => {
-    $("apply-value").value = "";
-    refreshApplySuggestions();
-  });
-  $("apply-value").addEventListener("input", refreshApplySuggestions);
-  $("apply-value").addEventListener("focus", refreshApplySuggestions);
-  $("apply-value").addEventListener("keydown", e => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      applyToChecked();
-    } else if (e.key === "Escape") {
-      $("apply-suggest").classList.remove("show");
-    }
-  });
-  $("apply-go").addEventListener("click", applyToChecked);
-  document.addEventListener("click", e => {
-    if (!e.target.closest(".suggest-wrap")) {
-      $("apply-suggest")?.classList.remove("show");
-    }
   });
 
   $("modal-config").addEventListener("click", e => {
