@@ -761,7 +761,7 @@
 <div class="app">
 
   <div class="header">
-    <h1>檔名命名工具 <span class="accent">·</span> <span style="color:var(--text-dim);font-weight:400;">v4.11 · 中文防呆</span></h1>
+    <h1>檔名命名工具 <span class="accent">·</span> <span style="color:var(--text-dim);font-weight:400;">v4.12 · 中文防呆</span></h1>
     <div class="meta" id="meta">載入中…</div>
   </div>
 
@@ -882,6 +882,8 @@
   </div>
 
   <div class="help">
+    <b>v4.12 — 修「打中文選推薦」競態：</b><br>
+    <b>· 在修改編輯區點選中文搜尋下拉的英文標籤後，原本被誤觸發 CJK 拒絕</b>：原因是 input.value 還是中文時又觸發了 blur。修法：pick 完先把 input.value 設成英文標籤，並設 flag 跳過 blur 處理。<br><br>
     <b>v4.11 — 防呆規則修正：</b><br>
     <b>· 批次/修改的輸入框可打中文搜尋，但不能寫入檔名</b>：跟主介面標籤搜尋一致 — 邊打邊搜推薦，但按 Enter / blur 時若仍是中文會被擋下並提示。<br>
     <b>· toast 提示移到頂部、停留 5 秒</b>：原本在底部容易漏看，改到上方更醒目，錯誤提示停留更久方便閱讀。<br><br>
@@ -3195,7 +3197,9 @@ function activateModSeg(rowIdx, segIdx, isNew) {
     const prevEl = document.querySelector(sel);
     if (prevEl) {
       const v = prevEl.value.trim();
-      if (v) trackModCustomTag(v);
+      // Only track non-CJK final values; if the prev value is Chinese, the blur
+      // handler will revert it, so don't pollute the custom-tag list.
+      if (v && !hasCJK(v)) trackModCustomTag(v);
     }
   }
   modState.activeEdit = { rowIdx, segIdx, isNew, justActivated: true };
@@ -3222,6 +3226,11 @@ function onModEditNewSegInput(rowIdx, newIdx, inputEl) {
 }
 
 function onModEditSegBlur(rowIdx, segIdx, inputEl, isNew) {
+  // If pickModEditSuggest already committed (via mousedown on a suggest item),
+  // skip blur handling to avoid race-condition CJK false-positive
+  if (inputEl && inputEl.dataset.pickCommitted === "1") {
+    return;
+  }
   const finalVal = inputEl.value.trim();
   // CJK rejection at commit point
   if (hasCJK(finalVal)) {
@@ -3478,6 +3487,16 @@ function hideModEditSuggest(inputEl) {
 }
 
 function pickModEditSuggest(rowIdx, segIdx, en, isNew) {
+  // Clear the input element BEFORE state mutations so any subsequent blur
+  // (caused by re-render removing the input from DOM) sees empty value
+  // and won't trigger the CJK rejection path.
+  const sel = `input.mer-seg-input[data-row="${rowIdx}"][data-seg="${segIdx}"][data-isnew="${isNew ? 1 : 0}"]`;
+  const inputEl = document.querySelector(sel);
+  if (inputEl) {
+    inputEl.value = en;
+    // Mark this input as "already committed via pick" so blur handler ignores it
+    inputEl.dataset.pickCommitted = "1";
+  }
   if (isNew) {
     modState.editRows[rowIdx].newSegments[segIdx] = en;
   } else {
